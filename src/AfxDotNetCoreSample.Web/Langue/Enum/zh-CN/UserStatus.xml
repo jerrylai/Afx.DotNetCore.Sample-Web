@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<UserStatus>
+    <None displayName="None" description="None" />
+    <Enabled displayName="启用" description="启用" />
+    <Disabled displayName="禁用" description="禁用" />
+</UserStatus>

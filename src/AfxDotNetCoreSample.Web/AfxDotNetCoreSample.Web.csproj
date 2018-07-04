@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Config\CacheKey.xml" />
+    <None Remove="Config\IocConfig.xml" />
+    <None Remove="Langue\Enum\zh-CN\ApiStatus.xml" />
+    <None Remove="Langue\Enum\zh-CN\UserStatus.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Config\IocConfig.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\CacheKey.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Langue\Enum\zh-CN\ApiStatus.xml" />
+    <Content Include="Langue\Enum\zh-CN\UserStatus.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Afx.AspNetCore.Mvc" Version="6.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AfxDotNetCoreSample.Cache\AfxDotNetCoreSample.Cache.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.Common\AfxDotNetCoreSample.Common.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.Controllers\AfxDotNetCoreSample.Controllers.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.Dto\AfxDotNetCoreSample.Dto.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.Enums\AfxDotNetCoreSample.Enums.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.ICache\AfxDotNetCoreSample.ICache.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.IRepository\AfxDotNetCoreSample.IRepository.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.IService\AfxDotNetCoreSample.IService.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.Models\AfxDotNetCoreSample.Models.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.Repository\AfxDotNetCoreSample.Repository.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.Service\AfxDotNetCoreSample.Service.csproj" />
+  </ItemGroup>
+
+</Project>

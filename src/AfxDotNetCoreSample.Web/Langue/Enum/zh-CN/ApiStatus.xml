@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ApiStatus>
+    <Success displayName="请求成功" description="请求成功" />
+    <Failure displayName="请求失败" description="请求失败" />
+    <ParamError displayName="参数错误" description="参数错误" />
+    <ServerError displayName="服务器错误" description="服务器错误" />
+    <NeedLogin displayName="未登录或登录已超时" description="未登录或登录已超时" />
+    <NeedAuth displayName="无权限访问" description="无权限访问" />
+    <NeedLicense displayName="需要权限" description="需要权限" />
+</ApiStatus>

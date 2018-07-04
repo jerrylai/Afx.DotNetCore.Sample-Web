@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AfxDotNetCoreSample.Common\AfxDotNetCoreSample.Common.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.Dto\AfxDotNetCoreSample.Dto.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.Enums\AfxDotNetCoreSample.Enums.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.IRepository\AfxDotNetCoreSample.IRepository.csproj" />
+    <ProjectReference Include="..\AfxDotNetCoreSample.IService\AfxDotNetCoreSample.IService.csproj" />
+  </ItemGroup>
+
+</Project>
