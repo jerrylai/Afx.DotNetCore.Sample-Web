@@ -56,9 +56,9 @@ namespace AfxDotNetCoreSample.Service
         {
             var repository = this.GetRepository<IConfigRepository>();
             var s = repository.GetValue(ConfigType.SystemVersion, "*");
-            Version ver = new Version(1, 0, 0, 0);
+            Version ver = null;
 
-            if (Version.TryParse(s, out ver) && ver < this.version)
+            if (!Version.TryParse(s, out ver) || ver < this.version)
                 return true;
             else
                 return false;
