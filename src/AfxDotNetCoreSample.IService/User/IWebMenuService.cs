@@ -9,8 +9,8 @@ namespace AfxDotNetCoreSample.IService
 {
     public interface IWebMenuService : IBaseService
     {
-        List<WebMenuDto> GetList();
-        List<TreeNodeDto> GetTreeNodeList();
-        List<TreeNodeDto> GetTreeNodeList(string roleId);
+        List<WebMenuOutputDto> GetList();
+        List<TreeNodeOutputDto> GetTreeNodeList();
+        List<TreeNodeOutputDto> GetTreeNodeList(string roleId);
     }
 }

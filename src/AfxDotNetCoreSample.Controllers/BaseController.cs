@@ -19,8 +19,8 @@ namespace AfxDotNetCoreSample.Controllers
         protected virtual T GetService<T>(object[] args) where T : IBaseService => IocUtils.Get<T>(args);
 
         protected virtual T GetService<T>(string name, object[] args) where T : IBaseService => IocUtils.Get<T>(name, args);
-        
-        protected ActionResult ApiResult<T>(ApiStatus status, T data, string msg)
+
+        protected virtual ActionResult ApiResult<T>(ApiStatus status, T data, string msg)
         {
             var vm = new ApiResult<T>()
             {
@@ -32,67 +32,52 @@ namespace AfxDotNetCoreSample.Controllers
             return base.Json(vm);
         }
 
-        protected ActionResult Success<T>(T data, string msg)
+        protected virtual ActionResult Success<T>(T data, string msg)
         {
             return this.ApiResult<T>(ApiStatus.Success, data, msg);
         }
 
-        protected ActionResult Success<T>(T data)
+        protected virtual ActionResult Success<T>(T data)
         {
             return this.ApiResult<T>(ApiStatus.Success, data, null);
         }
 
-        protected ActionResult Success()
+        protected virtual ActionResult Success()
         {
             return this.ApiResult<object>(ApiStatus.Success, null, null);
         }
 
-        protected ActionResult ParamError()
+        protected virtual ActionResult ParamError()
         {
             return this.Failure(ApiStatus.ParamError);
         }
 
-        protected ActionResult Failure()
+        protected virtual ActionResult Failure()
         {
             return this.ApiResult<object>(ApiStatus.Failure, null, null);
         }
 
-        protected ActionResult Failure(string msg)
+        protected virtual ActionResult Failure(string msg)
         {
             return this.ApiResult<object>(ApiStatus.Failure, null, msg);
         }
 
-        protected ActionResult Failure(ApiStatus status)
+        protected virtual ActionResult Failure(ApiStatus status)
         {
             return this.ApiResult<object>(status, null, null);
         }
 
-        protected ActionResult Failure(ApiStatus status, string msg)
+        protected virtual ActionResult Failure(ApiStatus status, string msg)
         {
             return this.ApiResult<object>(status, null, msg);
         }
 
         protected virtual string Sid => SessionUtils.Sid;
 
-        protected virtual UserInfo UserInfo
+        protected virtual UserSessionDto UserSession
         {
-            get { return SessionUtils.User; }
-            set { SessionUtils.User = value; }
-        }
-
-        protected virtual void SetSession<T>(string key, T value) => SessionUtils.Set(key, value);
-        
-        protected virtual T GetSession<T>(string key) => SessionUtils.Get<T>(key);
-
-        protected virtual void RemoveSession(string key) => SessionUtils.Remove(key);
-
-        protected virtual void ClearSession() => SessionUtils.Clear();
-
-        protected virtual List<string> GetSessionKeys() => SessionUtils.GetKeys();
-
-        protected virtual void AbortSession()
-        {
-            SessionUtils.Logout();
+            get { return this.GetService<IUserSessionService>().Get(); }
+            set { this.GetService<IUserSessionService>().Set(value); }
         }
         
     }

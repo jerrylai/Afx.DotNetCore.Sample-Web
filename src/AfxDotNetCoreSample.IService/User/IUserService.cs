@@ -9,12 +9,12 @@ namespace AfxDotNetCoreSample.IService
 {
     public interface IUserService : IBaseService
     {
-        LoginInfoDto Login(LoginParamDto vm);
+        LoginOutputDto Login(LoginInputDto vm);
 
         UserDto Get(string id);
 
         bool IsSetPwd(string id);
 
-        bool EditPwd(UserEditPwdDto vm);
+        bool EditPwd(UserEditPwdInputDto vm);
     }
 }

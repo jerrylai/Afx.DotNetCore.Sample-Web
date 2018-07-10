@@ -16,7 +16,7 @@ using AfxDotNetCoreSample.Enums;
 
 namespace AfxDotNetCoreSample.Controllers
 {
-    public class LogPageParam: PageParamDto
+    public class LogPageParam: PageDataInputDto
     {
         public DateTime? BeginTime { get; set; }
 
@@ -121,7 +121,7 @@ namespace AfxDotNetCoreSample.Controllers
             {
                 if (vm != null && vm.PageIndex > 0 && vm.PageSize > 0)
                 {
-                    PageListDto<FileDto> pageData = new PageListDto<FileDto>();
+                    PageDataOutputDto<FileDto> pageData = new PageDataOutputDto<FileDto>();
                     var path = LogUtils.GetLogDir();
                     if (System.IO.Directory.Exists(path))
                     {

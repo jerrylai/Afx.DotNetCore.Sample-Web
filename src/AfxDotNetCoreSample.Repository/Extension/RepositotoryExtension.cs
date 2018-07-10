@@ -9,14 +9,14 @@ namespace AfxDotNetCoreSample.Repository
 {
     public static class RepositotoryExtension
     {
-        public static PageListDto<T> ToPageCount<T>(this IQueryable<T> query)
+        public static PageDataOutputDto<T> ToPageCount<T>(this IQueryable<T> query)
         {
-            var vm = new PageListDto<T>();
+            var vm = new PageDataOutputDto<T>();
             vm.TotalCount = query.Count();
             return vm;
         }
 
-        public static void ToPageList<T>(this IQueryable<T> query, PageListDto<T> vm, PageParamDto pageParam)
+        public static void ToPageList<T>(this IQueryable<T> query, PageDataOutputDto<T> vm, PageDataInputDto pageParam)
         {
             pageParam.PageIndex = pageParam.PageIndex < 1 ? 1 : pageParam.PageIndex;
             pageParam.PageSize = pageParam.PageSize < 1 ? 10 : pageParam.PageSize;

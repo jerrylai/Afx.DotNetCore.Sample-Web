@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AfxDotNetCoreSample.Dto
 {
-    public class UserEditPwdDto
+    public class UserEditPwdInputDto
     {
         public string UserId { get; set; }
 

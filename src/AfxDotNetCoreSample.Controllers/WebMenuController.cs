@@ -20,7 +20,7 @@ namespace AfxDotNetCoreSample.Controllers
         public ActionResult GetUserMenu()
         {
             var service = this.GetService<IWebMenuService>();
-            var list = service.GetTreeNodeList(this.UserInfo.RoleId);
+            var list = service.GetTreeNodeList(this.UserSession.RoleId);
 
             return Success(list);
         }

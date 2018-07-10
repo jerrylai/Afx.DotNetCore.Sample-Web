@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AfxDotNetCoreSample.Dto
 {
-    public class LoginParamDto
+    public class LoginInputDto
     {
         public string Account { get; set; }
 

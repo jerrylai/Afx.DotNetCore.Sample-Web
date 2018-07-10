@@ -8,7 +8,7 @@ using AfxDotNetCoreSample.ICache;
 
 namespace AfxDotNetCoreSample.Cache
 {
-    public class SessionCache : SessionDbCache, ISessionCache
+    public class UserSessionCache : SessionDbCache, IUserSessionCache
     {
         public virtual void Expire(string sid, TimeSpan? expireIn)
         {
@@ -18,18 +18,18 @@ namespace AfxDotNetCoreSample.Cache
             }
         }
 
-        public virtual T Get<T>(string sid)
+        public virtual UserSessionDto Get(string sid)
         {
-            T value = default(T);
+            UserSessionDto value = null;
             if (!string.IsNullOrEmpty(sid))
             {
-                value = base.Get<T>(sid);
+                value = base.Get<UserSessionDto>(sid);
             }
 
             return value;
         }
 
-        public virtual void Set<T>(string sid, T value)
+        public virtual void Set(string sid, UserSessionDto value)
         {
             if (!string.IsNullOrEmpty(sid))
             {

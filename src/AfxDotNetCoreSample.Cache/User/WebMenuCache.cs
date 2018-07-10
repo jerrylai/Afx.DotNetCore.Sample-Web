@@ -10,9 +10,9 @@ namespace AfxDotNetCoreSample.Cache
 {
     public class WebMenuCache : ListDbCache, IWebMenuCache
     {
-        public virtual List<WebMenuDto> Get()
+        public virtual List<WebMenuOutputDto> Get()
         {
-            return base.Get<List<WebMenuDto>>();
+            return base.Get<List<WebMenuOutputDto>>();
         }
 
         public virtual void Remove()
@@ -20,7 +20,7 @@ namespace AfxDotNetCoreSample.Cache
             base.Remove();
         }
 
-        public virtual void Set(List<WebMenuDto> list)
+        public virtual void Set(List<WebMenuOutputDto> list)
         {
             base.Set(list);
         }

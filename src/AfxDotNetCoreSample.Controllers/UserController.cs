@@ -16,7 +16,7 @@ namespace AfxDotNetCoreSample.Controllers
     public class UserController : BaseController
     {
         [HttpPost]
-        public ActionResult Login(LoginParamDto vm)
+        public ActionResult Login(LoginInputDto vm)
         {
             if(vm != null && !string.IsNullOrEmpty(vm.Account)
                 && !string.IsNullOrEmpty(vm.Password) && !string.IsNullOrEmpty(vm.Random))
@@ -25,7 +25,7 @@ namespace AfxDotNetCoreSample.Controllers
                 var userinfo = userService.Login(vm);
                 if(userinfo != null)
                 {
-                    this.UserInfo = new UserInfo()
+                    this.UserSession = new UserSessionDto()
                     {
                         UserId = userinfo.Id,
                         Account = userinfo.Account,
@@ -46,14 +46,14 @@ namespace AfxDotNetCoreSample.Controllers
         [HttpGet, HttpPost]
         public ActionResult IsLogin()
         {
-            return Success(this.UserInfo != null);
+            return Success(this.UserSession != null);
         }
 
         [HttpGet, HttpPost]
         public ActionResult Logout()
         {
-            this.AbortSession();
-            this.SignOut();
+            this.UserSession = null;
+            SessionUtils.RestSid();
 
             return this.Success();
         }
@@ -62,7 +62,7 @@ namespace AfxDotNetCoreSample.Controllers
         [HttpGet, HttpPost]
         public ActionResult GetName()
         {
-            return Success(this.UserInfo.Name);
+            return Success(this.UserSession.Name);
         }
     }
 }

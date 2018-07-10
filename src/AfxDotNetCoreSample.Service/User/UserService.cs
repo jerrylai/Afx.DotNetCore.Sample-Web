@@ -13,9 +13,9 @@ namespace AfxDotNetCoreSample.Service
 {
     public class UserService : BaseService, IUserService
     {
-        public virtual LoginInfoDto Login(LoginParamDto vm)
+        public virtual LoginOutputDto Login(LoginInputDto vm)
         {
-            LoginInfoDto result = null;
+            LoginOutputDto result = null;
             var userRepository = this.GetRepository<IUserRepository>();
             var userId = userRepository.GetId(vm.Account);
             if(!string.IsNullOrEmpty(userId))
@@ -35,7 +35,7 @@ namespace AfxDotNetCoreSample.Service
                         var pwd = EncryptUtils.Md5($"{userDto.Password}|{vm.Random}");
                         if (string.Equals(vm.Password, pwd, StringComparison.OrdinalIgnoreCase))
                         {
-                            result = new LoginInfoDto()
+                            result = new LoginOutputDto()
                             {
                                 Id = userDto.Id,
                                 RoleId = userDto.RoleId,
@@ -75,7 +75,7 @@ namespace AfxDotNetCoreSample.Service
             return result;
         }
 
-        public virtual bool EditPwd(UserEditPwdDto vm)
+        public virtual bool EditPwd(UserEditPwdInputDto vm)
         {
             bool result = false;
             var userRepository = this.GetRepository<IUserRepository>();

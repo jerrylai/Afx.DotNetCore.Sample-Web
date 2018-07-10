@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AfxDotNetCoreSample.Dto
 {
-    public class DataGridDataDto<T>
+    public class DataGridOutputDto<T>
     {
         public int total { get; set; }
 

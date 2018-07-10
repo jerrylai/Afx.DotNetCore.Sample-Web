@@ -13,8 +13,7 @@
     <DeptTreeLevel key="dept_tree_level:{0}" />
   </DataDb>
   <SessionDb db="2" expire="20:0">
-    <Session key="session:{0}" />
-    <SessionData key="session_data:{0}" />
+    <UserSession key="session:{0}" />
   </SessionDb>
   <TaskLockDb db="3" expire="10:0">
     <TaskLock key="task_lock:{0}:{1}" />

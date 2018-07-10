@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AfxDotNetCoreSample.Dto
 {
-    public class PageParamDto
+    public class PageDataInputDto
     {
         public int PageIndex { get; set; } 
 

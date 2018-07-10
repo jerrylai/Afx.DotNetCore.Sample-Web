@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AfxDotNetCoreSample.Dto
 {
-    public class WebMenuDto
+    public class WebMenuOutputDto
     {
         public string Id { get; set; }
 

@@ -16,7 +16,7 @@ namespace AfxDotNetCoreSample.Controllers
         [HttpGet, HttpPost]
         public ActionResult Index()
         {
-            if (this.UserInfo != null)
+            if (this.UserSession != null)
             {
                 return this.LocalRedirect($"~/main.html{this.Request.QueryString}");
             }

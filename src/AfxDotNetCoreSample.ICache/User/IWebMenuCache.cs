@@ -8,8 +8,8 @@ namespace AfxDotNetCoreSample.ICache
 {
     public interface IWebMenuCache : IBaseCache
     {
-        List<WebMenuDto> Get();
-        void Set(List<WebMenuDto> list);
+        List<WebMenuOutputDto> Get();
+        void Set(List<WebMenuOutputDto> list);
         void Remove();
     }
 }

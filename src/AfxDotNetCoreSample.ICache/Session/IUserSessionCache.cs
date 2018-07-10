@@ -7,11 +7,11 @@ using AfxDotNetCoreSample.Dto;
 
 namespace AfxDotNetCoreSample.ICache
 {
-    public interface ISessionCache : IBaseCache
+    public interface IUserSessionCache : IBaseCache
     {
-        T Get<T>(string sid);
+        UserSessionDto Get(string sid);
 
-        void Set<T>(string sid, T value);
+        void Set(string sid, UserSessionDto value);
 
         void Remove(string sid);
 

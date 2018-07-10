@@ -8,6 +8,6 @@ namespace AfxDotNetCoreSample.IRepository
 {
     public interface IWebMenuRepository : IBaseRepository
     {
-        List<WebMenuDto> GetList();
+        List<WebMenuOutputDto> GetList();
     }
 }

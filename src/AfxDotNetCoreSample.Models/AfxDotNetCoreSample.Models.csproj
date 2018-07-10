@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Afx.Data" Version="6.2.5" />
-    <PackageReference Include="Afx.Data.Entity" Version="6.2.5" />
-    <PackageReference Include="Afx.Data.Extensions" Version="6.2.5" />
-    <PackageReference Include="Afx.Data.MSSQLServer.Entity" Version="6.2.5" />
-    <PackageReference Include="Afx.Data.MySql.Entity" Version="6.2.5" />
+    <PackageReference Include="Afx.Data" Version="6.2.7" />
+    <PackageReference Include="Afx.Data.Entity" Version="6.2.7" />
+    <PackageReference Include="Afx.Data.Extensions" Version="6.2.7" />
+    <PackageReference Include="Afx.Data.MSSQLServer.Entity" Version="6.2.7" />
+    <PackageReference Include="Afx.Data.MySql.Entity" Version="6.2.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.1" />

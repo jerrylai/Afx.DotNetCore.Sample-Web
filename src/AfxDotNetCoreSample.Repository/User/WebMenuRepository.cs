@@ -11,9 +11,9 @@ namespace AfxDotNetCoreSample.Repository
 {
     public class WebMenuRepository : BaseRepository, IWebMenuRepository
     {
-        public virtual List<WebMenuDto> GetList()
+        public virtual List<WebMenuOutputDto> GetList()
         {
-            List<WebMenuDto> list = null;
+            List<WebMenuOutputDto> list = null;
             var cache = this.GetCache<IWebMenuCache>();
             list = cache.Get();
             if (list == null)
@@ -22,7 +22,7 @@ namespace AfxDotNetCoreSample.Repository
                 {
                     var query = from q in db.WebMenu
                                 orderby q.Order, q.Id
-                                select new WebMenuDto
+                                select new WebMenuOutputDto
                                 {
                                     Id = q.Id,
                                     ParentId = q.ParentId,

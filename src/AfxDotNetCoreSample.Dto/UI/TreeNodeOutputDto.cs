@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AfxDotNetCoreSample.Dto
 {
-    public class TreeNodeDto
+    public class TreeNodeOutputDto
     {
         public string id { get; set; }
 
@@ -20,6 +20,6 @@ namespace AfxDotNetCoreSample.Dto
 
         public string iconCls { get; set; }
 
-        public List<TreeNodeDto> children { get; set; }
+        public List<TreeNodeOutputDto> children { get; set; }
     }
 }

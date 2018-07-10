@@ -5,26 +5,23 @@ using System.Text;
 
 namespace AfxDotNetCoreSample.Dto
 {
-    public class DataGridParamDto
+    public class LoginOutputDto
     {
         /// <summary>
-        /// 当前页
+        /// 用户id
         /// </summary>
-        public int page { get; set; }
-
+        public string Id { get; set; }
         /// <summary>
-        /// 行数
+        /// 角色Id
         /// </summary>
-        public int rows { get; set; }
-
+        public string RoleId { get; set; }
         /// <summary>
-        /// 排序列
+        /// 账号
         /// </summary>
-        public string sort { get; set; }
-
+        public string Account { get; set; }
         /// <summary>
-        /// 'asc' or 'desc'
+        /// 姓名
         /// </summary>
-        public string order { get; set; }
+        public string Name { get; set; }
     }
 }

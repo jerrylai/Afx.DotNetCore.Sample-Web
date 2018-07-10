@@ -63,7 +63,7 @@ namespace AfxDotNetCoreSample.Controllers
                 if (arr != null && arr.Length > 0) return;
             }
 
-            var user = SessionUtils.User;
+            var user = IocUtils.Get<IUserSessionService>().Get();
             if (user == null)
             {
                 this.SetError(context, ApiStatus.NeedLogin, "未登录或登录已超时！");

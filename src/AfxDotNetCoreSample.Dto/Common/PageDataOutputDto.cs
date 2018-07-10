@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AfxDotNetCoreSample.Dto
 {
-    public class PageListDto<T>
+    public class PageDataOutputDto<T>
     {
         public List<T> Data { get; set; }
 

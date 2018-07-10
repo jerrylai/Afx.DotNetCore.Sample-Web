@@ -14,7 +14,7 @@ namespace AfxDotNetCoreSample.Service
 {
     public class WebMenuService : BaseService, IWebMenuService
     {
-        public virtual List<WebMenuDto> GetList()
+        public virtual List<WebMenuOutputDto> GetList()
         {
             var repository = this.GetRepository<IWebMenuRepository>();
             var list = repository.GetList();
@@ -22,7 +22,7 @@ namespace AfxDotNetCoreSample.Service
             return list;
         }
 
-        public virtual List<TreeNodeDto> GetTreeNodeList()
+        public virtual List<TreeNodeOutputDto> GetTreeNodeList()
         {
             var list = this.GetList();
             var nodelist = this.GetChildren(null, list);
@@ -30,7 +30,7 @@ namespace AfxDotNetCoreSample.Service
             return nodelist;
         }
 
-        public virtual List<TreeNodeDto> GetTreeNodeList(string roleId)
+        public virtual List<TreeNodeOutputDto> GetTreeNodeList(string roleId)
         {
             var list = this.GetList();
 
@@ -43,12 +43,12 @@ namespace AfxDotNetCoreSample.Service
             return nodelist;
         }
 
-        private List<TreeNodeDto> GetChildren(string parentId, List<WebMenuDto> list)
+        private List<TreeNodeOutputDto> GetChildren(string parentId, List<WebMenuOutputDto> list)
         {
-            List<TreeNodeDto> child = null;
+            List<TreeNodeOutputDto> child = null;
             var query = from q in list
                         where q.ParentId == parentId
-                        select new TreeNodeDto
+                        select new TreeNodeOutputDto
                         {
                             id = q.Id,
                             text = q.Name,
