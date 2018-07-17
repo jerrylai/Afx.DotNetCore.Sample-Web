@@ -17,17 +17,26 @@ namespace AfxDotNetCoreSample.Common
         /// <summary>
         /// log配置文件
         /// </summary>
-        public static string ConfigFile { get; set; }
+        private static string _configFile;
+        public static string ConfigFile
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_configFile))
+                {
+                    _configFile = PathUtils.GetFileFullPath("log4net.config");
+                }
 
-        private static Lazy<ILog> _default = new Lazy<ILog>(GetLog, true);
+                return _configFile;
+            }
+        }
+
+        private static Lazy<ILog> _default = new Lazy<ILog>(GetLog, false);
 
         private static ILoggerRepository defaultPepository;
         private static ILog GetLog()
         {
-            if (string.IsNullOrEmpty(ConfigFile))
-            {
-                ConfigFile = PathUtils.GetFileFullPath("log4net.config");
-            }
+
             if (defaultPepository == null)
             {
                 defaultPepository = LogManager.CreateRepository("DefaultRepository");
@@ -63,7 +72,24 @@ namespace AfxDotNetCoreSample.Common
         /// <param name="ex">异常</param>
         public static void Debug(string msg, Exception ex)
         {
-            Default.Debug($"{msg}{ex?.Message}{ex?.StackTrace}");
+            if (ex != null)
+            {
+                StringBuilder s = new StringBuilder();
+                s.Append($"{msg}, ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                    s.Append(Environment.NewLine);
+                    s.Append("---------------------InnerException-----------------------");
+                    s.Append(Environment.NewLine);
+                    s.Append($"ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
+                }
+                Default.Debug(s.ToString());
+            }
+            else
+            {
+                Default.Debug(msg);
+            }
         }
 
         /// <summary>
@@ -82,7 +108,24 @@ namespace AfxDotNetCoreSample.Common
         /// <param name="ex">异常</param>
         public static void Info(string msg, Exception ex, bool isTriggerWriteEvent = true)
         {
-            Default.Info($"{msg}{ex?.Message}{ex?.StackTrace}");
+            if (ex != null)
+            {
+                StringBuilder s = new StringBuilder();
+                s.Append($"{msg}, ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                    s.Append(Environment.NewLine);
+                    s.Append("---------------------InnerException-----------------------");
+                    s.Append(Environment.NewLine);
+                    s.Append($"ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
+                }
+                Default.Info(s.ToString());
+            }
+            else
+            {
+                Default.Info(msg);
+            }
         }
 
         /// <summary>
@@ -101,7 +144,24 @@ namespace AfxDotNetCoreSample.Common
         /// <param name="ex">异常</param>
         public static void Warn(string msg, Exception ex)
         {
-            Default.Warn($"{msg}{ex?.Message}{ex?.StackTrace}");
+            if (ex != null)
+            {
+                StringBuilder s = new StringBuilder();
+                s.Append($"{msg}, ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                    s.Append(Environment.NewLine);
+                    s.Append("---------------------InnerException-----------------------");
+                    s.Append(Environment.NewLine);
+                    s.Append($"ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
+                }
+                Default.Warn(s.ToString());
+            }
+            else
+            {
+                Default.Warn(msg);
+            }
         }
 
         /// <summary>
@@ -120,7 +180,24 @@ namespace AfxDotNetCoreSample.Common
         /// <param name="ex">异常</param>
         public static void Error(string msg, Exception ex)
         {
-            Default.Error($"{msg}{ex?.Message}{ex?.StackTrace}");
+            if (ex != null)
+            {
+                StringBuilder s = new StringBuilder();
+                s.Append($"{msg}, ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                    s.Append(Environment.NewLine);
+                    s.Append("---------------------InnerException-----------------------");
+                    s.Append(Environment.NewLine);
+                    s.Append($"ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
+                }
+                Default.Error(s.ToString());
+            }
+            else
+            {
+                Default.Error(msg);
+            }
         }
 
         /// <summary>
@@ -139,7 +216,24 @@ namespace AfxDotNetCoreSample.Common
         /// <param name="ex">异常</param>
         public static void Fatal(string msg, Exception ex)
         {
-            Default.Fatal($"{msg}{ex?.Message}{ex?.StackTrace}");
+            if (ex != null)
+            {
+                StringBuilder s = new StringBuilder();
+                s.Append($"{msg}, ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                    s.Append(Environment.NewLine);
+                    s.Append("---------------------InnerException-----------------------");
+                    s.Append(Environment.NewLine);
+                    s.Append($"ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
+                }
+                Default.Fatal(s.ToString());
+            }
+            else
+            {
+                Default.Fatal(msg);
+            }
         }
 
         #region log

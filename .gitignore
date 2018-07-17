@@ -4,8 +4,7 @@
 
 *.user
 /.vs
-
-/publish/any-sdk
+/publish
 /src/.vs/AfxDotNetCoreSample
 /src/AfxDotNetCoreSample.Cache/bin
 /src/AfxDotNetCoreSample.Cache/obj
