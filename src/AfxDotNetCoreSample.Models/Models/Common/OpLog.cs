@@ -66,19 +66,6 @@ namespace AfxDotNetCoreSample.Models
         [MaxLength(100)]
         public string RoleName { get; set; }
         /// <summary>
-        /// 部门id
-        /// </summary>
-        [Required]
-        [MaxLength(50)]
-        [Column("DeptId")]
-        public string DeptId { get; set; }
-        /// <summary>
-        /// 部门名称
-        /// </summary>
-        [MaxLength(200)]
-        [Column("DeptName")]
-        public string DeptName { get; set; }
-        /// <summary>
         /// 创建时间
         /// </summary>
         [Required]
@@ -89,7 +76,7 @@ namespace AfxDotNetCoreSample.Models
         /// </summary>
         [Required]
         [Column("Content")]
-        [MaxLength(2048)]
+        [MaxLength(512)]
         public string Content { get; set; }
     }
 }

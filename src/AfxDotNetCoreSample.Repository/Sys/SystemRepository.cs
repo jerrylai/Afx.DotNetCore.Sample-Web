@@ -60,11 +60,6 @@ namespace AfxDotNetCoreSample.Repository
                     db.Role.Add(m);
                     db.SaveChanges();
                 }
-                if (m.IsDelete)
-                {
-                    m.IsDelete = false;
-                    db.SaveChanges();
-                }
                 
                 m = db.Role.Where(q => q.Type == RoleType.User && q.IsSystem == true).FirstOrDefault();
                 if (m == null)
@@ -78,11 +73,6 @@ namespace AfxDotNetCoreSample.Repository
                         IsDelete = false
                     };
                     db.Role.Add(m);
-                    db.SaveChanges();
-                }
-                if (m.IsDelete)
-                {
-                    m.IsDelete = false;
                     db.SaveChanges();
                 }
 
@@ -109,12 +99,6 @@ namespace AfxDotNetCoreSample.Repository
                         IsDelete = false
                     };
                     db.User.Add(m);
-                    db.SaveChanges();
-                }
-                if (m.IsDelete || m.IsSystem != true)
-                {
-                    m.IsDelete = false;
-                    m.IsSystem = true;
                     db.SaveChanges();
                 }
 

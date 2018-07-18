@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,17 +14,21 @@
 
   <ItemGroup>
     <Content Include="Config\IocConfig.xml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Config\CacheKey.xml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Langue\Enum\zh-CN\ApiStatus.xml" />
-    <Content Include="Langue\Enum\zh-CN\UserStatus.xml" />
+    <Content Include="Langue\Enum\zh-CN\ApiStatus.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Langue\Enum\zh-CN\UserStatus.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Afx.AspNetCore.Mvc" Version="6.2.8" />
+    <PackageReference Include="Afx.AspNetCore.Mvc" Version="6.2.9" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
@@ -39,6 +44,12 @@
     <ProjectReference Include="..\AfxDotNetCoreSample.Models\AfxDotNetCoreSample.Models.csproj" />
     <ProjectReference Include="..\AfxDotNetCoreSample.Repository\AfxDotNetCoreSample.Repository.csproj" />
     <ProjectReference Include="..\AfxDotNetCoreSample.Service\AfxDotNetCoreSample.Service.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

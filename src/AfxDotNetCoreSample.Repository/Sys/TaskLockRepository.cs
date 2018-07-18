@@ -36,7 +36,7 @@ namespace AfxDotNetCoreSample.Repository
             {
                 var now = DateTime.Now;
                 var m = db.SysTaskLock.Where(q => q.Type == type && q.Key == key).FirstOrDefault();
-                if (m != null && (m.LockStatus != LockStatus.Lock.GetValue()
+                if (m != null && (m.Status != LockStatus.Lock
                     || m.Owner == owner || m.ExpireTime < now))
                 {
                     string updateSql = $"update SysTaskLock set {db.GetColumn("LockStatus")} = {{0}},"
@@ -64,7 +64,7 @@ namespace AfxDotNetCoreSample.Repository
                         Id = IdGenerator.Get<SysTaskLock>(),
                         Type = type,
                         Key = key,
-                        LockStatus = LockStatus.Lock.GetValue(),
+                        Status = LockStatus.Lock,
                         Owner = owner,
                         ExpireTime =null
                     };
@@ -77,7 +77,7 @@ namespace AfxDotNetCoreSample.Repository
                     }
                     catch (Exception ex)
                     {
-
+                        Common.LogUtils.Warn("", ex);
                     }
                 }
             }
@@ -99,7 +99,7 @@ namespace AfxDotNetCoreSample.Repository
             {
                 var now = DateTime.Now;
                 var m = db.SysTaskLock.Where(q => q.Type == type && q.Key == key).FirstOrDefault();
-                if (m == null || m.LockStatus != LockStatus.Lock.GetValue()
+                if (m == null || m.Status != LockStatus.Lock
                     || m.ExpireTime.HasValue && m.ExpireTime < now)
                 {
                     result = false;
@@ -127,7 +127,7 @@ namespace AfxDotNetCoreSample.Repository
                 var m = db.SysTaskLock.Where(q => q.Type == type && q.Key == key).FirstOrDefault();
                 if (m != null)
                 {
-                    m.LockStatus = LockStatus.UnLock.GetValue();
+                    m.Status = LockStatus.UnLock;
                     m.Owner = "*";
                     m.ExpireTime = now;
                     db.SaveChanges();

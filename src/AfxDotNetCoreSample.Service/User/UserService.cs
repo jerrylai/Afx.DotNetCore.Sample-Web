@@ -8,6 +8,7 @@ using AfxDotNetCoreSample.IService;
 using AfxDotNetCoreSample.IRepository;
 using AfxDotNetCoreSample.Enums;
 using AfxDotNetCoreSample.Common;
+using Afx.Utils;
 
 namespace AfxDotNetCoreSample.Service
 {

@@ -158,6 +158,7 @@ namespace AfxDotNetCoreSample.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            
             base.OnModelCreating(modelBuilder);
         }
 
@@ -169,11 +170,12 @@ namespace AfxDotNetCoreSample.Models
                     optionsBuilder.UseSqlServer(ConfigUtils.ConnectionString);
                     break;
                 case DatabaseType.MySQL:
-                    optionsBuilder.UseMySQL(ConfigUtils.ConnectionString);
+                    optionsBuilder.UseMySql(ConfigUtils.ConnectionString);
                     break;
                 default:
                     throw new ArgumentException("DatabaseType");
             }
+            Console.WriteLine(ConfigUtils.ConnectionString);
             base.OnConfiguring(optionsBuilder);
         }
 

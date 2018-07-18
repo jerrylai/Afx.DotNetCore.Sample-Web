@@ -42,13 +42,19 @@ namespace AfxDotNetCoreSample.Models
         [Column("Owner")]
         public string Owner { get; set; }
         /// <summary>
+        /// 任务状态枚举（LockStatus）
+        /// </summary>
+        [Required]
+        [Column("Status")]
+        public LockStatus Status { get; set; }
+        /// <summary>
         /// 
         /// </summary>
         [Required]
-        [Column("LockStatus")]
-        public int LockStatus { get; set; }
+        [Column("ExecTime")]
+        public DateTime ExecTime { get; set; }
         /// <summary>
-        /// 任务状态枚举（TaskLockStatus）
+        /// 
         /// </summary>
         [Column("ExpireTime")]
         public DateTime? ExpireTime { get; set; }

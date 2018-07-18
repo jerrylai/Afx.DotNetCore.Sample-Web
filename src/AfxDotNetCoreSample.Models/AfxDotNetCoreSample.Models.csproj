@@ -1,20 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Afx.Data" Version="6.2.8" />
-    <PackageReference Include="Afx.Data.Entity" Version="6.2.8" />
-    <PackageReference Include="Afx.Data.Extensions" Version="6.2.8" />
-    <PackageReference Include="Afx.Data.MSSQLServer.Entity" Version="6.2.8" />
-    <PackageReference Include="Afx.Data.MySql.Entity" Version="6.2.8" />
+    <PackageReference Include="Afx.Data" Version="6.2.9" />
+    <PackageReference Include="Afx.Data.Entity" Version="6.2.9" />
+    <PackageReference Include="Afx.Data.Extensions" Version="6.2.9" />
+    <PackageReference Include="Afx.Data.MSSQLServer.Entity" Version="6.2.9" />
+    <PackageReference Include="Afx.Data.MySql.Entity" Version="6.2.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.1" />
-    <PackageReference Include="MySql.Data" Version="6.10.7" />
-    <PackageReference Include="MySql.Data.EntityFrameworkCore" Version="6.10.7" />
+      <PackageReference Include="MySqlConnector" Version="0.42.3" />
+      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
   </ItemGroup>
 
