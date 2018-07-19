@@ -21,7 +21,7 @@ namespace AfxDotNetCoreSample.Web
             {
                 Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             }
-
+            ConfigUtils.SetThreads();
             BuildWebHost(args, ConfigUtils.Configuration).Run();
         }
 

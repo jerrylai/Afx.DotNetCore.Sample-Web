@@ -48,6 +48,52 @@ namespace AfxDotNetCoreSample.Common
             }
         }
 
+        public static void SetThreads()
+        {
+            int ProcessorCount = Environment.ProcessorCount;
+            int minThreads = ProcessorCount * 2;
+            int minIoThreads = ProcessorCount * 2;
+            int maxThreads = ProcessorCount * 1000;
+            int maxIoThreads = 1000;
+
+            if (minThreads < 10) minThreads = 10;
+            if (minIoThreads < 10) minIoThreads = 10;
+            if (maxThreads < 1000) maxThreads = 1000;
+
+            var s = GetValue("Threads:Min");
+            if (!string.IsNullOrEmpty(s))
+            {
+                int temp = 0;
+                if (int.TryParse(s, out temp) && temp > minThreads)
+                {
+                    minThreads = temp;
+                }
+            }
+
+            s = GetValue("Threads:IO");
+            if (!string.IsNullOrEmpty(s))
+            {
+                int temp = 0;
+                if (int.TryParse(s, out temp) && temp > minIoThreads)
+                {
+                    minIoThreads = temp;
+                }
+            }
+
+            int workerThreads = 0;
+            int completionPortThreads = 0;
+            //SetMaxThreads
+            System.Threading.ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
+            if (workerThreads < maxThreads) workerThreads = maxThreads;
+            if (completionPortThreads < maxIoThreads) completionPortThreads = maxIoThreads;
+            System.Threading.ThreadPool.SetMaxThreads(workerThreads, completionPortThreads);
+            //SetMinThreads
+            System.Threading.ThreadPool.GetMinThreads(out workerThreads, out completionPortThreads);
+            if (workerThreads < minThreads) workerThreads = minThreads;
+            if (completionPortThreads < minIoThreads) completionPortThreads = minIoThreads;
+            System.Threading.ThreadPool.SetMinThreads(workerThreads, completionPortThreads);
+        }
+
         public static string[] ServerUrls
         {
             get
