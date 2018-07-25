@@ -55,7 +55,7 @@ namespace AfxDotNetCoreSample.Service
         private bool IsInitSystemData()
         {
             var repository = this.GetRepository<IConfigRepository>();
-            var s = repository.GetValue(ConfigType.SystemVersion, "*");
+            var s = repository.GetValue(ConfigType.SystemVersion, "service.version");
             Version ver = null;
 
             if (!Version.TryParse(s, out ver) || ver < this.version)
@@ -71,7 +71,7 @@ namespace AfxDotNetCoreSample.Service
         private void SetInitSystemData()
         {
             var repository = GetRepository<IConfigRepository>();
-            repository.SetValue(ConfigType.SystemVersion, "*", this.version.ToString());
+            repository.SetValue(ConfigType.SystemVersion, "service.version", this.version.ToString());
         }
         
     }
