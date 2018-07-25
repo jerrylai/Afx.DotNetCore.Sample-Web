@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AfxDotNetCoreSample.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,21 +15,21 @@ namespace AfxDotNetCoreSample.Dto
         /// <summary>
         /// 锁类型
         /// </summary>
-        public int Type { get; set; }
+        public TaskLockType Type { get; set; }
         
         /// <summary>
-        /// 锁定值
+        /// 锁定值, length 小于等于 50
         /// </summary>
         public string Key { get; set; }
-        
+
         /// <summary>
-        /// 锁定者
+        /// 锁定者, length 小于等于 50
         /// </summary>
         public string Owner { get; set; }
 
         /// <summary>
-        /// 锁定之后，释放超时，单位秒
+        /// 锁定之后，超时释放时间
         /// </summary>
-        public long Timeout { get; set; }
+        public TimeSpan? Timeout { get; set; }
     }
 }

@@ -12,22 +12,22 @@ namespace AfxDotNetCoreSample.Cache
     {
         public virtual string Get(TaskLockType type, string key)
         {
-            return base.Get<string>(type, key);
+            return base.GetData<string>(type, key);
         }
 
         public virtual void Remove(TaskLockType type, string key)
         {
-            base.Remove(type, key);
+            base.RemoveKey(type, key);
         }
-
-        public virtual void Set(TaskLockType type, string key, string owner)
-        {
-            base.Set(owner, type, key);
-        }
-
+        
         public virtual void Set(TaskLockType type, string key, string owner, TimeSpan? timeout)
         {
-            base.Set(owner, type, key, timeout);
+            base.SetData(owner, type, key, timeout);
+        }
+
+        public virtual void SetExpire(TaskLockType type, string key, TimeSpan? timeout)
+        {
+            base.SetDataExpire(timeout, type, key);
         }
     }
 }

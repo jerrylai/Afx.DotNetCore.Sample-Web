@@ -7,9 +7,6 @@ using System.Web;
 using Afx.Cache;
 using Afx.Utils;
 
-using AfxDotNetCoreSample.Dto;
-using AfxDotNetCoreSample.IService;
-
 namespace AfxDotNetCoreSample.Common
 {
     public static class SessionUtils
@@ -22,12 +19,14 @@ namespace AfxDotNetCoreSample.Common
             _sid = !string.IsNullOrEmpty(sid) ? sid : Guid.NewGuid().ToString("n");
         }
 
+        public static Action ResponseSidCall;
+
         public static string OnResponseSid(string sid)
         {
             var s = _sid;
             if (!string.IsNullOrEmpty(s))
             {
-                IocUtils.Get<IUserSessionService>().Expire();
+                ResponseSidCall?.Invoke();
             }
             _sid = null;
 

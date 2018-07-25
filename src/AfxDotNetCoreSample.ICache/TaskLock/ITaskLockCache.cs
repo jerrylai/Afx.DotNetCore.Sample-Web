@@ -9,12 +9,12 @@ namespace AfxDotNetCoreSample.ICache
 {
     public interface ITaskLockCache : IBaseCache
     {
-        bool Lock(TaskLockType type, string key);
-
         bool Lock(TaskLockType type, string key, TimeSpan? timeout);
 
         bool IsLock(TaskLockType type, string key);
 
         void Release(TaskLockType type, string key);
+
+        void SetExpire(TaskLockType type, string key, TimeSpan? timeout);
     }
 }

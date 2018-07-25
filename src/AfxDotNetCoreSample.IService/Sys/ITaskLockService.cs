@@ -17,9 +17,9 @@ namespace AfxDotNetCoreSample.IService
         /// 尝试获取锁
         /// </summary>
         /// <param name="type">锁类型</param>
-        /// <param name="key">锁key， 空字符或null需要换成*</param>
-        /// <param name="owner">锁定定者， 空字符或null需要换成*</param>
-        /// <param name="timeout">锁定之后，释放超时，单位秒</param>
+        /// <param name="key">锁key，不能为空, key长度小于或等于50</param>
+        /// <param name="owner">锁定定者，不能为空, owner长度小于或等于50</param>
+        /// <param name="timeout">锁超时</param>
         /// <returns></returns>
         bool Lock(TaskLockType type, string key, string owner, TimeSpan? timeout);
 
@@ -27,15 +27,26 @@ namespace AfxDotNetCoreSample.IService
         /// 查询是否锁定
         /// </summary>
         /// <param name="type">锁类型</param>
-        /// <param name="key">锁key， 空字符或null需要换成*</param>
+        /// <param name="key">锁key，不能为空，key长度小于或等于50</param>
+        /// <param name="owner">锁定定者，不能为空, owner长度小于或等于50</param>
         /// <returns></returns>
-        bool IsLock(TaskLockType type, string key);
+        bool IsOtherLock(TaskLockType type, string key, string owner);
 
         /// <summary>
         /// 释放锁
         /// </summary>
         /// <param name="type">锁类型</param>
-        /// <param name="key">锁key， 空字符或null需要换成*</param>
+        /// <param name="key">锁key，不能为空，key长度小于或等于50</param>
         void Release(TaskLockType type, string key);
+
+        /// <summary>
+        /// 更新Timeout
+        /// </summary>
+        /// <param name="type">锁类型</param>
+        /// <param name="key">锁key，不能为空，key长度小于或等于50</param>
+        /// <param name="owner">锁定定者，不能为空, owner长度小于或等于50</param>
+        /// <param name="timeout">锁超时</param>
+        /// <returns></returns>
+        void UpdateTimeout(TaskLockType type, string key, string owner, TimeSpan? timeout);
     }
 }

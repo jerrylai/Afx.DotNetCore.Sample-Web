@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 using Afx.Utils;
 using Afx.Configuration;
-using AfxDotNetCoreSample.Enums;
 using Microsoft.Extensions.Configuration;
+using AfxDotNetCoreSample.Enums;
 
 namespace AfxDotNetCoreSample.Common
 {

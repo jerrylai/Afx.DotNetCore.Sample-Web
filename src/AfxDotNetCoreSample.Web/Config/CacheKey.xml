@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Config>
-  <ListDb db="0" expire="7:0:0:0">
+  <ListDb db="0">
     <Role key="list:role" />
     <Dept key="list:dept" />
     <WebMenu key="list:web_menu" />
   </ListDb>
-  <DataDb db="1" expire="7:0:0:0">
+  <DataDb db="1">
     <Config key="config:{0}" />
     <User key="user:{0}" />
     <UserId key="user_id:{0}" />
@@ -15,7 +15,7 @@
   <SessionDb db="2" expire="20:0">
     <UserSession key="session:{0}" />
   </SessionDb>
-  <TaskLockDb db="3" expire="10:0">
+  <TaskLockDb db="3">
     <TaskLock key="task_lock:{0}:{1}" />
     <TaskLockOwner key="task_lock_owner:{0}:{1}" />
   </TaskLockDb>

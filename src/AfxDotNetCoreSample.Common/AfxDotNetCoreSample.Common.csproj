@@ -18,9 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AfxDotNetCoreSample.Enums\AfxDotNetCoreSample.Enums.csproj" />
-    <ProjectReference Include="..\AfxDotNetCoreSample.ICache\AfxDotNetCoreSample.ICache.csproj" />
-    <ProjectReference Include="..\AfxDotNetCoreSample.IRepository\AfxDotNetCoreSample.IRepository.csproj" />
-    <ProjectReference Include="..\AfxDotNetCoreSample.IService\AfxDotNetCoreSample.IService.csproj" />
   </ItemGroup>
 
 </Project>

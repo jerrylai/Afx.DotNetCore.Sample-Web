@@ -11,21 +11,17 @@ namespace AfxDotNetCoreSample.Cache
 {
     public class TaskLockCache : TaskLockDbCache, ITaskLockCache
     {
-        public bool IsLock(TaskLockType type, string key)
+        public virtual bool IsLock(TaskLockType type, string key)
         {
-            var value = base.Get<long>(type, key);
+            string k = base.GetCacheKey(type, key);
+            var db = base.GetCacheDb(k);
+            var database = RedisUtils.GetDatabase(db);
+            var value = database.KeyExists(k);
 
-            return value > 0;
+            return value;
         }
 
-        public bool Lock(TaskLockType type, string key)
-        {
-            var expire = base.GetConfigExpire();
-
-            return this.Lock(type, key, expire);
-        }
-
-        public bool Lock(TaskLockType type, string key, TimeSpan? timeout)
+        public virtual bool Lock(TaskLockType type, string key, TimeSpan? timeout)
         {
             string k = base.GetCacheKey(type, key);
             var db = base.GetCacheDb(k);
@@ -40,9 +36,20 @@ namespace AfxDotNetCoreSample.Cache
             return false;
         }
 
-        public void Release(TaskLockType type, string key)
+        public virtual void Release(TaskLockType type, string key)
         {
-            base.Remove(type, key);
+            string k = base.GetCacheKey(type, key);
+            var db = base.GetCacheDb(k);
+            var database = RedisUtils.GetDatabase(db);
+            database.KeyDelete(k);
+        }
+
+        public virtual void SetExpire(TaskLockType type, string key, TimeSpan? timeout)
+        {
+            string k = base.GetCacheKey(type, key);
+            var db = base.GetCacheDb(k);
+            var database = RedisUtils.GetDatabase(db);
+            database.KeyExpire(k, timeout);
         }
     }
 }

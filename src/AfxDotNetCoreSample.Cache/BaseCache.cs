@@ -90,7 +90,7 @@ namespace AfxDotNetCoreSample.Cache
             return CacheKeyUtils.GetExpire(this.Node, this.Item);
         }
 
-        protected virtual T Get<T>(params object[] args)
+        protected virtual T GetData<T>(params object[] args)
         {
             string key = this.GetCacheKey(args);
             int db = this.GetCacheDb(key);
@@ -98,7 +98,7 @@ namespace AfxDotNetCoreSample.Cache
             return this.Cache.Get<T>(db, key);
         }
 
-        protected virtual void Set<T>(T value, params object[] args)
+        protected virtual void SetData<T>(T value, params object[] args)
         {
             string key = this.GetCacheKey(args);
             int db = this.GetCacheDb(key);
@@ -107,7 +107,7 @@ namespace AfxDotNetCoreSample.Cache
             else this.Cache.Set<T>(db, key, value, expireIn);
         }
 
-        protected virtual void Set<T>(T value, TimeSpan? expireIn, params object[] args)
+        protected virtual void SetData<T>(T value, TimeSpan? expireIn, params object[] args)
         {
             string key = this.GetCacheKey(args);
             int db = this.GetCacheDb(key);
@@ -123,7 +123,7 @@ namespace AfxDotNetCoreSample.Cache
             return this.Cache.ContainsKey(db, key);
         }
 
-        protected virtual void Expire(TimeSpan? expireIn, params object[] args)
+        protected virtual void SetDataExpire(TimeSpan? expireIn, params object[] args)
         {
             string key = this.GetCacheKey(args);
             int db = this.GetCacheDb(key);
@@ -131,7 +131,7 @@ namespace AfxDotNetCoreSample.Cache
             this.Cache.Expire(db, key, expireIn);
         }
 
-        protected virtual void Remove(params object[] args)
+        protected virtual void RemoveKey(params object[] args)
         {
             string key = this.GetCacheKey(args);
             int db = this.GetCacheDb(key);

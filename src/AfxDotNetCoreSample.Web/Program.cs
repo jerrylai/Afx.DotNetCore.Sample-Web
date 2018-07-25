@@ -22,6 +22,8 @@ namespace AfxDotNetCoreSample.Web
                 Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             }
             ConfigUtils.SetThreads();
+            IocConfig.Load();
+
             BuildWebHost(args, ConfigUtils.Configuration).Run();
         }
 

@@ -12,17 +12,17 @@ namespace AfxDotNetCoreSample.Cache
         public virtual string Get(string account)
         {
             if (string.IsNullOrEmpty(account)) return null;
-            return base.Get<string>(account.ToLower());
+            return base.GetData<string>(account.ToLower());
         }
 
         public virtual void Remove(string account)
         {
-            if (!string.IsNullOrEmpty(account)) base.Remove(account.ToLower());
+            if (!string.IsNullOrEmpty(account)) base.RemoveKey(account.ToLower());
         }
 
         public virtual void Set(string account, string id)
         {
-            if (!string.IsNullOrEmpty(account)) base.Set(id, account.ToLower());
+            if (!string.IsNullOrEmpty(account)) base.SetData(id, account.ToLower());
         }
     }
 }

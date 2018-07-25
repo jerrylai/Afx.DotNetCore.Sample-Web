@@ -50,12 +50,6 @@ namespace AfxDotNetCoreSample.Models
         /// <summary>
         /// 
         /// </summary>
-        [Required]
-        [Column("ExecTime")]
-        public DateTime ExecTime { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
         [Column("ExpireTime")]
         public DateTime? ExpireTime { get; set; }
         /// <summary>

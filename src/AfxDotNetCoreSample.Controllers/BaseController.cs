@@ -49,7 +49,7 @@ namespace AfxDotNetCoreSample.Controllers
 
         protected virtual ActionResult ParamError()
         {
-            return this.Failure(ApiStatus.ParamError);
+            return this.Failure(ApiStatus.Error);
         }
 
         protected virtual ActionResult Failure()

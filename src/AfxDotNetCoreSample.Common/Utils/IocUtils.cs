@@ -18,33 +18,8 @@ namespace AfxDotNetCoreSample.Common
             var ioc = new IocContainer(true);
             ioc.AddGlobalAop<AopLog>();
 
-            var config = ConfigUtils.GetValue("Ioc:Service");
-            if (string.IsNullOrEmpty(config)) throw new ArgumentNullException("Ioc->Service");
-            var arr = config.Split(';');
-            foreach (var s in arr)
-            {
-                if (!string.IsNullOrEmpty(s)) ioc.Register<AfxDotNetCoreSample.IService.IBaseService>(s);
-            }
-
-            config = ConfigUtils.GetValue("Ioc:Repository");
-            if (string.IsNullOrEmpty(config)) throw new ArgumentNullException("Ioc->Repository");
-            arr = config.Split(';');
-            foreach (var s in arr)
-            {
-                if (!string.IsNullOrEmpty(s)) ioc.Register<AfxDotNetCoreSample.IRepository.IBaseRepository>(s);
-            }
-
-            config = ConfigUtils.GetValue("Ioc:Cache");
-            if (string.IsNullOrEmpty(config)) throw new ArgumentNullException("Ioc->Cache");
-            arr = config.Split(';');
-            foreach (var s in arr)
-            {
-                if (!string.IsNullOrEmpty(s)) ioc.Register<AfxDotNetCoreSample.ICache.IBaseCache>(s);
-            }
-
-
             return ioc;
-        }, true);
+        }, false);
 
         public static IocContainer Default
         {

@@ -18,7 +18,7 @@ namespace AfxDotNetCoreSample.Enums
         /// <summary>
         /// 参数错误
         /// </summary>
-        ParamError = 101,
+        Error = 101,
         /// <summary>
         /// 服务器错误！
         /// </summary>

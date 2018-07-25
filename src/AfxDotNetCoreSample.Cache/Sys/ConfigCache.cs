@@ -12,17 +12,17 @@ namespace AfxDotNetCoreSample.Cache
     {
         public virtual List<ConfigDto> Get(ConfigType type)
         {
-            return base.Get<List<ConfigDto>>(type);
+            return base.GetData<List<ConfigDto>>(type);
         }
 
         public virtual void Remove(ConfigType type)
         {
-            base.Remove(type);
+            base.RemoveKey(type);
         }
 
         public virtual void Set(ConfigType type, List<ConfigDto> list)
         {
-            base.Set(list, type);
+            base.SetData(list, type);
         }
     }
 }

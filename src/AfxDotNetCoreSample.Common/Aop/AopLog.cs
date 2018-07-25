@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Afx.Aop;
-using AfxDotNetCoreSample.Dto;
 
 namespace AfxDotNetCoreSample.Common
 {
@@ -20,7 +19,7 @@ namespace AfxDotNetCoreSample.Common
             for (int i = 0; i < param.Length; i++)
             {
                 var p = param[i];
-                if(!p.IsOut)
+                if(!p.IsOut && !typeof(Delegate).IsAssignableFrom(p.ParameterType))
                     msg.AppendFormat("\r\n{0}: {1}", p.Name, args.Length > i ? (args[i] == null ? "null" : JsonUtils.Serialize(args[i])) : "");
             }
             msg.Append("异常：");

@@ -12,17 +12,17 @@ namespace AfxDotNetCoreSample.Cache
     {
         public virtual List<RoleDto> Get()
         {
-            return base.Get<List<RoleDto>>();
+            return base.GetData<List<RoleDto>>();
         }
 
         public virtual void Remove()
         {
-            base.Remove();
+            base.RemoveKey();
         }
 
         public virtual void Set(List<RoleDto> list)
         {
-            base.Set(list);
+            base.SetData(list);
         }
     }
 }

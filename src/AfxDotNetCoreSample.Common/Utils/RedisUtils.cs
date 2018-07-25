@@ -19,7 +19,6 @@ namespace AfxDotNetCoreSample.Common
 
         public static IConnectionMultiplexer Default => _default.Value;
 
-
         private static void OnInternalError(object sender, InternalErrorEventArgs e)
         {
             LogUtils.Error($"【Redis.InternalError】ConnectionType:{e.ConnectionType}, EndPoint: {e.EndPoint}, Origin: {e.Origin}", e.Exception);
@@ -120,6 +119,11 @@ namespace AfxDotNetCoreSample.Common
                     }
                 });
             }
+        }
+
+        public static IDatabase GetDatabase(int db = -1)
+        {
+            return Default.GetDatabase(db);
         }
     }
 }

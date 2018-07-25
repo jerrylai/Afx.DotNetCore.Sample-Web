@@ -37,13 +37,13 @@ namespace AfxDotNetCoreSample.Service
             }
             if (this.IsInitSystemData())
             {
-                string owner = GetOwner();
-                var taskLock = IocUtils.Get<ITaskLockService>();
-                if (taskLock.Lock(TaskLockType.InitSystemData, "*", owner, TimeSpan.FromHours(1)))
+                using (var locked = this.GetSyncLock(TaskLockType.InitSystemData, "*", null, TimeSpan.FromHours(1)))
                 {
-                    repository.InitData();
-                    this.SetInitSystemData();
-                    taskLock.Release(TaskLockType.InitSystemData, "*");
+                    if (locked.Lock())
+                    {
+                        repository.InitData();
+                        this.SetInitSystemData();
+                    }
                 }
             }
         }
@@ -73,12 +73,6 @@ namespace AfxDotNetCoreSample.Service
             var repository = GetRepository<IConfigRepository>();
             repository.SetValue(ConfigType.SystemVersion, "*", this.version.ToString());
         }
-
-        private string GetOwner()
-        {
-            return Guid.NewGuid().ToString("n");
-        }
-
-
+        
     }
 }

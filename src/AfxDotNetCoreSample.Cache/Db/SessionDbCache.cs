@@ -10,7 +10,7 @@ namespace AfxDotNetCoreSample.Cache
     {
         public SessionDbCache() : base("SessionDb") { }
 
-        protected override void Expire(TimeSpan? expireIn, params object[] args)
+        protected override void SetDataExpire(TimeSpan? expireIn, params object[] args)
         {
             if (args == null || args.Length < 1) throw new ArgumentNullException("args");
             string key = base.GetCacheKey(args);
@@ -19,7 +19,7 @@ namespace AfxDotNetCoreSample.Cache
             base.Cache.Expire(db, key, expireIn);
         }
 
-        protected override T Get<T>(params object[] args)
+        protected override T GetData<T>(params object[] args)
         {
             if (args == null || args.Length < 1) throw new ArgumentNullException("args");
             string key = base.GetCacheKey(args);
@@ -28,7 +28,7 @@ namespace AfxDotNetCoreSample.Cache
             return base.Cache.Get<T>(db, key);
         }
 
-        protected override void Set<T>(T value, params object[] args)
+        protected override void SetData<T>(T value, params object[] args)
         {
             if (args == null || args.Length < 1) throw new ArgumentNullException("args");
             string key = base.GetCacheKey(args);
@@ -38,7 +38,7 @@ namespace AfxDotNetCoreSample.Cache
             else base.Cache.Set<T>(db, key, value, expireIn);
         }
 
-        protected override void Set<T>(T value, TimeSpan? expireIn, params object[] args)
+        protected override void SetData<T>(T value, TimeSpan? expireIn, params object[] args)
         {
             if (args == null || args.Length < 1) throw new ArgumentNullException("args");
             string key = base.GetCacheKey(args);
@@ -56,7 +56,7 @@ namespace AfxDotNetCoreSample.Cache
             return base.Cache.ContainsKey(db, key);
         }
         
-        protected override void Remove(params object[] args)
+        protected override void RemoveKey(params object[] args)
         {
             if (args == null || args.Length < 1) throw new ArgumentNullException("args");
             string key = base.GetCacheKey(args);

@@ -12,17 +12,17 @@ namespace AfxDotNetCoreSample.Cache
     {
         public virtual List<WebMenuOutputDto> Get()
         {
-            return base.Get<List<WebMenuOutputDto>>();
+            return base.GetData<List<WebMenuOutputDto>>();
         }
 
         public virtual void Remove()
         {
-            base.Remove();
+            base.RemoveKey();
         }
 
         public virtual void Set(List<WebMenuOutputDto> list)
         {
-            base.Set(list);
+            base.SetData(list);
         }
     }
 }

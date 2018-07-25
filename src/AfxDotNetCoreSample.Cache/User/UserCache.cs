@@ -12,17 +12,17 @@ namespace AfxDotNetCoreSample.Cache
     {
         public virtual UserDto Get(string id)
         {
-            return base.Get<UserDto>(id);
+            return base.GetData<UserDto>(id);
         }
 
         public virtual void Remove(string id)
         {
-            base.Remove(id);
+            base.RemoveKey(id);
         }
 
         public virtual void Set(string id, UserDto m)
         {
-            base.Set(m, id);
+            base.SetData(m, id);
         }
     }
 }

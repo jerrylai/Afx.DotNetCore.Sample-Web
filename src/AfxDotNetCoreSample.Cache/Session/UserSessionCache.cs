@@ -14,7 +14,7 @@ namespace AfxDotNetCoreSample.Cache
         {
             if(!string.IsNullOrEmpty(sid))
             {
-                base.Expire(expireIn, sid);
+                base.SetDataExpire(expireIn, sid);
             }
         }
 
@@ -23,7 +23,7 @@ namespace AfxDotNetCoreSample.Cache
             UserSessionDto value = null;
             if (!string.IsNullOrEmpty(sid))
             {
-                value = base.Get<UserSessionDto>(sid);
+                value = base.GetData<UserSessionDto>(sid);
             }
 
             return value;
@@ -33,7 +33,7 @@ namespace AfxDotNetCoreSample.Cache
         {
             if (!string.IsNullOrEmpty(sid))
             {
-                base.Set(value, sid);
+                base.SetData(value, sid);
             }
         }
 
@@ -41,7 +41,7 @@ namespace AfxDotNetCoreSample.Cache
         {
             if (!string.IsNullOrEmpty(sid))
             {
-                base.Remove(sid);
+                base.RemoveKey(sid);
             }
         }
 
@@ -50,7 +50,7 @@ namespace AfxDotNetCoreSample.Cache
             if (!string.IsNullOrEmpty(sid))
             {
                 var expire = base.GetConfigExpire();
-                if (expire.HasValue) base.Expire(expire, sid);
+                if (expire.HasValue) base.SetDataExpire(expire, sid);
             }
         }
     }

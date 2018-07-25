@@ -62,6 +62,7 @@ namespace AfxDotNetCoreSample.Web
             {
                 option.RequestSidCallback = SessionUtils.OnRequestSid;
                 option.ResponseSidCallback = SessionUtils.OnResponseSid;
+                SessionUtils.ResponseSidCall = () => IocUtils.Get<IService.IUserSessionService>().Expire();
             });
 
             

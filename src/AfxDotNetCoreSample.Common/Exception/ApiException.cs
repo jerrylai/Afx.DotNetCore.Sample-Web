@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using AfxDotNetCoreSample.Enums;
 using Afx.Utils;
+using AfxDotNetCoreSample.Enums;
 
-namespace AfxDotNetCoreSample.Dto
+namespace AfxDotNetCoreSample.Common
 {
     public class ApiException : Exception
     {
@@ -17,17 +17,17 @@ namespace AfxDotNetCoreSample.Dto
             this.Status = status;
         }
 
+        public ApiException(ApiStatus status)
+            : this(status, status.GetDescription())
+        {
+            this.Status = status;
+        }
+
         public ApiException()
             : this(ApiStatus.Failure)
         {
         }
-
-        public ApiException(ApiStatus status)
-            : this(status, status.GetDescription())
-        {
-
-        }
-
+        
         public ApiException(string message)
             : this(ApiStatus.Failure, message)
         {
