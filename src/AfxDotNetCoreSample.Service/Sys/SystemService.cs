@@ -37,7 +37,7 @@ namespace AfxDotNetCoreSample.Service
             }
             if (this.IsInitSystemData())
             {
-                using (var locked = this.GetSyncLock(TaskLockType.InitSystemData, "*", null, TimeSpan.FromHours(1)))
+                using (var locked = this.GetSyncLock(TaskLockType.InitSystemData, "0", null, TimeSpan.FromHours(1)))
                 {
                     if (locked.Lock())
                     {

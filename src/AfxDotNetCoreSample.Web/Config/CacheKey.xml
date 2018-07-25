@@ -16,8 +16,8 @@
     <UserSession key="session:{0}" />
   </SessionDb>
   <TaskLockDb db="3">
-    <TaskLock key="task_lock:{0}:{1}" />
-    <TaskLockOwner key="task_lock_owner:{0}:{1}" />
+    <TaskLock key="task_lock:{0}:{1}:value" />
+    <TaskLockOwner key="task_lock:{0}:{1}:owner" />
   </TaskLockDb>
 </Config>
 

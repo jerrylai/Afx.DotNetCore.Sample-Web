@@ -45,10 +45,10 @@ namespace AfxDotNetCoreSample.Service
         public virtual bool Lock(TaskLockType type, string key, string owner, TimeSpan? timeout)
         {
             if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
-            if (string.IsNullOrEmpty(owner)) owner = Guid.NewGuid().ToString("n");
+            if (string.IsNullOrEmpty(owner)) throw new ArgumentNullException(nameof(owner));
 
             key = this.FormatValue(key, nameof(key));
-            owner = this.FormatValue(key, nameof(owner));
+            owner = this.FormatValue(owner, nameof(owner));
 
             return this.repository.Lock(type, key, owner, timeout, this.syncLockType);
         }
@@ -63,10 +63,10 @@ namespace AfxDotNetCoreSample.Service
         public virtual bool IsOtherLock(TaskLockType type, string key, string owner)
         {
             if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
-            if (string.IsNullOrEmpty(owner)) owner = Guid.NewGuid().ToString("n");
+            if (string.IsNullOrEmpty(owner)) throw new ArgumentNullException(nameof(owner));
 
             key = this.FormatValue(key, nameof(key));
-            owner = this.FormatValue(key, nameof(owner));
+            owner = this.FormatValue(owner, nameof(owner));
 
             return this.repository.IsOtherLock(type, key, owner, this.syncLockType);
         }
@@ -96,10 +96,10 @@ namespace AfxDotNetCoreSample.Service
         public virtual void UpdateTimeout(TaskLockType type, string key, string owner, TimeSpan? timeout)
         {
             if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
-            if (string.IsNullOrEmpty(owner)) owner = Guid.NewGuid().ToString("n");
+            if (string.IsNullOrEmpty(owner)) throw new ArgumentNullException(nameof(owner));
 
             key = this.FormatValue(key, nameof(key));
-            owner = this.FormatValue(key, nameof(owner));
+            owner = this.FormatValue(owner, nameof(owner));
 
             this.repository.UpdateTimeout(type, key, owner, timeout, this.syncLockType);
         }

@@ -60,10 +60,10 @@ namespace AfxDotNetCoreSample.Repository
                 if (m != null && (m.Status != LockStatus.Lock
                     || m.Owner == owner || m.ExpireTime < now))
                 {
-                    string updateSql = $"update SysTaskLock set {db.GetColumn("LockStatus")} = {{0}},"
+                    string updateSql = $"update SysTaskLock set {db.GetColumn("Status")} = {{0}},"
                         + $" {db.GetColumn("Owner")} = {{1}}, {db.GetColumn("ExpireTime")} = {{2}}, UpdateTime = {{3}}"
                         + " where Id = {4} and ("
-                        + $"{db.GetColumn("LockStatus")} <> {{5}} or {db.GetColumn("Owner")} = {{6}}"
+                        + $"{db.GetColumn("Status")} <> {{5}} or {db.GetColumn("Owner")} = {{6}}"
                         + $" or {db.GetColumn("ExpireTime")} is not null and {db.GetColumn("ExpireTime")} < {{7}})";
                     object[] param = new object[8];
                     param[0] = LockStatus.Lock.GetValue();
