@@ -175,7 +175,7 @@ namespace AfxDotNetCoreSample.Models
                 default:
                     throw new ArgumentException("DatabaseType");
             }
-            Console.WriteLine(ConfigUtils.ConnectionString);
+            
             base.OnConfiguring(optionsBuilder);
         }
 

@@ -51,6 +51,7 @@ namespace AfxDotNetCoreSample.Common
         public static void SetThreads()
         {
             int ProcessorCount = Environment.ProcessorCount;
+            LogUtils.Debug($"【SetThreads】ProcessorCount: {ProcessorCount}");
             int minThreads = ProcessorCount * 2;
             int minIoThreads = ProcessorCount * 2;
             int maxThreads = ProcessorCount * 1000;
@@ -80,18 +81,24 @@ namespace AfxDotNetCoreSample.Common
                 }
             }
 
+            LogUtils.Debug($"【SetThreads】minThreads: {minThreads}, minIoThreads: {minIoThreads}, maxThreads: {maxThreads}, minIoThreads: {minIoThreads}");
+
             int workerThreads = 0;
             int completionPortThreads = 0;
             //SetMaxThreads
             System.Threading.ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
+            LogUtils.Debug($"【SetThreads->GetMaxThreads】workerThreads: {workerThreads}, completionPortThreads: {completionPortThreads}");
             if (workerThreads < maxThreads) workerThreads = maxThreads;
             if (completionPortThreads < maxIoThreads) completionPortThreads = maxIoThreads;
             System.Threading.ThreadPool.SetMaxThreads(workerThreads, completionPortThreads);
+            LogUtils.Debug($"【SetThreads->SetMaxThreads】workerThreads: {workerThreads}, completionPortThreads: {completionPortThreads}");
             //SetMinThreads
             System.Threading.ThreadPool.GetMinThreads(out workerThreads, out completionPortThreads);
+            LogUtils.Debug($"【SetThreads->GetMinThreads】workerThreads: {workerThreads}, completionPortThreads: {completionPortThreads}");
             if (workerThreads < minThreads) workerThreads = minThreads;
             if (completionPortThreads < minIoThreads) completionPortThreads = minIoThreads;
             System.Threading.ThreadPool.SetMinThreads(workerThreads, completionPortThreads);
+            LogUtils.Debug($"【SetThreads->SetMinThreads】workerThreads: {workerThreads}, completionPortThreads: {completionPortThreads}");
         }
 
         public static string[] ServerUrls
