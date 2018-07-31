@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.1-runtime
+FROM microsoft/2.1-aspnetcore-runtime
 MAINTAINER jerry.lai<jerrylai@aliyun.com>
 WORKDIR /app
 COPY . .
