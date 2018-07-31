@@ -1,13 +1,18 @@
 ﻿version: "3"
+networks:
+  afx:
+    external:
+      name: afx
 services:
-  afxdotnetcoresample:
-    restart: always
-    privileged: true
-    image: afxdotnetcoresample:v1.0.0.2
+  afx:
+    image: 192.168.1.8/afx:v1.0.0.2
     ports:
        - "80:80"
     volumes:
        - "/logs/afx:/app/logs"
     environment:
-      - AfxDotNetCoreSample:ServerUrls=http://*:80  
-        
+      - AfxDotNetCoreSample:ServerUrls=http://*:80
+    deploy:
+      replicas: 3
+    networks:
+      - afx

@@ -23,5 +23,15 @@ namespace AfxDotNetCoreSample.Controllers
 
             return this.LocalRedirect($"~/index.html{this.Request.QueryString}");
         }
+
+        private static string testkey;
+
+        [HttpGet, HttpPost]
+        public ActionResult Test()
+        {
+            if (string.IsNullOrEmpty(testkey)) testkey = Guid.NewGuid().ToString("s");
+
+            return Success(testkey);
+        }
     }
 }

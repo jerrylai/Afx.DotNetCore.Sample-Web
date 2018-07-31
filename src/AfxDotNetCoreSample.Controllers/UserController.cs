@@ -40,7 +40,7 @@ namespace AfxDotNetCoreSample.Controllers
                 return Failure();
             }
 
-            return ParamError();
+            return Error();
         }
 
         [HttpGet, HttpPost]
