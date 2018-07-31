@@ -1,15 +1,13 @@
 ﻿version: "3"
 services:
   afxdotnetcoresample:
-    image: afxdotnetcoresample:v1.0.0.1
-    build:
-      context: .
-      dockerfile: web/Dockerfile
+    restart: always
+    privileged: true
+    image: afxdotnetcoresample:v1.0.0.2
     ports:
        - "80:80"
     volumes:
-       - "/home/logs/AfxDotNetCoreSample:/app/log"
+       - "/logs/afx:/app/logs"
     environment:
       - AfxDotNetCoreSample:ServerUrls=http://*:80  
-    privileged: true
-    restart: always
+        

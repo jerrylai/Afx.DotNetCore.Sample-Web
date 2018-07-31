@@ -32,18 +32,18 @@ namespace AfxDotNetCoreSample.Common
 
         public void OnExecuting(AopContext context)
         {
-            //context.UserState = DateTime.Now;
+            context.UserState = DateTime.Now;
         }
 
         public void OnResult(AopContext context, object returnValue)
         {
-            //if (context.UserState is DateTime)
-            //{
-            //    var startTime = (DateTime)context.UserState;
-            //    var time = DateTime.Now - startTime;
-            //    LogUtils.Debug(string.Format("【AopLog.Stopwatch】TotalMilliseconds: {0:f0}, Class: {1}, Method: {2}",
-            //        time.TotalMilliseconds, context.TagetType.FullName, context.Method.Name));
-            //}
+            if (context.UserState is DateTime)
+            {
+                var startTime = (DateTime)context.UserState;
+                var time = DateTime.Now - startTime;
+                LogUtils.Debug(string.Format("【AopLog.Stopwatch】TotalMilliseconds: {0:f0}, Class: {1}, Method: {2}",
+                    time.TotalMilliseconds, context.TagetType.FullName, context.Method.Name));
+            }
         }
     }
 }

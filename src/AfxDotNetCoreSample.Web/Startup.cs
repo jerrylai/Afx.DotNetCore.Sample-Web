@@ -65,6 +65,8 @@ namespace AfxDotNetCoreSample.Web
                 SessionUtils.ResponseSidCall = () => IocUtils.Get<IService.IUserSessionService>().Expire();
             });
 
+            app.Use((fun) => new LogMiddleware(fun).Invoke);
+
             
             app.UseMvc(routes =>
             {
@@ -74,6 +76,26 @@ namespace AfxDotNetCoreSample.Web
             });
             //生成数据库
             IocUtils.Get<IService.ISystemService>().Init();
+        }
+    }
+
+    class LogMiddleware
+    {
+        private RequestDelegate next;
+        public LogMiddleware(RequestDelegate next)
+        {
+            this.next = next;
+        }
+
+        public async Task Invoke(HttpContext context)
+        {
+            DateTime startTime = DateTime.Now;
+            await this.next(context);
+            DateTime endTime = DateTime.Now;
+            string url = context.Request.Path;
+            string method = context.Request.Method;
+            var ts = endTime - startTime;
+            LogUtils.Debug($"【Api】method: {method}, url: {url}, TotalMilliseconds: {ts.TotalMilliseconds}");
         }
     }
 }

@@ -16,6 +16,8 @@ namespace AfxDotNetCoreSample.Web
     {
         public void OnException(ExceptionContext context)
         {
+            var method = context.HttpContext.Request.Method;
+            var path = context.HttpContext.Request.Path.ToString();
             if (context.Exception is ApiException)
             {
                 var ex = context.Exception as ApiException;
@@ -25,7 +27,7 @@ namespace AfxDotNetCoreSample.Web
                         Msg = !string.IsNullOrEmpty(ex.Message) ? ex.Message : ex.Status.GetDescription()
                     });
 
-                LogUtils.Info("【ApiExceptionFilter】", ex);
+                LogUtils.Info($"【ApiExceptionFilter】Method: {method}, url: {path}", ex);
             }
             else
             {
@@ -36,7 +38,7 @@ namespace AfxDotNetCoreSample.Web
                     Msg = !string.IsNullOrEmpty(ex.Message) ? ex.Message : ApiStatus.ServerError.GetDescription()
                 });
 
-                LogUtils.Error("【ApiExceptionFilter】", ex);
+                LogUtils.Error("【ApiExceptionFilter】Method: {method}, url: {path}", ex);
             }
 
         }
