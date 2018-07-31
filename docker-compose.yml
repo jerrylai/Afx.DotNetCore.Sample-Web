@@ -5,7 +5,7 @@ networks:
       name: afx
 services:
   afx:
-    image: 192.168.1.8/afx:v1.0.0.2
+    image: 192.168.1.8/afx:v1.0.0.3
     ports:
        - "80:80"
     volumes:

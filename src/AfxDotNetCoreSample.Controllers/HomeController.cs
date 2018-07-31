@@ -29,7 +29,7 @@ namespace AfxDotNetCoreSample.Controllers
         [HttpGet, HttpPost]
         public ActionResult Test()
         {
-            if (string.IsNullOrEmpty(testkey)) testkey = Guid.NewGuid().ToString("s");
+            if (string.IsNullOrEmpty(testkey)) testkey = Guid.NewGuid().ToString("n");
 
             return Success(testkey);
         }
