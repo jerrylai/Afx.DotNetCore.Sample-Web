@@ -14,28 +14,25 @@ namespace AfxDotNetCoreSample.Common
 {
     public static class ConfigUtils
     {
-        const string CONFIG_PREFIX = "AfxDotNetCoreSample:";
-
         private static Lazy<IConfiguration> _configuration = new Lazy<IConfiguration>(() =>
          {
              var configBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
-             if (string.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
-                "Development", StringComparison.OrdinalIgnoreCase))
+             string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+             if (!string.IsNullOrEmpty(env))
              {
-                 configBuilder = configBuilder.AddJsonFile("appsettings.Development.json");
+                 configBuilder = configBuilder.AddJsonFile($"appsettings.{env}.json");
              }
              configBuilder = configBuilder.AddEnvironmentVariables();
              var config = configBuilder.SetBasePath(Directory.GetCurrentDirectory()).Build();
              return config;
-         }, true);
+         }, false);
 
         public static IConfiguration Configuration => _configuration.Value;
 
-        public static string GetValue(string key, bool isPrefix = true)
+        public static string GetValue(string key)
         {
             if (string.IsNullOrEmpty(key)) throw new ArgumentNullException("key");
-            string s = isPrefix ? CONFIG_PREFIX + key : key;
-            string value = Configuration[s];
+            string value = Configuration[key];
 
             return value;
         }

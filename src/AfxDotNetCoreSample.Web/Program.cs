@@ -5,10 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-
-using AfxDotNetCoreSample.Common;
 
 namespace AfxDotNetCoreSample.Web
 {
@@ -16,26 +12,19 @@ namespace AfxDotNetCoreSample.Web
     {
         public static void Main(string[] args)
         {
-            if (!string.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
-                "Development", StringComparison.OrdinalIgnoreCase))
+            string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            if (!"Development".Equals(env, StringComparison.OrdinalIgnoreCase))
             {
                 Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             }
-            ConfigUtils.SetThreads();
-            IocConfig.Load();
 
-            BuildWebHost(args, ConfigUtils.Configuration).Run();
+            CreateWebHostBuilder(args).Build().Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args, IConfiguration config) =>
+        private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-            .UseConfiguration(config)
-            .UseKestrel()
             .UseContentRoot(Directory.GetCurrentDirectory())
-            .UseIISIntegration()
-            .UseUrls(ConfigUtils.ServerUrls)
-            .UseStartup<Startup>()
-            .Build();
+            .UseStartup<Startup>();
 
     }
 }
