@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<IocConfig>
+    <Register base="AfxDotNetCoreSample.IService.IBaseService,AfxDotNetCoreSample.IService" value="AfxDotNetCoreSample.Service" />
+    
+    <Register base="AfxDotNetCoreSample.IRepository.IBaseRepository,AfxDotNetCoreSample.IRepository" value="AfxDotNetCoreSample.Repository" />
+    
+    <Register base="AfxDotNetCoreSample.ICache.IBaseCache,AfxDotNetCoreSample.ICache" value="AfxDotNetCoreSample.Cache" />
+
+</IocConfig>
+

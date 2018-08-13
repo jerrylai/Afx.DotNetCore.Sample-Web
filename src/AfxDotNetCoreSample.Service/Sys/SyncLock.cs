@@ -6,6 +6,7 @@ using AfxDotNetCoreSample.Dto;
 using AfxDotNetCoreSample.Enums;
 using AfxDotNetCoreSample.IService;
 using AfxDotNetCoreSample.Common;
+using Afx.Ioc;
 
 namespace AfxDotNetCoreSample.Service
 {

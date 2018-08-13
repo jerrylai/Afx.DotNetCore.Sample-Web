@@ -7,6 +7,7 @@ using AfxDotNetCoreSample.Common;
 using AfxDotNetCoreSample.Dto;
 using AfxDotNetCoreSample.Enums;
 using AfxDotNetCoreSample.IService;
+using Afx.Ioc;
 
 namespace AfxDotNetCoreSample.Controllers
 {

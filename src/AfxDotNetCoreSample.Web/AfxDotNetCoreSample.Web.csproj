@@ -19,13 +19,13 @@
 
   <ItemGroup>
     <None Remove="Config\CacheKey.xml" />
-    <None Remove="Config\IocConfig.xml" />
+    <None Remove="Config\DefaultImplement.xml" />
     <None Remove="Langue\Enum\zh-CN\ApiStatus.xml" />
     <None Remove="Langue\Enum\zh-CN\UserStatus.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Config\IocConfig.xml">
+    <Content Include="Config\DefaultImplement.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Config\CacheKey.xml">
@@ -40,8 +40,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Afx.AspNetCore.Mvc" Version="6.2.13" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Afx.AspNetCore.Mvc" Version="6.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>

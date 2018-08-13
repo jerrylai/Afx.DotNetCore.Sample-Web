@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 using Afx.Cache;
-using Afx.Utils;
+using Afx.Ioc;
 
 namespace AfxDotNetCoreSample.Common
 {
@@ -18,7 +18,7 @@ namespace AfxDotNetCoreSample.Common
             {
                 if (_cacheKey == null)
                 {
-                    _cacheKey = new CacheKey(PathUtils.GetFileFullPath("Config/CacheKey.xml"));
+                    _cacheKey = IocUtils.GetSingle<CacheKey>();
                 }
                 return _cacheKey;
             }

@@ -9,23 +9,14 @@ using Afx.Utils;
 using Afx.Configuration;
 using Microsoft.Extensions.Configuration;
 using AfxDotNetCoreSample.Enums;
+using Afx.Ioc;
 
 namespace AfxDotNetCoreSample.Common
 {
     public static class ConfigUtils
     {
         private static Lazy<IConfiguration> _configuration = new Lazy<IConfiguration>(() =>
-         {
-             var configBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
-             string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-             if (!string.IsNullOrEmpty(env))
-             {
-                 configBuilder = configBuilder.AddJsonFile($"appsettings.{env}.json");
-             }
-             configBuilder = configBuilder.AddEnvironmentVariables();
-             var config = configBuilder.SetBasePath(Directory.GetCurrentDirectory()).Build();
-             return config;
-         }, false);
+         IocUtils.GetSingle<IConfiguration>(), false);
 
         public static IConfiguration Configuration => _configuration.Value;
 

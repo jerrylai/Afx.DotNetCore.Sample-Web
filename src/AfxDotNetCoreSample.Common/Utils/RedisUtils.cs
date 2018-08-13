@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Afx.Ioc;
 using StackExchange.Redis;
 
 namespace AfxDotNetCoreSample.Common
@@ -8,33 +9,11 @@ namespace AfxDotNetCoreSample.Common
     public static class RedisUtils
     {
         private static Lazy<IConnectionMultiplexer> _default = new Lazy<IConnectionMultiplexer>(() =>
-        {
-            var con = ConnectionMultiplexer.Connect(ConfigUtils.RedisConfig);
-            con.ConnectionFailed += OnConnectionFailed;
-            con.ErrorMessage += OnErrorMessage;
-            con.InternalError += OnInternalError;
-            con.PreserveAsyncOrder = false;
-            return con;
-        }, true);
+            IocUtils.GetSingle<IConnectionMultiplexer>(), true);
 
         public static IConnectionMultiplexer Default => _default.Value;
 
-        private static void OnInternalError(object sender, InternalErrorEventArgs e)
-        {
-            LogUtils.Error($"【Redis.InternalError】ConnectionType:{e.ConnectionType}, EndPoint: {e.EndPoint}, Origin: {e.Origin}", e.Exception);
-        }
-
-        private static void OnErrorMessage(object sender, RedisErrorEventArgs e)
-        {
-            LogUtils.Error($"【Redis.InternalError】EndPoint: {e.EndPoint}, error: {e.Message}");
-        }
-
-        private static void OnConnectionFailed(object sender, ConnectionFailedEventArgs e)
-        {
-            LogUtils.Error($"【Redis.InternalError】ConnectionType:{e.ConnectionType}, EndPoint: {e.EndPoint}, FailureType: {e.FailureType}", e.Exception);
-        }
-
-        private static byte[] ToBytes<T>(T value)
+         private static byte[] ToBytes<T>(T value)
         {
             byte[] buffer = null;
             if (value != null)

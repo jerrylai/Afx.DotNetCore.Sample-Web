@@ -10,6 +10,7 @@ using AfxDotNetCoreSample.IRepository;
 using AfxDotNetCoreSample.Models;
 using AfxDotNetCoreSample.Common;
 using Afx.Utils;
+using Afx.Ioc;
 
 namespace AfxDotNetCoreSample.Repository
 {
