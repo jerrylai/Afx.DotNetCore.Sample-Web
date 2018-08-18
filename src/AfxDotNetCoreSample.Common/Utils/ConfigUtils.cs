@@ -5,11 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Afx.Utils;
-using Afx.Configuration;
 using Microsoft.Extensions.Configuration;
 using AfxDotNetCoreSample.Enums;
-using Afx.Ioc;
 
 namespace AfxDotNetCoreSample.Common
 {

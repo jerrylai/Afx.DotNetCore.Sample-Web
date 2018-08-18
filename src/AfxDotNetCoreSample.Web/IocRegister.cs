@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Xml;
 
 using Afx.Cache;
-using Afx.Ioc;
 using Afx.Utils;
+using Afx.Configuration;
 using AfxDotNetCoreSample.Common;
 using StackExchange.Redis;
 
@@ -45,7 +43,7 @@ namespace AfxDotNetCoreSample.Web
 
             if (doc.DocumentElement == null) throw new ArgumentException(IOC_REGISTER_FILE + " is error!");
 
-            foreach(XmlNode node in doc.DocumentElement.ChildNodes)
+            foreach (XmlNode node in doc.DocumentElement.ChildNodes)
             {
                 if (node is XmlElement && node.Name == "Register")
                 {

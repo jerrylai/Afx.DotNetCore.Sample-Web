@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using AfxDotNetCoreSample.Common;
-using Afx.Ioc;
 
 namespace AfxDotNetCoreSample.Web
 {
@@ -19,7 +18,7 @@ namespace AfxDotNetCoreSample.Web
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            IocUtils.RegisterSingle<IConfiguration>(configuration);
+            IocUtils.RegisterSingle(configuration);
             IocRegister.Register();
             ConfigUtils.SetThreads();
         }

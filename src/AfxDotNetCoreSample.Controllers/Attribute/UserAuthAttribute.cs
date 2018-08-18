@@ -14,7 +14,7 @@ using AfxDotNetCoreSample.Enums;
 using AfxDotNetCoreSample.IService;
 
 using Afx.Utils;
-using Afx.Ioc;
+
 
 namespace AfxDotNetCoreSample.Controllers
 {

@@ -10,40 +10,36 @@ namespace AfxDotNetCoreSample.Common
 {
     public class AopLog : IAop
     {
-        public void OnException(AopContext context, Exception ex)
+        public virtual void OnException(AopContext context, Exception ex)
         {
             StringBuilder msg = new StringBuilder();
-            msg.AppendFormat("【AopLog.OnException】Class: {0}, Method: {1};", context.TagetType.FullName, context.Method.Name);
+            msg.AppendFormat("【AopLog.OnException】Class: {0}, Method: {1};", context.TargetType.FullName, context.Method.Name);
             var param = context.Method.GetParameters();
-            object[] args = context.Parameters ?? new object[0];
+            object[] args = context.Arguments ?? new object[0];
             for (int i = 0; i < param.Length; i++)
             {
                 var p = param[i];
-                if(!p.IsOut && !typeof(Delegate).IsAssignableFrom(p.ParameterType))
+                if (!p.IsOut && !typeof(Delegate).IsAssignableFrom(p.ParameterType))
                     msg.AppendFormat("\r\n{0}: {1}", p.Name, args.Length > i ? (args[i] == null ? "null" : JsonUtils.Serialize(args[i])) : "");
             }
             msg.Append("异常：");
 
-            if(ex is ApiException)
+            if (ex is ApiException)
                 LogUtils.Info(msg.ToString(), ex);
             else
                 LogUtils.Error(msg.ToString(), ex);
         }
 
-        public void OnExecuting(AopContext context)
+        public virtual void OnExecuting(AopContext context)
         {
             context.UserState = DateTime.Now;
         }
 
-        public void OnResult(AopContext context, object returnValue)
+        public virtual void OnResult(AopContext context, object returnValue)
         {
-            if (context.UserState is DateTime)
-            {
-                var startTime = (DateTime)context.UserState;
-                var time = DateTime.Now - startTime;
-                LogUtils.Debug(string.Format("【AopLog.Stopwatch】TotalMilliseconds: {0:f0}, Class: {1}, Method: {2}",
-                    time.TotalMilliseconds, context.TagetType.FullName, context.Method.Name));
-            }
+            var starttime = (DateTime)context.UserState;
+            var time = DateTime.Now - starttime;
+            LogUtils.Debug($"【AOP】Class: {context.TargetType.FullName}, Method: {context.Method.Name}, TotalMilliseconds: {time.TotalMilliseconds}");
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Afx.Ioc;
+
 using AfxDotNetCoreSample.Common;
 using AfxDotNetCoreSample.Dto;
 using AfxDotNetCoreSample.Enums;

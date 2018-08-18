@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Afx.Ioc;
+
 using StackExchange.Redis;
 
 namespace AfxDotNetCoreSample.Common

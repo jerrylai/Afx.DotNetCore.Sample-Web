@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 
 using Afx.Cache;
-using Afx.Ioc;
 
 namespace AfxDotNetCoreSample.Common
 {
