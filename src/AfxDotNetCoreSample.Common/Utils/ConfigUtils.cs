@@ -13,7 +13,7 @@ namespace AfxDotNetCoreSample.Common
     public static class ConfigUtils
     {
         private static Lazy<IConfiguration> _configuration = new Lazy<IConfiguration>(() =>
-         IocUtils.GetSingle<IConfiguration>(), false);
+         IocUtils.Get<IConfiguration>(), false);
 
         public static IConfiguration Configuration => _configuration.Value;
 

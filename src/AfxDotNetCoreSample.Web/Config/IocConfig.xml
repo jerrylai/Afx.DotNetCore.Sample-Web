@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<IocConfig>
+    <Register baseInterface="AfxDotNetCoreSample.IService.IBaseService,AfxDotNetCoreSample.IService" assembly="AfxDotNetCoreSample.Service" aopEnabled="true" aopType="AfxDotNetCoreSample.Common.AopLog,AfxDotNetCoreSample.Common" />
+    
+    <Register baseInterface="AfxDotNetCoreSample.IRepository.IBaseRepository,AfxDotNetCoreSample.IRepository" assembly="AfxDotNetCoreSample.Repository" aopEnabled="true" aopType="AfxDotNetCoreSample.Common.AopLog,AfxDotNetCoreSample.Common" />
+    
+    <Register baseInterface="AfxDotNetCoreSample.ICache.IBaseCache,AfxDotNetCoreSample.ICache" assembly="AfxDotNetCoreSample.Cache" aopEnabled="true" aopType="AfxDotNetCoreSample.Common.AopLog,AfxDotNetCoreSample.Common" />
+    
+</IocConfig>
+

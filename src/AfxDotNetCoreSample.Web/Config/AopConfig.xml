@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<AopConfig>
+    <!-- 指定接口默认实现类 -->
+    <!--<Aop name="AfxDotNetCoreSample.Service.UserService" enabled="true" type="AfxDotNetCoreSample.Common.AopLog,AfxDotNetCoreSample.Common" />-->
+</AopConfig>
+

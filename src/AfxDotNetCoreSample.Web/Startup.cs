@@ -18,8 +18,7 @@ namespace AfxDotNetCoreSample.Web
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            IocUtils.RegisterSingle(configuration);
-            IocRegister.Register();
+            IocConfig.Register(configuration);
             ConfigUtils.SetThreads();
         }
 

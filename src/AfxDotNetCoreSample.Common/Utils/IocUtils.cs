@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Xml;
-
+using Afx.Cache;
 using Afx.Ioc;
 using Afx.Utils;
 
@@ -10,9 +11,9 @@ namespace AfxDotNetCoreSample.Common
 {
     public static class IocUtils
     {
-        private static IContainer _defaultContainer = new IocContainer(true);
+        private static IContainer _container = new Container();
 
-        public static IContainer DefaultContainer => _defaultContainer;
+        public static IContainer Default => _container;
 
         private static Dictionary<string, string> _iocConfigDic = new Dictionary<string, string>();
 
@@ -56,63 +57,34 @@ namespace AfxDotNetCoreSample.Common
             IocConfigDic.Clear();
         }
 
-        public static TInterface Get<TInterface>() => Get<TInterface>(null, null);
+        public static TService Get<TService>() => Get<TService>(null, null);
 
-        public static TInterface Get<TInterface>(string name) => Get<TInterface>(name, null);
+        public static TService Get<TService>(string name) => Get<TService>(name, null);
 
-        public static TInterface Get<TInterface>(object[] args) => Get<TInterface>(null, args);
+        public static TService Get<TService>(object[] args) => Get<TService>(null, args);
 
-        public static TInterface Get<TInterface>(string name, object[] args)
+        public static TService Get<TService>(string name, object[] args)
         {
-            TInterface result = default(TInterface);
+            TService result = default(TService);
 
-            if(string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
             {
-                var key = typeof(TInterface).FullName;
+                var key = typeof(TService).FullName;
                 IocConfigDic.TryGetValue(key, out name);
             }
 
-            result = DefaultContainer.Get<TInterface>(name, args);
-
-            if(result == null)
+            if (!string.IsNullOrEmpty(name))
             {
-                throw new ArgumentException($"未找到 { typeof(TInterface).FullName } 实现类（name={name}）!", typeof(TInterface).FullName);
-            }
-
-            return result;
-        }
-
-        private static Dictionary<Type, object> _singleDic = new Dictionary<Type, object>();
-        private static Dictionary<Type, object> DefaultSingleContainer => _singleDic;
-
-        public static void RegisterSingle<TInterface>(TInterface instance)
-        {
-            if (instance == null) throw new ArgumentNullException("instance");
-            var t = typeof(TInterface);
-            var it = instance.GetType();
-            if (!t.IsAssignableFrom(it)) throw new ArgumentException("instance is error!");
-            _singleDic[t] = instance;
-        }
-        
-        public static void RegisterSingle<TInterface>(Func<TInterface> fun)
-        {
-            if (fun == null) throw new ArgumentNullException("instance");
-            var instance = fun();
-            RegisterSingle<TInterface>(instance);
-        }
-
-        public static TInterface GetSingle<TInterface>()
-        {
-            var t = typeof(TInterface);
-            TInterface result = default(TInterface);
-            object obj = null;
-            if (_singleDic.TryGetValue(t, out obj))
-            {
-                result = (TInterface)obj;
+                result = Default.GetByName<TService>(name, args);
             }
             else
             {
-                throw new ArgumentException($"未找到 { t.FullName } 实现类!", typeof(TInterface).FullName);
+                result = Default.Get<TService>(args);
+            }
+
+            if (result == null)
+            {
+                throw new ArgumentException($"未找到 { typeof(TService).FullName } 实现类（name={name}）!", typeof(TService).FullName);
             }
 
             return result;

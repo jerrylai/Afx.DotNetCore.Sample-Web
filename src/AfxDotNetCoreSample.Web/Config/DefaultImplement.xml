@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Config>
+<DefaultImplement>
     <!-- 指定接口默认实现类 -->
     <!--<Interface name="AfxDotNetCoreSample.IService.IUserService" value="AfxDotNetCoreSample.Service.UserService" />-->
-</Config>
+</DefaultImplement>
 

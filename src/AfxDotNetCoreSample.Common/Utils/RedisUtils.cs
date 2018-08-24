@@ -8,8 +8,7 @@ namespace AfxDotNetCoreSample.Common
 {
     public static class RedisUtils
     {
-        private static Lazy<IConnectionMultiplexer> _default = new Lazy<IConnectionMultiplexer>(() =>
-            IocUtils.GetSingle<IConnectionMultiplexer>(), true);
+        private static Lazy<IConnectionMultiplexer> _default = new Lazy<IConnectionMultiplexer>(LoadRedis, false);
 
         public static IConnectionMultiplexer Default => _default.Value;
 
@@ -103,6 +102,32 @@ namespace AfxDotNetCoreSample.Common
         public static IDatabase GetDatabase(int db = -1)
         {
             return Default.GetDatabase(db);
+        }
+
+        private static IConnectionMultiplexer LoadRedis()
+        {
+            var con = ConnectionMultiplexer.Connect(ConfigUtils.RedisConfig);
+            con.ConnectionFailed += OnConnectionFailed;
+            con.ErrorMessage += OnErrorMessage;
+            con.InternalError += OnInternalError;
+            con.PreserveAsyncOrder = false;
+
+            return con;
+        }
+
+        private static void OnInternalError(object sender, InternalErrorEventArgs e)
+        {
+            LogUtils.Error($"【Redis.InternalError】ConnectionType:{e.ConnectionType}, EndPoint: {e.EndPoint}, Origin: {e.Origin}", e.Exception);
+        }
+
+        private static void OnErrorMessage(object sender, RedisErrorEventArgs e)
+        {
+            LogUtils.Error($"【Redis.InternalError】EndPoint: {e.EndPoint}, error: {e.Message}");
+        }
+
+        private static void OnConnectionFailed(object sender, ConnectionFailedEventArgs e)
+        {
+            LogUtils.Error($"【Redis.InternalError】ConnectionType:{e.ConnectionType}, EndPoint: {e.EndPoint}, FailureType: {e.FailureType}", e.Exception);
         }
     }
 }

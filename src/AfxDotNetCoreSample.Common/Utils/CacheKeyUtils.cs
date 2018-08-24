@@ -17,7 +17,7 @@ namespace AfxDotNetCoreSample.Common
             {
                 if (_cacheKey == null)
                 {
-                    _cacheKey = IocUtils.GetSingle<CacheKey>();
+                    _cacheKey = IocUtils.Get<CacheKey>();
                 }
                 return _cacheKey;
             }
