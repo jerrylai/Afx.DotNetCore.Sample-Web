@@ -25,7 +25,7 @@ namespace AfxDotNetCoreSample.Service
         protected virtual ISyncLock GetSyncLock(TaskLockType type, string key, string owner = null,
             TimeSpan? timeout = null)
         {
-            return new SyncLock(type, key, owner, timeout);
+            return IocUtils.Get<ISyncLock>(new object[] { type, key, owner, timeout });
         }
     }
 }

@@ -22,7 +22,7 @@ namespace AfxDotNetCoreSample.IService
         /// <param name="timeout">锁超时</param>
         /// <returns></returns>
         bool Lock(TaskLockType type, string key, string owner, TimeSpan? timeout);
-
+        
         /// <summary>
         /// 查询是否锁定
         /// </summary>

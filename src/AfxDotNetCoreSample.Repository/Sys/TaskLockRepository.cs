@@ -39,7 +39,7 @@ namespace AfxDotNetCoreSample.Repository
             if (key.Length > 50) throw new ArgumentOutOfRangeException(nameof(key), "Length不能大于50！");
             if (string.IsNullOrEmpty(owner)) throw new ArgumentNullException(nameof(owner));
             if (owner.Length > 50) throw new ArgumentOutOfRangeException(nameof(owner), "Length不能大于50！");
-            if (ConfigUtils.CacheType != CacheType.Redis) throw new NotSupportedException($"系统缓存类型(ConfigUtils.CacheType={ConfigUtils.CacheType})不支持 SyncLockType={syncLockType}!");
+            if (syncLockType == SyncLockType.Redis && ConfigUtils.CacheType != CacheType.Redis) throw new NotSupportedException($"系统缓存类型(ConfigUtils.CacheType={ConfigUtils.CacheType})不支持 SyncLockType={syncLockType}!");
             switch (syncLockType)
             {
                 case SyncLockType.Database:
@@ -142,7 +142,7 @@ namespace AfxDotNetCoreSample.Repository
             if (key.Length > 50) throw new ArgumentOutOfRangeException(nameof(key), "Length不能大于50！");
             if (string.IsNullOrEmpty(owner)) throw new ArgumentNullException(nameof(owner));
             if (owner.Length > 50) throw new ArgumentOutOfRangeException(nameof(owner), "Length不能大于50！");
-            if (ConfigUtils.CacheType != CacheType.Redis) throw new NotSupportedException($"系统缓存类型(ConfigUtils.CacheType={ConfigUtils.CacheType})不支持 SyncLockType={syncLockType}!");
+            if (syncLockType == SyncLockType.Redis && ConfigUtils.CacheType != CacheType.Redis) throw new NotSupportedException($"系统缓存类型(ConfigUtils.CacheType={ConfigUtils.CacheType})不支持 SyncLockType={syncLockType}!");
             switch (syncLockType)
             {
                 case SyncLockType.Database:
@@ -205,7 +205,7 @@ namespace AfxDotNetCoreSample.Repository
         {
             if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
             if (key.Length > 50) throw new ArgumentOutOfRangeException(nameof(key), "Length不能大于50！");
-            if (ConfigUtils.CacheType != CacheType.Redis) throw new NotSupportedException($"系统缓存类型(ConfigUtils.CacheType={ConfigUtils.CacheType})不支持 SyncLockType={syncLockType}!");
+            if (syncLockType == SyncLockType.Redis && ConfigUtils.CacheType != CacheType.Redis) throw new NotSupportedException($"系统缓存类型(ConfigUtils.CacheType={ConfigUtils.CacheType})不支持 SyncLockType={syncLockType}!");
             switch (syncLockType)
             {
                 case SyncLockType.Database:
@@ -256,7 +256,7 @@ namespace AfxDotNetCoreSample.Repository
             if (key.Length > 50) throw new ArgumentOutOfRangeException(nameof(key), "Length不能大于50！");
             if (string.IsNullOrEmpty(owner)) throw new ArgumentNullException(nameof(owner));
             if (owner.Length > 50) throw new ArgumentOutOfRangeException(nameof(owner), "Length不能大于50！");
-            if (ConfigUtils.CacheType != CacheType.Redis) throw new NotSupportedException($"系统缓存类型(ConfigUtils.CacheType={ConfigUtils.CacheType})不支持 SyncLockType={syncLockType}!");
+            if (syncLockType == SyncLockType.Redis && ConfigUtils.CacheType != CacheType.Redis) throw new NotSupportedException($"系统缓存类型(ConfigUtils.CacheType={ConfigUtils.CacheType})不支持 SyncLockType={syncLockType}!");
             switch (syncLockType)
             {
                 case SyncLockType.Database:

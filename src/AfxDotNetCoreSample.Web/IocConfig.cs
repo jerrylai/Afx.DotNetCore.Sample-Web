@@ -36,6 +36,8 @@ namespace AfxDotNetCoreSample.Web
             container.Register(c => RedisUtils.Default);
 
             LoadAssembly(container);
+
+            container.Register<Dto.ISyncLock, Service.SyncLock>();
         }
 
         private static void LoadAssembly(IContainer container)

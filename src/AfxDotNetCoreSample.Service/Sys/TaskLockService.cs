@@ -16,9 +16,9 @@ namespace AfxDotNetCoreSample.Service
         private ITaskLockRepository repository;
         private SyncLockType syncLockType;
 
-        public TaskLockService()
+        public TaskLockService(ITaskLockRepository repository)
         {
-            this.repository = this.GetRepository<ITaskLockRepository>();
+            this.repository = repository;
             this.syncLockType = ConfigUtils.CacheType == CacheType.Redis ? SyncLockType.Redis : SyncLockType.Database;
         }
 
@@ -49,7 +49,7 @@ namespace AfxDotNetCoreSample.Service
 
             key = this.FormatValue(key, nameof(key));
             owner = this.FormatValue(owner, nameof(owner));
-
+            
             return this.repository.Lock(type, key, owner, timeout, this.syncLockType);
         }
 

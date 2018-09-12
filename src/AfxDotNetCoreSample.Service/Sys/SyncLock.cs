@@ -40,7 +40,7 @@ namespace AfxDotNetCoreSample.Service
             this.IsLockSucceed = false;
         }
 
-        public bool IsOtherLock()
+        public virtual bool IsOtherLock()
         {
             if (this.IsLockSucceed) return true;
             var result = this.service.Value.IsOtherLock(this.Type, this.Key, this.Owner);
@@ -48,7 +48,7 @@ namespace AfxDotNetCoreSample.Service
             return result;
         }
 
-        public bool Lock()
+        public virtual bool Lock()
         {
             if (this.IsLockSucceed) throw new MethodAccessException("不能重复锁！");
             this.IsLockSucceed = this.service.Value.Lock(this.Type, this.Key, this.Owner, this.Timeout);
@@ -56,20 +56,20 @@ namespace AfxDotNetCoreSample.Service
             return this.IsLockSucceed;
         }
 
-        public void Release()
+        public virtual void Release()
         {
             if (!this.IsLockSucceed) return;
             this.service.Value.Release(this.Type, this.Key);
             this.IsLockSucceed = false;
         }
 
-        public void UpdateTimeout()
+        public virtual void UpdateTimeout()
         {
             if (!this.IsLockSucceed && !this.Timeout.HasValue) return;
             this.service.Value.UpdateTimeout(this.Type, this.Key, this.Owner, this.Timeout);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             this.Release();
         }
