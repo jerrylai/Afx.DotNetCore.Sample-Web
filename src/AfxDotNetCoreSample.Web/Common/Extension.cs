@@ -46,6 +46,12 @@ namespace AfxDotNetCoreSample.Web
         {
             if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
             var sid = httpContext.Items[SessionUtils.SidName] as string;
+            if (!string.IsNullOrEmpty(sid))
+            {
+                var arr = sid.Split('-');
+                sid = arr[0];
+            }
+
             return sid;
         }
 
