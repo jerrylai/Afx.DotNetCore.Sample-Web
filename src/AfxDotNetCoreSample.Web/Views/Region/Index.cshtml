@@ -1,0 +1,267 @@
+﻿
+@{
+    Layout = null;
+}
+
+<style type="text/css">
+    #form_add_region table, #form_add_region tbody, #form_add_region tr, #form_add_region td {
+        border: none
+    }
+
+    #form_add_region .lb {
+        width: 80px;
+        text-align: right;
+    }
+
+    #form_add_region td {
+        padding-top: 10px;
+    }
+</style>
+
+<div style="position:fixed;z-index:99;background-color:white; margin-top:-10px;padding-top:10px;padding-bottom: 5px;">
+    <a id="btn_region_Add" style="margin-left:10px;width:60px" class="easyui-linkbutton c1">添加</a>
+    <a id="btn_region_Edit" style="margin-left:10px;width:60px" class="easyui-linkbutton c6">修改</a>
+    <a id="btn_region_Delete" style="margin-left:10px;width:60px" class="easyui-linkbutton c5">删除</a>
+</div>
+<div style="margin-top:15px;margin-left:10px;margin-top:30px">
+    <ul id="ul_Region"></ul>
+</div>
+
+<div id="dialog_add_region" class="easyui-dialog" style="width:360px;height:250px;padding:15px;"
+     data-options="modal:true,closed: true,title:'添加'">
+    <form id="form_add_region" method="post" action="/Region/Add" class="easyui-form" data-options="novalidate:true" style="overflow:hidden">
+        <input id="hid_add_region_ParentId" type="hidden" name="ParentId" />
+        <table>
+            <tbody>
+                <tr>
+                    <td class="lb">
+                        选择节点：
+                    </td>
+                    <td>
+                        <input name="ParentName" class="easyui-textbox" style="width:200px;" data-options="disabled:true" />
+                        </td>
+                </tr>
+                <tr style="margin-top:15px;">
+                    <td class="lb">节点层级：</td>
+                    <td><select id="select_add_region_Level" style="width:200px;"></select></td>
+                </tr>
+                <tr style="margin-top:15px;">
+                    <td  class="lb">名称：</td>
+                    <td> <input name="Name" class="easyui-textbox" style="width:200px;" data-options="required:true,validType:{length:[1,100]}" /></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<div id="dialog_edit_region" class="easyui-dialog" style="width:360px;height:150px;padding:15px;"
+     data-options="modal:true,closed: true,title:'修改'">
+    <form id="form_edit_region" method="post" action="/Region/Update" class="easyui-form" data-options="novalidate:true" style="overflow:hidden">
+        <input type="hidden" name="Id" />
+        <table>
+            <tbody>
+                <tr style="margin-top:15px;">
+                    <td class="lb">名称：</td>
+                    <td> <input name="Name" class="easyui-textbox" style="width:200px;" data-options="required:true,validType:{length:[1,100]}" /></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#ul_Region').tree({
+            animate: true,
+            lines: false,
+            url:'/Region/GetTreeList'
+        });
+
+        $('#form_add_region .easyui-textbox').each(function (index, element) {
+            $(element).textbox();
+        });
+
+        $('#form_edit_region .easyui-textbox').each(function (index, element) {
+            $(element).textbox();
+        });
+
+        var selectLevel = '1';
+        $('#form_add_region').form({
+            onSubmit: function (param) {
+                param._iframe_ajax = true;
+                return $(this).form('enableValidation').form('validate');
+            },
+            success: function (data) {
+                if (typeof (data) == 'string') data = JSON.parse(data);
+                if (data.Status == 0 && data.Data == true) {
+                    $('#dialog_add_region').dialog('close');
+                    if (selectLevel == '2' && selectNode) {
+                        var p = $('#ul_Region').tree('getParent', selectNode.target);
+                        if (p) { $('#ul_Region').tree('reload', p.target); }
+                        else { $('#ul_Region').tree('reload');}
+                    }
+                    else if (selectLevel == '3' &&selectNode) {
+                        var ch = $('#ul_Region').tree('getChildren', selectNode.target);
+                        if (ch && ch.length > 0) {
+                            $('#ul_Region').tree('reload', selectNode.target);
+                        }
+                        else {
+                            $.postPublic('@Href("~/Region/GetTreeList")', { Id: selectNode.id }, function (data) {
+                                $('#ul_Region').tree('append', {
+                                    parent: selectNode.target, data: data
+                                });
+                            });
+                        }
+                    }
+                    else {
+                        $('#ul_Region').tree('reload');
+                    }
+                }
+                else {
+                    $.showDataMsg('添加失败！', data);
+                }
+            }
+        });
+
+        var selectNode = null;
+        function getTreeSelectNode() {
+            selectNode = $('#ul_Region').tree('getSelected');
+            return selectNode;
+        }
+
+        $('#btn_region_Add').bind('click', function () {
+            var node = getTreeSelectNode();
+            if (node) {
+                $('#select_add_region_Level').combobox({
+                    valueField: 'id',
+                    textField: 'name',
+                    value: '3',
+                    editable: false,
+                    data: [
+                        { id: 1, name: '根节点' },
+                        { id: 2, name: '同级节点' },
+                        { id: 3, name: '子节点' },
+                    ]
+                });
+                $('#form_add_region').form('load', { ParentId: node.id, ParentName: node.text, Name: '' });
+            }
+            else {
+                $('#form_add_region').form('clear');
+                $('#select_add_region_Level').combobox({
+                    valueField: 'id',
+                    textField: 'name',
+                    value: '1',
+                    editable: false,
+                    data: [
+                        { id: 1, name: '根节点' }
+                    ]
+                });
+            }
+            $('#form_add_region').form('disableValidation');
+            $('#dialog_add_region').dialog('center');
+            $('#dialog_add_region').dialog('open');
+        });
+
+        $('#form_edit_region').form({
+            onSubmit: function (param) {
+                param._iframe_ajax = true
+                return $(this).form('enableValidation').form('validate');
+            },
+            success: function (data) {
+                if (data && typeof (data) == 'string') data = JSON.parse(data);
+                if (data && data.Status == 0) {
+                    $('#dialog_edit_region').dialog('close');
+                    var p = $('#ul_Region').tree('getParent', selectNode.target);
+                    if (p) { $('#ul_Region').tree('reload', p.target); }
+                    else { $('#ul_Region').tree('reload'); }
+                }
+                else {
+                    $.showDataMsg('修改失败！', data);
+                }
+            }
+        });
+
+        $('#btn_region_Edit').bind('click', function () {
+            var node = getTreeSelectNode();
+            if (node) {
+                $('#form_edit_region').form('load', { Id: node.id, Name: node.text });
+                $('#form_edit_region').form('disableValidation');
+                $('#dialog_edit_region').dialog('center');
+                $('#dialog_edit_region').dialog('open');
+            }
+        });
+
+        $('#btn_region_Delete').bind('click', function () {
+            var node = getTreeSelectNode(); 
+            if (node) {
+                $.messager.confirm({
+                    title: '提示',
+                    msg: '你确定要删除[' + node.text + ']?',
+                    fn: function (r) {
+                        if (r) {
+                            $.postPublic('/Region/Delete', { id: node.id }, function (data) {
+                                if (data && data.Status == 0 && data.Data == true) {
+                                    var p = $('#ul_Region').tree('getParent', selectNode.target);
+                                    if (p) { $('#ul_Region').tree('remove', selectNode.target); $('#ul_Region').tree('reload', p.target); }
+                                    else { $('#ul_Region').tree('reload'); }
+                                }
+                                else {
+                                    if (data && data.Msg) {
+                                        $.messager.alert('提示', data.Msg, 'error');
+                                    }
+                                    else {
+                                        $.messager.alert('提示', '删除失败！', 'error');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        $('#dialog_add_region').dialog({
+            buttons: [{
+                text: '保 存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    selectLevel = $('#select_add_region_Level').combobox('getValue')
+                    if (selectLevel == '3' && selectNode) {
+                        $('#hid_add_region_ParentId').val(selectNode.id);
+                    }
+                    else if (selectLevel == '2' && selectNode) {
+                        var p = $('#ul_Region').tree('getParent', selectNode.target);
+                        if (p) $('#hid_add_region_ParentId').val(p.id);
+                        else $('#hid_add_region_ParentId').val('');
+                    }
+                    else {
+                        $('#hid_add_region_ParentId').val('');
+                    }
+                    $('#form_add_region').form('submit');
+                }
+            }, {
+                text: '关 闭',
+                iconCls: 'icon-cancel',
+                handler: function () {
+                    $('#dialog_add_region').dialog('close');
+                }
+            }]
+        });
+        $('#dialog_edit_region').dialog({
+            buttons: [{
+                text: '保 存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    $('#form_edit_region').form('submit');
+                }
+            }, {
+                text: '关 闭',
+                iconCls: 'icon-cancel',
+                handler: function () {
+                    $('#dialog_edit_region').dialog('close');
+                }
+            }]
+        });
+    });
+</script>

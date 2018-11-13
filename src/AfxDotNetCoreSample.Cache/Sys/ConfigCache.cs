@@ -8,7 +8,7 @@ using AfxDotNetCoreSample.ICache;
 
 namespace AfxDotNetCoreSample.Cache
 {
-    public class ConfigCache : DataDbCache, IConfigCache
+    public class ConfigCache : DataDbCache<ConfigCache>, IConfigCache
     {
         public virtual List<ConfigDto> Get(ConfigType type)
         {

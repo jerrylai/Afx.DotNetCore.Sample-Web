@@ -8,15 +8,12 @@ namespace AfxDotNetCoreSample.Models
     /// <summary>
     /// WEB菜单
     /// </summary>
-    [Table("WebMenu")]
     public class WebMenu : IModel
     {
         [Key]
-        [Column("Id")]
         [MaxLength(50)]
         public string Id { get; set; }
 
-        [Column("ParentId")]
         [MaxLength(50)]
         public string ParentId { get; set; }
 
@@ -24,28 +21,34 @@ namespace AfxDotNetCoreSample.Models
         /// 名称
         /// </summary>
         [Required]
-        [Column("Name")]
         [MaxLength(200)]
         public string Name { get; set; }
 
         /// <summary>
+        /// image url地址
+        /// </summary>
+        [MaxLength(200)]
+        public string ImageUrl { get; set; }
+
+        /// <summary>
         /// url地址
         /// </summary>
-        [Column("Url")]
         [MaxLength(200)]
-        public string Url { get; set; }
+        public string PageUrl { get; set; }
         /// <summary>
         /// 排序
         /// </summary>
-        [Required]
-        [Column("Order")]
         public int Order { get; set; }
 
         /// <summary>
         /// 0.不是菜单；1.是菜单
         /// </summary>
-        [Required]
-        [Column("IsMenu")]
         public bool IsMenu { get; set; }
+
+        /// <summary>
+        /// 说明
+        /// </summary>
+        [MaxLength(255)]
+        public string Description { get; set; }
     }
 }

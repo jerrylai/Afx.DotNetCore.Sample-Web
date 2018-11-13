@@ -9,8 +9,8 @@ namespace AfxDotNetCoreSample.ICache
 {
     public interface IRoleCache : IBaseCache
     {
-        List<RoleDto> Get();
-        void Set(List<RoleDto> list);
-        void Remove();
+        RoleDto Get(string id);
+        void Set(string id, RoleDto vm);
+        void Remove(string id);
     }
 }

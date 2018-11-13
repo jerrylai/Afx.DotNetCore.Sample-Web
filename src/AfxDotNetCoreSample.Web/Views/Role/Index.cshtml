@@ -1,0 +1,269 @@
+﻿@{
+    Layout = null;
+}
+<div id="role_main_content" style="min-width:700px">
+    <div>
+        <label style="margin-left:10px;">关键字：</label><input id="txt_roleDataGrid_Search" class="easyui-textbox" style="width:120px;" />
+        <a id="btn_roleDataGrid_Search" style="margin-left:10px;width:80px" class="easyui-linkbutton c1" >搜 索</a>
+    </div>
+    <div style="margin:10px 10px 0 0">
+        <table id="roleDataGrid"></table>
+    </div>
+</div>
+
+<div id="edit_Role" class="easyui-dialog" style="width:340px;height:165px;padding:25px;display:none"
+     data-options="modal:true,closed: true">
+    <form id="form_EditRole" method="post" action="/Role/Edit" class="easyui-form" data-options="novalidate:true" style="overflow:hidden">
+        <div>
+            <input type="hidden" name="Id" />
+            <label style="margin-left:15px;">名称：</label><input id="txt_roleName" name="Name" class="easyui-textbox" style="width:200px;" data-options="required:true,validType:{length:[1,100]}" />
+        </div>
+        <div style="margin-top:15px;margin-left:50px">
+            <a id="btn_EditRole_OK" style="width:80px;" class="easyui-linkbutton c1">保 存</a>
+            <a id="btn_EditRole_Close" style="width:80px;margin-left:15px" class="easyui-linkbutton c5">取 消</a>
+        </div>
+    </form>
+</div>
+
+<div id="edit_RoleWebMenu" class="easyui-dialog" style="width:400px;height:350px;padding:15px;"
+     data-options="modal:true,closed: true,title:'权限'">
+    <input id="hid_RoleId" type="hidden" />
+    <ul id="ul_RoleWebMenu" class="easyui-tree" data-options="animate:true,lines:false,checkbox:true"></ul>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        window.onresize = function () {
+            window.setTimeout(function () { $('#roleDataGrid').datagrid('resize'); }, 100);
+        }
+
+        $('#edit_RoleWebMenu').dialog({
+            buttons: [{
+                text: '保 存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var nodes = $('#ul_RoleWebMenu').tree('getChecked', ['checked', 'indeterminate']);
+                    var ids = '';
+                    for (var i = 0; i < nodes.length; i++) {
+                        ids = ids.concat(',', nodes[i].id);
+                    }
+                    if (ids.length > 0) ids = ids.substring(1);
+                   var roleId= $('#hid_RoleId').val();
+                    var data = { RoleId: roleId, WebMenuIds: ids };
+                    $.postPublic('/WebMenu/SaveRoleMenu', data, function (d) {
+                        if (d.Status == 0) {
+                            $('#edit_RoleWebMenu').dialog('close');
+                        }
+                        else {
+                            $.showDataMsg(null, d);
+                        }
+                    });
+                }
+            }, {
+                text: '关 闭',
+                iconCls: 'icon-cancel',
+                handler: function () {
+                    $('#edit_RoleWebMenu').dialog('close');
+                }
+            }] });
+
+        function editRole(m) {
+            if (m) {
+                $('#edit_Role').dialog('setTitle', '修改');
+                $('#form_EditRole').form('load', m)
+            }
+            else {
+                $('#edit_Role').dialog('setTitle', '添加');
+                $('#form_EditRole').form('clear');
+            }
+            $('#form_EditRole').form('disableValidation');
+            $('#edit_Role').dialog('open');
+        }
+
+        function setTreeCheck(arr, tree) {
+            for (var i = 0; i < tree.length; i++) {
+                var m = tree[i];
+                if (m.children) {
+                    setTreeCheck(arr, m.children);
+                }
+                else if ($.existArrayObject(arr, m.id)) {
+                    m.checked = true;
+                }
+            }
+        }
+
+        function editRoleWebMenu(id) {
+            $('#hid_RoleId').val(id);
+            $.postPublic('/WebMenu/GetAll', function (data) {
+                if (data.Status == 0) {
+                    $.postPublic('/WebMenu/GetRoleMenu', {roleId:id}, function (d) {
+                        if (d.Status == 0) {
+                            setTreeCheck(d.Data, data.Data);
+                            $('#ul_RoleWebMenu').tree({ data: data.Data });
+                            $('#edit_RoleWebMenu').dialog('center');
+                            $('#edit_RoleWebMenu').dialog('open');
+                        }
+                        else {
+                            $.showDataMsg(null, d);
+                        }
+                    });
+                }
+                else {
+                    $.showDataMsg(null, data);
+                }
+            });
+        }
+
+        $('#btn_roleDataGrid_Search').bind('click', function () {
+            $('#roleDataGrid').datagrid('load', { Keyword: $('#txt_roleDataGrid_Search').textbox('getValue') });
+        });
+
+        $('#btn_EditRole_Close').bind('click', function () {
+            $('#edit_Role').dialog('close');
+        });
+
+        $('#form_EditRole').form({
+            onSubmit: function (param) {
+                return $(this).form('validate');
+            },
+            success: function (data) {
+                $('#edit_Role').dialog('close');
+                if (typeof (data) == 'string') data = JSON.parse(data);
+                if (data.Status == 0 && data.Data == true) {
+                    $('#roleDataGrid').datagrid('reload');
+                }
+                else {
+                    if (data.Status == 101 && data.Msg) {
+                        $.messager.alert('提示', data.Msg, 'error');
+                    }
+                    else {
+                        $.messager.alert('提示', '修改失败！', 'error');
+                    }
+                }
+            }
+        });
+
+        $('#btn_EditRole_OK').bind('click', function () {
+            $('#form_EditRole').form('enableValidation').form('submit');
+        });
+
+        $('#roleDataGrid').datagrid({
+            pageSize: $.datagridConfig.pageSize,
+            pageList: $.datagridConfig.pageList,
+            loadMsg: $.datagridConfig.loadMsg,
+            onBeforeLoad: $.datagridConfig.onBeforeLoad,
+            loadFilter: $.datagridConfig.loadFilter,
+            singleSelect: true,
+            checkOnSelect: true,
+            selectOnCheck: true,
+            multiSort: true,
+            remoteSort: true,
+            pagination: true,
+            pageNumber: 1,
+            method: 'post',
+            url: '/Role/GetPageData',
+            idField: 'Id',
+            columns: [[
+                { field: 'Id', checkbox: true, title: 'Id' },
+                {
+                    field: 'Name', width: '33%', sortable: true, resizable: true, title: '名称',
+                    formatter: function (value, row, index) {
+                        return $.htmlEncode(value);
+                    }
+                },
+                {
+                    field: 'UpdateTime', width: '32%', sortable: true, resizable: true, title: '更新时间',
+                    formatter: function (value, row, index) {
+                        return new Date(value).Format("yyyy-MM-dd hh:mm:ss");
+                    }
+                },
+                {
+                    field: 'CreateTime', width: '32%', sortable: true, resizable: true, title: '创建时间',
+                    formatter: function (value, row, index) {
+                        return new Date(value).Format("yyyy-MM-dd hh:mm:ss");
+                    }
+                }
+            ]],
+            toolbar: [
+                {
+                    text: '添加',
+                    iconCls: 'icon-add',
+                    handler: function () { editRole(null); }
+                },
+                {
+                    text: '修改',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                        var row = $('#roleDataGrid').datagrid('getSelected');
+                        if (row) {
+                            //if (row.IsSystem) {
+                            //    $.messager.alert('提示', '系统默认数据不能修改！', 'warning');
+                            //    return;
+                            //}
+                            //else {
+                            //    editRole(row);
+                            //}
+                            editRole(row);
+                        }
+                    }
+                },
+                {
+                    text: '删除',
+                    iconCls: 'icon-cancel',
+                    handler: function () {
+                        var row = $('#roleDataGrid').datagrid('getSelected');
+                        if (row) {
+                            if (row.IsSystem) {
+                                $.messager.alert('提示', '系统默认数据不能删除！', 'warning');
+                                return;
+                            }
+                            else {
+                                $.messager.confirm({
+                                    title: '提示',
+                                    msg: '你确定要删除[' + row.Name + ']?',
+                                    fn: function (r) {
+                                        if (r) {
+                                            $.postPublic('/Role/Delete', { id: row.Id }, function (data) {
+                                                if (data && data.Status == 0 && data.Data == true) {
+                                                    $('#roleDataGrid').datagrid('reload');
+                                                    $('#roleDataGrid').datagrid('clearSelections');
+                                                    $('#roleDataGrid').datagrid('clearChecked');
+                                                }
+                                                else {
+                                                    if (data && data.Msg) {
+                                                        $.messager.alert('提示', data.Msg, 'error');
+                                                    }
+                                                    else {
+                                                        $.messager.alert('提示', '删除失败！', 'error');
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                },
+                '-',
+                {
+                    text: '权限',
+                    iconCls: 'icon-lock',
+                    handler: function () {
+                        var row = $('#roleDataGrid').datagrid('getSelected');
+                        if (row) {
+                            //if (row.IsSystem) {
+                            //    $.messager.alert('提示', '系统默认数据不能修改！', 'warning');
+                            //    return;
+                            //}
+                            //else {
+                            //    editRoleWebMenu(row.Id);
+                            //}
+                            editRoleWebMenu(row.Id);
+                        }
+                    }
+                }
+            ],
+        });
+    });
+</script>

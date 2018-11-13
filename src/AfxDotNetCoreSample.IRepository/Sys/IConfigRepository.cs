@@ -21,6 +21,14 @@ namespace AfxDotNetCoreSample.IRepository
         Dictionary<string, string> Get(ConfigType type);
 
         /// <summary>
+        /// 更新系统配置
+        /// </summary>
+        /// <param name="type">ConfigType枚举值</param>
+        /// <param name="dic">系统配置集合</param>
+        /// <returns></returns>
+        int Set(ConfigType type, Dictionary<string, string> dic);
+
+        /// <summary>
         /// 获取单个系统配置
         /// </summary>
         /// <param name="type">ConfigType枚举值</param>
@@ -52,12 +60,8 @@ namespace AfxDotNetCoreSample.IRepository
         /// <returns></returns>
         int SetValue(ConfigType type, string name, string value);
 
-        /// <summary>
-        /// 更新系统配置
-        /// </summary>
-        /// <param name="type">ConfigType枚举值</param>
-        /// <param name="dic">系统配置集合</param>
-        /// <returns></returns>
-        int SetValue(ConfigType type, Dictionary<string, string> dic);
+        DateTime GetLocalNow();
+
+        DateTime GetUtcNow();
     }
 }

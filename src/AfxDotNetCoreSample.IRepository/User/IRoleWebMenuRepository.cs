@@ -9,6 +9,6 @@ namespace AfxDotNetCoreSample.IRepository
     {
         List<string> Get(string roleId);
 
-        int Update(string roleId, List<string> list);
+        int Update(string roleId, List<string> addWebMenuIdList, List<string> delWebMenuIdList);
     }
 }

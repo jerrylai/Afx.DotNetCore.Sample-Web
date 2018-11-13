@@ -6,9 +6,8 @@ namespace AfxDotNetCoreSample.Enums
 {
     public enum SyncLockType
     {
-        None = 0,
         Database = 1,
 
-        Redis = 2,
+        Redis = 2
     }
 }

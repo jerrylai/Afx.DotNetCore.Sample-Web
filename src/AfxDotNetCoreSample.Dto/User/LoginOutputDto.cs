@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using AfxDotNetCoreSample.Enums;
+
 namespace AfxDotNetCoreSample.Dto
 {
     public class LoginOutputDto
@@ -15,6 +17,7 @@ namespace AfxDotNetCoreSample.Dto
         /// 角色Id
         /// </summary>
         public string RoleId { get; set; }
+
         /// <summary>
         /// 账号
         /// </summary>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <DefaultImplement>
-    <!-- 指定接口默认实现类 -->
-    <!--<Interface name="AfxDotNetCoreSample.IService.IUserService" value="AfxDotNetCoreSample.Service.UserService" />-->
+  <!-- 指定接口默认实现类 -->
+  <!--默认使用redis分布式锁-->
+  <Interface name="AfxDotNetCoreSample.IRepository.ITaskLockRepository" value="AfxDotNetCoreSample.Repository.RedisLockRepository" />
 </DefaultImplement>
-

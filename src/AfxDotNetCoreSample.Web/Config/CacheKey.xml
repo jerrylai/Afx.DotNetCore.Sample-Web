@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Config>
   <ListDb db="0">
-    <Role key="list:role" />
-    <Dept key="list:dept" />
-    <WebMenu key="list:web_menu" />
+    <WebMenu key="web_menu" />
   </ListDb>
   <DataDb db="1">
     <Config key="config:{0}" />
+
+    <Role key="role:{0}" />
+    
     <User key="user:{0}" />
-    <UserId key="user_id:{0}" />
+    <UserId key="user_id:{0}:{1}" />
+       
     <RoleWebMenu key="role_web_menu:{0}" />
-    <DeptTreeLevel key="dept_tree_level:{0}" />
+
+    <Region key="region:{0}" />
+    <RegionChild key="region_child:{0}" />
+    <RegionLevel key="region_level:{0}" />
   </DataDb>
   <SessionDb db="2" expire="20:0">
     <UserSession key="session:{0}" />
   </SessionDb>
-  <TaskLockDb db="3">
-    <TaskLock key="task_lock:{0}:{1}:value" />
-    <TaskLockOwner key="task_lock:{0}:{1}:owner" />
-  </TaskLockDb>
+  <DistributedLockDb db="3" expire="30:0">
+    <DistributedLock key="distributed_lock:{0}:{1}:value" />
+    <DistributedLockOwner key="distributed_lock:{0}:{1}:owner" />
+  </DistributedLockDb>
 </Config>
 

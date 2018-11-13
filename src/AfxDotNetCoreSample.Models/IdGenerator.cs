@@ -35,6 +35,8 @@ namespace AfxDotNetCoreSample.Models
         public static int CacheCount => ConfigUtils.IdGeneratorCount;
         public static string ServerId => ConfigUtils.IdGeneratorServerId;
 
+        public static int FormatNum => ConfigUtils.IdGeneratorFormatNum;
+
         private static ReadWriteLock rwLock = new ReadWriteLock();
         private static Dictionary<string, IdInfoModel> dic = new Dictionary<string, IdInfoModel>(StringComparer.OrdinalIgnoreCase);
 
@@ -186,12 +188,9 @@ namespace AfxDotNetCoreSample.Models
             return value;
         }
 
-        private static string GetName<T>() where T : class, IModel
+        private static string GetName(Type type)
         {
-            var t = typeof(T);
-            string name = t.Name;
-
-            return name;
+            return type.Name;
         }
 
         private static string GetKey(string name)
@@ -203,7 +202,8 @@ namespace AfxDotNetCoreSample.Models
 
         private static string FormatId(string key, int value)
         {
-            string id = string.Format("{0}{1:D8}", key, value);
+            string format = "{0}{1:D" + FormatNum + "}";
+            string id = string.Format(format, key, value);
 
             return id;
         }
@@ -215,8 +215,21 @@ namespace AfxDotNetCoreSample.Models
         /// <returns></returns>
         public static string Get<T>() where T : class, IModel
         {
+            return Get(typeof(T));
+        }
+
+        /// <summary>
+        /// 获取id
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string Get(Type type)
+        {
             string id = null;
-            string name = GetName<T>();
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (!typeof(IModel).IsAssignableFrom(type)) throw new ArgumentException($"{type.FullName} is not IModel!");
+
+            string name = GetName(type);
             string key = GetKey(name);
             int value = GetValue(name, key, 1);
             id = FormatId(key, value);
@@ -236,7 +249,8 @@ namespace AfxDotNetCoreSample.Models
             List<string> list = null;
             if (count > 0)
             {
-                string name = GetName<T>();
+                var t = typeof(T);
+                string name = GetName(t);
                 string key = GetKey(name);
                 int value = GetValue(name, key, count);
                 list = new List<string>(count);

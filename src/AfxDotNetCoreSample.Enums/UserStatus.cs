@@ -7,7 +7,6 @@ namespace AfxDotNetCoreSample.Enums
     /// </summary>
     public enum UserStatus : int
     {
-        None = 0,
         /// <summary>
         /// 启用
         /// </summary>

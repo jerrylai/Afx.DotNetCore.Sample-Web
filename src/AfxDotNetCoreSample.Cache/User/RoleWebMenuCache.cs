@@ -7,7 +7,7 @@ using AfxDotNetCoreSample.ICache;
 
 namespace AfxDotNetCoreSample.Cache
 {
-    public class RoleWebMenuCache : DataDbCache, IRoleWebMenuCache
+    public class RoleWebMenuCache : DataDbCache<RoleWebMenuCache>, IRoleWebMenuCache
     {
         public virtual List<string> Get(string roleId)
         {

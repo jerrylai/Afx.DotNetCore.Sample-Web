@@ -1,0 +1,76 @@
+﻿@{
+    Layout = null;
+}
+
+<style type="text/css">
+    #form_EditPwd table, #form_EditPwd tbody, #form_EditPwd tr, #form_EditPwd td {
+        margin: 0;
+        padding: 0;
+        border-width: 0;
+    }
+
+    #form_EditPwd tr {
+        height: 40px;
+    }
+
+    #form_EditPwd .lb {
+        text-align: right;
+    }
+</style>
+
+<form id="form_EditPwd" method="post" action="/User/EditPwd" class="easyui-form" data-options="novalidate:true" style="overflow:hidden">
+    <table>
+        <tbody>
+            <tr>
+                <td class="lb">旧密码：</td>
+                <td><input class="easyui-passwordbox" id="txtOldPwd" name="OldPwd" style="width:200px;" data-options="iconwidth:28,required:true" /></td>
+            </tr>
+            <tr>
+                <td class="lb">新密码：</td>
+                <td><input class="easyui-passwordbox" id="txtNewPwd" name="NewPwd" style="width:200px;" data-options="iconwidth:28,required:true,validType:{ noCompare: ['txtOldPwd', '新旧密码不能相同！']}" /></td>
+            </tr>
+            <tr>
+                <td class="lb">确认密码：</td>
+                <td><input class="easyui-passwordbox"  id="txtNewPwd2" style="width:200px;" data-options="iconwidth:28,required:true,validType:{ compare: ['txtNewPwd', '密码不一致！']}" /></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <a id="btn_EditPwd" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="height:30px;width:200px">
+                        <span style="font-size:14px;">修改密码</span>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#form_EditPwd').form({
+            onSubmit: function (param) {
+                param._iframe_ajax = true;
+                return $(this).form('enableValidation').form('validate');
+            },
+            success: function (data) {
+                if (typeof (data) == 'string') data = JSON.parse(data);
+                if (data.Status == 0 && data.Data == true) {
+                    $.messager.alert('提示', '修改密码成功！', '', function () {
+                        $('#form_EditPwd').form('disableValidation').form('reset');
+                    });
+                }
+                else {
+                    $.showDataMsg('修改密码失败！', data);
+                }
+            }
+        });
+
+        $('#btn_EditPwd').linkbutton({
+            onClick: function () {
+                $('#form_EditPwd').form('submit');
+            }
+        });
+
+    });
+</script>

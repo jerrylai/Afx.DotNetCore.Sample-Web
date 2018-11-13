@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "AfxDotNetCoreSample";
+    ViewBag.BodyClass = "easyui-layout";
+}
+
+<div data-options="region:'north',border:false" style="height:60px;background-color:#2d3e50;color:white;padding:5px;overflow:hidden;">
+    <div style="margin:5px 0 0 5px;float:left">
+        <a style="font-size:28px;color:white;cursor:pointer" onclick="currentUrl = null;loadPage(null);">
+            AfxDotNetCoreSample
+        </a>
+    </div>
+    <div style="margin-right:8px;float:right;">
+        <label style="margin-left:10px;color:white;">用户名：<a id="lbUserName" style="color:white;" href="#">@ViewBag.UserName</a></label>
+        <a id="lbUserPwd" style="margin-left:8px;color:white;" href="#">修改密码</a>
+        <a id="lbLogout" style="margin-left:8px;color:white;" href="@Href("~/User/Logout")">退出</a>
+    </div>
+</div>
+
+<div data-options="region:'west',split:true,title:'菜单'" style="width:200px;padding:0px;">
+    <ul id="ul_Menu" class="easyui-tree" data-options="animate:true,lines:false" style="padding-top:10px;padding-left:10px"></ul>
+</div>
+
+<div data-options="region:'south',border:false" style="height:30px;background-color:#2d3e50;color:white;overflow:hidden">
+    <div style="text-align:center;padding-top:8px;font-size:12px">版权所有 © jerrylai@@aliyun.com</div>
+</div>
+
+<div id="main_body_content" data-options="region:'center',title:'首页',loadingMessage:''" style="overflow:auto;padding:10px 0 0 10px">
+
+</div>
+
+<script type="text/javascript">
+    var loginPage = '/User/Login';
+    var currentUrl = null;
+    function loadPage(obj) {
+        if (!obj) {
+            obj = currentUrl;
+            if (!obj) obj = { url: '/Home/Main', name: '首页' };
+        }
+        if (obj && obj.url) {
+            $.getPublic(obj.url, function (data) {
+                if (typeof (data) == 'object') {
+                    if (data.Status == 200) {
+                        window.location.href = '@Href("~/User/Login")';
+                    }
+                    else {
+                        $.showDataMsg(null, data);
+                    }
+                }
+                else {
+                    var end = $('#loadWin').parent().next().next();
+                    var next = end.next();
+                    while (next.length > 0) {
+                        document.body.removeChild(next[0]);
+                        next = end.next();
+                    }
+                    $('#main_body_content').panel({ title: obj.name, content: data });
+                }
+            });
+            currentUrl = obj;
+        }
+    }
+    $(document).ready(function () {
+
+        $('#lbUserPwd').click(function () {
+            loadPage({ url: '/User/EditPwd', name: '修改密码' });
+        });
+
+        $('#lbUserName').click(function () {
+            loadPage({ url: '/User/MyInfo', name: '修改资料' });
+        });
+
+        $('#ul_Menu').tree({
+            onClick: function (node) {
+                if ($.isArray(node.children)) {
+                    $(this).tree('toggle', node.target);
+                }
+                else if (node.Obj) {
+                    loadPage({ url: node.Obj, name: node.text });
+                }
+            }
+        });
+
+        function getMenu() {
+            $.getPrivate('/WebMenu/GetUserMenu', function (data) {
+                if (data.Status == 0 && $.isArray(data.Data)) {
+                    $('#ul_Menu').tree('loadData', data.Data);
+                    loadPage(null);
+                }
+            });
+        }
+
+        getMenu();
+    });
+</script>

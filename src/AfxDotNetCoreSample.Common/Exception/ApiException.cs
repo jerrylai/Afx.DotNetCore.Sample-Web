@@ -35,4 +35,20 @@ namespace AfxDotNetCoreSample.Common
         }
 
     }
+
+    public class ApiParamNullException : ApiException
+    {
+        public ApiParamNullException(string paramName) : base(ApiStatus.Error, $"参数({paramName})不能为空！")
+        {
+
+        }
+    }
+
+    public class ApiParamException : ApiException
+    {
+        public ApiParamException(string paramName) : base(ApiStatus.Error, $"参数({paramName})不正确！")
+        {
+
+        }
+    }
 }

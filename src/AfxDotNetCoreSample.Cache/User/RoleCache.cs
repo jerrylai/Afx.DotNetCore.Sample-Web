@@ -8,21 +8,21 @@ using AfxDotNetCoreSample.ICache;
 
 namespace AfxDotNetCoreSample.Cache
 {
-    public class RoleCache : ListDbCache, IRoleCache
+    public class RoleCache : DataDbCache<RoleCache>, IRoleCache
     {
-        public virtual List<RoleDto> Get()
+        public virtual RoleDto Get(string id)
         {
-            return base.GetData<List<RoleDto>>();
+            return base.GetData<RoleDto>(id);
         }
 
-        public virtual void Remove()
+        public virtual void Remove(string id)
         {
-            base.RemoveKey();
+            base.RemoveKey(id);
         }
 
-        public virtual void Set(List<RoleDto> list)
+        public virtual void Set(string id, RoleDto vm)
         {
-            base.SetData(list);
+            base.SetData(vm, id);
         }
     }
 }

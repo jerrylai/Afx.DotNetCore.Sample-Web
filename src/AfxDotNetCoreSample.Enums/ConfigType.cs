@@ -11,7 +11,7 @@ namespace AfxDotNetCoreSample.Enums
         /// <summary>
         /// 初始化系统数据
         /// </summary>
-        SystemVersion = 1
+        SystemVersion = 1,
     }
 
 }

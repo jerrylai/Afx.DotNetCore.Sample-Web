@@ -1,0 +1,397 @@
+﻿@{
+    Layout = null;
+}
+
+<style type="text/css">
+    #form_EditUser table, #form_EditUser tbody, #form_EditUser tr, #form_EditUser td{
+        border:none
+    }
+
+    #form_EditUser .lb {
+        width: 80px;
+        text-align: right;
+    }
+
+    #form_EditUser td {
+        padding-top:10px;
+    }
+</style>
+
+<div style="min-width:700px">
+    <div>
+        <label style="margin-left:10px;">角色：</label>
+        <select id="select_Role" style="width:120px;"></select>
+        <label style="margin-left:10px;">状态：</label>
+        <select id="select_Status" class="easyui-combobox" style="width:120px;" data-options="editable: false">
+            <option value="" selected>全部</option>
+            <option value="1">启用</option>
+            <option value="2">禁用</option>
+        </select>
+        <label style="margin-left:10px;">关键字：</label>
+        <input id="txt_dataGrid_User_Search" class="easyui-textbox" style="width:120px;" />
+        <a id="btn_dataGrid_User_Search" style="margin-left:10px;width:100px" class="easyui-linkbutton c1" >搜 索</a>
+    </div>
+    <div style="margin:10px 10px 0 0">
+        <table id="dataGrid_User"></table>
+    </div>
+</div>
+
+<div id="edit_User" class="easyui-dialog" style="width:520px;height:270px;"
+     data-options="modal:true,closed: true">
+    <form id="form_EditUser" method="post" style="overflow:hidden">
+        <input id="hid_edit_user_id" name="Id" type="hidden" />
+        <table>
+            <tbody>
+                <tr>
+                    <td class="lb">账号：</td>
+                    <td><input id="txt_edit_user_account" name="Account" style="width:150px;" /></td>
+                    <td class="lb">姓名：</td>
+                    <td><input id="txt_edit_user_Name" name="Name" style="width:150px;"  /></td>
+                </tr>
+                <tr>
+                    <td class="lb">密码：</td>
+                    <td><input id="txt_edit_user_pwd" name="Password" style="width:150px;" /></td>
+                    <td class="lb">确认密码：</td>
+                    <td><input id="txt_edit_user_pwd2" name="Password2" style="width:150px;" /></td>
+                </tr>
+                <tr>
+                    <td class="lb">角色：</td>
+                    <td>
+                        <select id="select_edit_User_Role" name="RoleId" style="width:150px;" ></select>
+                    </td>
+                    <td class="lb">状态：</td>
+                    <td>
+                        <select id="select_edit_User_Status" name="Status" style="width:150px;" ></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="lb">手机号码：</td>
+                    <td><input id="select_edit_User_Mobile" name="Mobile" style="width:150px;" /></td>
+                    <td class="lb">邮箱：</td>
+                    <td><input id="select_edit_User_Mail" name="Mail" style="width:150px;" /></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        window.onresize = function () {
+            window.setTimeout(function () { $('#dataGrid_User').datagrid('resize'); }, 100);
+        }
+        
+        $('#select_Role').combobox({
+            valueField: 'Id',
+            textField: 'Name',
+            reversed: true,
+            mode: 'remote',
+            loader: function (param, success, error) {
+                var pageparam = { PageIndex: 1, PageSize: 100, Orderby: 'Name', Keyword: param.q || '' };
+                $.postPrivate('/Role/GetPageData', pageparam, function (data) {
+                    if (data && data.Data) {
+                        data.Data.Data.unshift({ Id: '', Name: '全部' });
+                        success(data.Data.Data);
+                    }
+                });
+            }
+        });
+
+
+        $('#txt_edit_user_account').textbox({
+            required: true,
+            validType: {
+                account: [],
+                length: [1, 100],
+                func: [function (val) {
+                    if (val) {
+                        var isv = true;
+                        $.postPrivate('/User/IsExist', {
+                            Id: $('#hid_edit_user_id').val(),
+                            Type: 1,
+                            Key: val
+                        }, function (data) {
+                            isv = !data.Data;
+                            }, false);
+                        return isv;
+                    } else {
+                        return true;
+                    }
+                }, '账号已存在！']
+            }
+        });
+
+        $('#txt_edit_user_Name').textbox({
+            required: true,
+            validType: {
+                length: [1, 100]
+            }
+        });
+
+        $('#txt_edit_user_pwd').passwordbox({ validType: ['compare["txt_edit_user_pwd2", "密码不一致！"]'] });
+        $('#txt_edit_user_pwd2').passwordbox({ validType: [ 'compare["txt_edit_user_pwd", "密码不一致！"]' ]});
+
+        $('#select_edit_User_Status').combobox({
+            required: true,
+            editable: false,
+            valueField: 'id',
+            textField: 'name',
+            value: '1',
+            data: [{ id: 1, name: '启用' }, { id: 2, name: '禁用'}]
+        });
+
+        $('#select_edit_User_Mobile').textbox({
+            validType: {
+                mobile: [],
+                func: [function (val) {
+                    if (val) {
+                        var isv = true;
+                        $.postPrivate('/User/IsExist', {
+                            Id: $('#hid_edit_user_id').val(),
+                            Type: 2,
+                            Key: val
+                        }, function (data) {
+
+                            isv = !data.Data;
+                            }, false);
+                        return isv;
+                    }
+                    else {
+                        return true;
+                    }
+                }, '手机号已存在！'] }
+        });
+
+        $('#select_edit_User_Mail').textbox({
+            validType: {
+                mail: [],
+                length: [0, 100],
+                func: [function (val) {
+                    if (val) {
+                        var isv = true;
+                        $.postPrivate('/User/IsExist', {
+                            Id: $('#hid_edit_user_id').val(),
+                            Type: 3,
+                            Key: val
+                        }, function (data) {
+                            isv = !data.Data;
+                            }, false);
+                        return isv;
+                    }
+                    else {
+                        return true;
+                    }
+                }, '邮箱已存在！']
+            }
+        });
+
+        var isfirsedit = true;
+        function editUser(m) {
+            if (isfirsedit) {
+                $('#select_edit_User_Role').combobox({
+                    required: true,
+                    valueField: 'Id',
+                    textField: 'Name',
+                    reversed: true,
+                    mode: 'remote',
+                    loader: function (param, success, error) {
+                        var pageparam = { PageIndex: 1, PageSize: 100, Orderby: 'Name', Keyword: param.q || '' };
+                        if (m) pageparam.Id = m.RoleId;
+                        $.postPrivate('/Role/GetPageData', pageparam, function (data) {
+                            if (data && data.Data) {
+                                success(data.Data.Data);
+                            }
+                        });
+                    }
+                });
+                isfirsedit = false;
+            }
+            if (m) {
+                $('#edit_User').dialog('setTitle', '修改');
+                $('#form_EditUser').form('load', m)
+                $('#txt_edit_user_pwd').passwordbox({ required: false })
+                $('#txt_edit_user_account').textbox({ disabled: true });
+            }
+            else {
+                $('#edit_User').dialog('setTitle', '添加');
+                $('#form_EditUser').form('clear');
+                $('#select_edit_User_Status').combobox('setValue', '1');
+                $('#txt_edit_user_pwd').passwordbox({ required: true });
+                $('#txt_edit_user_account').textbox({ disabled: false });
+            }
+            $('#txt_edit_user_pwd').passwordbox('setValue', '');
+            $('#txt_edit_user_pwd2').passwordbox('setValue', '');
+            $('#form_EditUser').form('disableValidation');
+            $('#edit_User').dialog('center').dialog('open');
+        }
+        
+        $('#btn_dataGrid_User_Search').bind('click', function () {
+            $('#dataGrid_User').datagrid('load', {
+                RoleId: $('#select_Role').combobox('getValue'),
+                Status: $('#select_Status').combobox('getValue'),
+                Keyword: $('#txt_dataGrid_User_Search').textbox('getValue')
+            });
+        });
+
+        $('#edit_User').dialog({
+            buttons: [{
+                text: '保 存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    $('#form_EditUser').submit();
+                }
+            }, {
+                text: '关 闭',
+                iconCls: 'icon-cancel',
+                handler: function () {
+                    $('#edit_User').dialog('close');
+                }
+            }]
+        });
+
+        $('#form_EditUser').form({
+            url:'/User/Edit',
+            novalidate: true,
+            onSubmit: function (param) {
+                param._iframe_ajax = true;
+                return $(this).form('enableValidation').form('validate');
+            },
+            success: function (data) {
+                if (data && typeof (data) == 'string') data = JSON.parse(data);
+                if (data && data.Status == 0 && data.Data == true) {
+                    $('#edit_User').dialog('close');
+                    $('#dataGrid_User').datagrid('reload');
+                }
+                else {
+                    $.showDataMsg('保存失败！', data);
+                }
+            }
+        });
+
+        $('#dataGrid_User').datagrid({
+            pageSize: $.datagridConfig.pageSize,
+            pageList: $.datagridConfig.pageList,
+            loadMsg: $.datagridConfig.loadMsg,
+            onBeforeLoad: $.datagridConfig.onBeforeLoad,
+            loadFilter: $.datagridConfig.loadFilter,
+            singleSelect: true,
+            checkOnSelect: true,
+            selectOnCheck: true,
+            multiSort: true,
+            remoteSort: true,
+            pagination: true,
+            pageNumber: 1,
+            method: 'post',
+            url: '/User/GetPageData',
+            idField: 'Id',
+            columns: [[
+                { field: 'Id', checkbox: true, title: 'Id' },
+                {
+                    field: 'Account', width: '13%', sortable: true, resizable: true, title: '账号'
+                },
+                {
+                    field: 'Name', width: '13%', sortable: true, resizable: true, title: '姓名',
+                    formatter: function (value, row, index) {
+                        return $.htmlEncode(value);
+                    }
+                },
+                {
+                    field: 'RoleName', width: '13%', resizable: true, title: '角色',
+                    formatter: function (value, row, index) {
+                        return $.htmlEncode(value);
+                    }
+                },
+                {
+                    field: 'Mobile', width: '12%', sortable: true, resizable: true, title: '手机号码'
+                },
+                {
+                    field: 'Mail', width: '13%', sortable: true, resizable: true, title: '邮箱'
+                },
+                {
+                    field: 'Status', width: '8%', resizable: true, title: '状态',
+                    formatter: function (value, row, index) {
+                        var s = "";
+                        switch (value) {
+                            case 1:
+                                s = '<span style="color:green">启用</span>'
+                                break;
+                            case 2:
+                                s = '<span style="color:red">禁用</span>'
+                                break;
+                        }
+                        return s;
+                    }
+                },
+                {
+                    field: 'UpdateTime', width: '13%', sortable: true, resizable: true, title: '更新时间',
+                    formatter: function (value, row, index) {
+                        return new Date(value).Format("yyyy-MM-dd hh:mm:ss");
+                    }
+                },
+                {
+                    field: 'CreateTime', width: '13%', sortable: true, resizable: true, title: '创建时间',
+                    formatter: function (value, row, index) {
+                        return new Date(value).Format("yyyy-MM-dd hh:mm:ss");
+                    }
+                }
+            ]],
+            toolbar: [
+                {
+                    text: '添加',
+                    iconCls: 'icon-add',
+                    handler: function () { editUser(null); }
+                },
+                {
+                    text: '修改',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                        var row = $('#dataGrid_User').datagrid('getSelected');
+                        if (row) {
+                            //if (row.IsSystem) {
+                            //    $.messager.alert('提示', '系统默认数据不能修改！', 'warning');
+                            //    return;
+                            //}
+                            //else {
+                            //    editUser(row);
+                            //}
+                            editUser(row);
+                        }
+                    }
+                },
+                {
+                    text: '删除',
+                    iconCls: 'icon-cancel',
+                    handler: function () {
+                        var row = $('#dataGrid_User').datagrid('getSelected');
+                        if (row) {
+                            if (row.IsSystem) {
+                                $.messager.alert('提示', '系统默认数据不能删除！', 'warning');
+                                return;
+                            }
+                            else {
+                                $.messager.confirm({
+                                    title: '提示',
+                                    msg: '你确定要删除[' + row.Name + ']?',
+                                    fn: function (r) {
+                                        if (r) {
+                                            $.postPublic('/User/Delete', { id: row.Id }, function (data) {
+                                                if (data.Status == 0 && data.Data == true) {
+                                                    $('#dataGrid_User').datagrid('reload');
+                                                    $('#dataGrid_User').datagrid('clearSelections');
+                                                    $('#dataGrid_User').datagrid('clearChecked');
+                                                }
+                                                else {
+                                                    $.showDataMsg('删除失败！', data);
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            ],
+        });
+    });
+</script>

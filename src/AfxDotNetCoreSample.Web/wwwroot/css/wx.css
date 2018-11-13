@@ -1,0 +1,61 @@
+﻿html, body {
+    height: 100%;
+    width: 100%;
+}
+
+html, body, form, iframe, table, tbody, tr, td {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+html, body, form, iframe, table {
+    font-family: 'Microsoft YaHei';
+    font-size: 14px;
+}
+
+.panel-title, .panel-body, .tree-title, .textbox .textbox-text, .combobox-item {
+    font-size: 14px;
+}
+
+.tree-icon, .tree-hit, .tree-checkbox {
+    margin-top: 3px;
+}
+
+.tree-title {
+    height: 26px;
+    line-height: 26px;
+}
+
+    .tree-title a {
+        text-decoration: none;
+    }
+
+.tree-node {
+    height: 32px;
+}
+
+.panel-group {
+    max-height: 770px;
+    overflow: auto;
+}
+
+.datagrid-cell, .datagrid-header .datagrid-cell span,
+.l-btn-text, .pagination span, .pagination-info {
+    font-size: 14px;
+}
+
+.datagrid-row, .datagrid-header-row {
+    height: 30px;
+    line-height: 30px;
+}
+
+.datagrid-row-selected, .tree-node-selected {
+    background: #dbe5ea;
+    color: black;
+}
+
+textarea {
+    font-family: 'Microsoft YaHei';
+    font-size: 14px;
+}

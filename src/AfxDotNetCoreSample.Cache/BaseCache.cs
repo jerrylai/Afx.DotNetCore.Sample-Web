@@ -10,8 +10,15 @@ using AfxDotNetCoreSample.ICache;
 
 namespace AfxDotNetCoreSample.Cache
 {
-    public abstract class BaseCache : IBaseCache
+    public abstract class BaseCache<TCache> : IBaseCache
     {
+        private readonly Lazy<Afx.Cache.ICache> _cache = new Lazy<Afx.Cache.ICache>(() => IocUtils.GetByKey<Afx.Cache.ICache>(ConfigUtils.CacheType));
+        protected virtual Afx.Cache.ICache Cache => _cache.Value;
+
+        private Type targetType;
+
+        public Type TargetType => this.targetType;
+
         protected BaseCache(string node)
         {
             if (string.IsNullOrEmpty(node))
@@ -19,29 +26,15 @@ namespace AfxDotNetCoreSample.Cache
                 throw new ArgumentNullException("node");
             }
             this.Node = node;
-            var name = this.GetType().Name;
-            this.Item = name.Substring(0, name.LastIndexOf("Cache"));
+            this.targetType = typeof(TCache);
+            var name = this.TargetType.Name;
+            if (this.targetType.IsInterface && name.StartsWith("I")) name = name.Substring(1);
+            int index = name.LastIndexOf("Cache");
+            if (index <= 0) throw new ArgumentException("TCache (" + this.TargetType.FullName + ") 错误！");
+            this.Item = name.Substring(0, index);
         }
 
-        private static Lazy<Afx.Cache.ICache> procCache => new Lazy<Afx.Cache.ICache>(() => new ProcCache(), true);
-        private static Lazy<Afx.Cache.ICache> redisCache => new Lazy<Afx.Cache.ICache>(() => new RedisCache(RedisUtils.Default), true);
-
-        protected virtual Afx.Cache.ICache Cache
-        {
-            get
-            {
-                switch (ConfigUtils.CacheType)
-                {
-                    case CacheType.Redis:
-                        return redisCache.Value;
-                    case CacheType.Proc:
-                        return procCache.Value;
-                    case CacheType.None:
-                    default:
-                        return EmptyCache.Default;
-                }
-            }
-        }
+        
 
         protected virtual string GetCacheKey(params object[] args)
         {

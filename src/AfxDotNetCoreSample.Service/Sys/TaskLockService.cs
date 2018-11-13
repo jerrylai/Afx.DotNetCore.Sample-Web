@@ -13,14 +13,8 @@ namespace AfxDotNetCoreSample.Service
 {
     public class TaskLockService : BaseService, ITaskLockService
     {
-        private ITaskLockRepository repository;
-        private SyncLockType syncLockType;
-
-        public TaskLockService(ITaskLockRepository repository)
-        {
-            this.repository = repository;
-            this.syncLockType = ConfigUtils.CacheType == CacheType.Redis ? SyncLockType.Redis : SyncLockType.Database;
-        }
+        private readonly Lazy<ITaskLockRepository> _repository = new Lazy<ITaskLockRepository>(() => IocUtils.Get<ITaskLockRepository>());
+        internal protected virtual ITaskLockRepository repository => this._repository.Value;
 
         private string FormatValue(string v, string name)
         {
@@ -42,15 +36,15 @@ namespace AfxDotNetCoreSample.Service
         /// <param name="owner">锁定定者，不能为空, owner长度小于或等于50</param>
         /// <param name="timeout">锁超时</param>
         /// <returns></returns>
-        public virtual bool Lock(TaskLockType type, string key, string owner, TimeSpan? timeout)
+        public virtual bool Lock(LockType type, string key, string owner, TimeSpan? timeout)
         {
-            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
-            if (string.IsNullOrEmpty(owner)) throw new ArgumentNullException(nameof(owner));
+            if (string.IsNullOrEmpty(key)) throw new ApiParamNullException(nameof(key));
+            if (string.IsNullOrEmpty(owner)) throw new ApiParamNullException(nameof(owner));
 
             key = this.FormatValue(key, nameof(key));
             owner = this.FormatValue(owner, nameof(owner));
-            
-            return this.repository.Lock(type, key, owner, timeout, this.syncLockType);
+
+            return this.repository.Lock(type, key, owner, timeout);
         }
 
         /// <summary>
@@ -60,15 +54,15 @@ namespace AfxDotNetCoreSample.Service
         /// <param name="key">锁key，不能为空，key长度小于或等于50</param>
         /// <param name="owner">锁定定者，不能为空, owner长度小于或等于50</param>
         /// <returns></returns>
-        public virtual bool IsOtherLock(TaskLockType type, string key, string owner)
+        public virtual bool IsOtherLock(LockType type, string key, string owner)
         {
-            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
-            if (string.IsNullOrEmpty(owner)) throw new ArgumentNullException(nameof(owner));
+            if (string.IsNullOrEmpty(key)) throw new ApiParamNullException(nameof(key));
+            if (string.IsNullOrEmpty(owner)) throw new ApiParamNullException(nameof(owner));
 
             key = this.FormatValue(key, nameof(key));
             owner = this.FormatValue(owner, nameof(owner));
 
-            return this.repository.IsOtherLock(type, key, owner, this.syncLockType);
+            return this.repository.IsOtherLock(type, key, owner);
         }
 
         /// <summary>
@@ -76,13 +70,13 @@ namespace AfxDotNetCoreSample.Service
         /// </summary>
         /// <param name="type">锁类型</param>
         /// <param name="key">锁key，不能为空，key长度小于或等于50</param>
-        public virtual void Release(TaskLockType type, string key)
+        public virtual void Release(LockType type, string key)
         {
-            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
+            if (string.IsNullOrEmpty(key)) throw new ApiParamNullException(nameof(key));
 
             key = this.FormatValue(key, nameof(key));
 
-            this.repository.Release(type, key, this.syncLockType);
+            this.repository.Release(type, key);
         }
 
         /// <summary>
@@ -93,15 +87,15 @@ namespace AfxDotNetCoreSample.Service
         /// <param name="owner">锁定定者，不能为空, owner长度小于或等于50</param>
         /// <param name="timeout">锁超时</param>
         /// <returns></returns>
-        public virtual void UpdateTimeout(TaskLockType type, string key, string owner, TimeSpan? timeout)
+        public virtual void UpdateTimeout(LockType type, string key, string owner, TimeSpan? timeout)
         {
-            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
-            if (string.IsNullOrEmpty(owner)) throw new ArgumentNullException(nameof(owner));
+            if (string.IsNullOrEmpty(key)) throw new ApiParamNullException(nameof(key));
+            if (string.IsNullOrEmpty(owner)) throw new ApiParamNullException(nameof(owner));
 
             key = this.FormatValue(key, nameof(key));
             owner = this.FormatValue(owner, nameof(owner));
 
-            this.repository.UpdateTimeout(type, key, owner, timeout, this.syncLockType);
+            this.repository.UpdateTimeout(type, key, owner, timeout);
         }
     }
 }

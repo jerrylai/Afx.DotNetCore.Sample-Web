@@ -1,0 +1,184 @@
+﻿@{
+    Layout = null;
+}
+
+
+<div style="min-width:700px;margin-top:10px;margin-left:10px">
+    <div>
+        <form id="form_log_search" method="post" style="overflow:hidden">
+            <label style="margin-left:10px;">日志类型：</label>
+            <select name="Name" class="easyui-combobox" style="width:120px;" data-options="editable: false">
+                <option value="Default" selected>Default</option>
+                <option value="Web">Web</option>
+                <option value="SQL">SQL</option>
+            </select>
+            <label style="margin-left:10px;">创建时间：</label>
+            <input class="easyui-datetimebox" type="text" name="BeginTime" data-options="required:false" />
+            -
+            <input class="easyui-datetimebox" type="text" name="EndTime" data-options="required:false" />
+            <a id="btn_dataGrid_log_Search" style="margin-left:10px;width:100px" class="easyui-linkbutton c1">搜索</a>
+        </form>
+    </div>
+    <div style="margin:10px 10px 0 0">
+        <table id="dataGrid_log"></table>
+    </div>
+</div>
+
+<div id="edit_Level" class="easyui-dialog" style="width:310px;height:190px;padding:15px;display:none"
+     data-options="modal:true,closed: true,title:'设置级别'">
+    <form id="form_EditLevel" method="post" class="easyui-form" data-options="novalidate:true" style="overflow:hidden">
+        <div>
+            <label style="margin-left:25px;">日志类型：</label>
+            <select name="Name" class="easyui-combobox" style="width:120px;" data-options="editable: false">
+                <option value="Default" selected>Default</option>
+                <option value="Web">Web</option>
+                <option value="SQL">SQL</option>
+            </select>
+        </div>
+        <div style="margin-top:15px">
+            <label style="margin-left:25px;">日志级别：</label>
+            <select id="select_Level" name="Level" class="easyui-combobox" style="width:120px;" data-options="editable: false">
+                <option value="ALL" selected>ALL</option>
+                <option value="DEBUG">DEBUG</option>
+                <option value="INFO">INFO</option>
+                <option value="WARN">WARN</option>
+                <option value="ERROR">ERROR</option>
+                <option value="FATAL">FATAL</option>
+                <option value="OFF">OFF</option>
+            </select>
+        </div>
+        <div style="margin-top:15px;margin-left:50px">
+            <a id="btn_EditLevel_OK" style="width:80px;" class="easyui-linkbutton c1">保 存</a>
+            <a id="btn_EditLevel_Close" style="width:80px;margin-left:15px" class="easyui-linkbutton c5">取 消</a>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var dataGrid_param = $.getFormData('form_log_search');
+
+        $('#btn_dataGrid_log_Search').bind('click', function () {
+            dataGrid_param = $.getFormData('form_log_search');
+            $('#dataGrid_log').datagrid('load', dataGrid_param);
+        });
+
+        $('#dataGrid_log').datagrid({
+            pageSize: $.datagridConfig.pageSize,
+            pageList: $.datagridConfig.pageList,
+            loadMsg: $.datagridConfig.loadMsg,
+            onBeforeLoad: $.datagridConfig.onBeforeLoad,
+            loadFilter: $.datagridConfig.loadFilter,
+            singleSelect: false,
+            checkOnSelect: true,
+            selectOnCheck: true,
+            collapsible: true,
+            pagination: true,
+            method: 'post',
+            url: '@Href("~/Log/GetPageList")',
+            queryParams: dataGrid_param,
+            //idField: 'Id',
+            pageNumber: 1,
+            columns: [[
+                { field: 'Id',checkbox: true },
+                {
+                    field: 'Name', width: '28%', resizable: true, title: '文件名',
+                    formatter: function (value, row, index) {
+
+                        return '<a href="@Href("~/Log/Open")?name='.concat(encodeURI(dataGrid_param.Name), '&file=', encodeURI(value), '" target="_blank">', value, '</a>');
+                    }
+                },
+                {
+                    field: 'Size', width: '20%', resizable: true, title: '文件大小'
+                },
+                {
+                    field: 'UpdateTime', width: '25%', resizable: true, title: '更新时间',
+                    formatter: function (value, row, index) {
+                        return new Date(value).Format("yyyy-MM-dd hh:mm:ss");
+                    }
+                },
+                {
+                    field: 'CreateTime', width: '25%', resizable: true, title: '创建时间',
+                    formatter: function (value, row, index) {
+                        return new Date(value).Format("yyyy-MM-dd hh:mm:ss");
+                    }
+                }
+            ]],
+            toolbar: [
+                {
+                    text: '删除',
+                    //iconCls: 'icon-cancel',
+                    handler: function () {
+                        var rows = $('#dataGrid_log').datagrid('getChecked');
+                        if (rows && rows.length > 0) {
+                            var s = '';
+                            $.each(rows, function (index, item) {
+                                s = s.concat(',', item.Name);
+                            });
+                            
+                            s = s.substring(1);
+                            
+                            $.postPublic('/Log/Del', { Name: dataGrid_param.Name, Files: s }, function (data) {
+                                if (data.Status == 0 && data.Data == true) {
+                                    $('#dataGrid_log').datagrid('reload');
+                                    $('#dataGrid_log').datagrid('clearSelections');
+                                    $('#dataGrid_log').datagrid('clearChecked');
+                                }
+                                else {
+                                    $.showDataMsg('删除失败！', data);
+                                }
+                            });
+                        }
+                    }
+                },
+                '-',
+                {
+                    text: '设置级别',
+                    //iconCls: 'icon-cancel',
+                    handler: function () {
+                        $.getPublic('/Log/GetLevel', { name: dataGrid_param.Name }, function (data) {
+                            if (data.Status == 0) {
+                                $('#form_EditLevel').form('clear').form('disableValidation').form('load', { Name: dataGrid_param.Name, Level: data.Data });
+                                $('#edit_Level').dialog('center').dialog('open');
+                            }
+                            else {
+                                $.showDataMsg('获取级别失败！', data);
+                            }
+                        });
+                    }
+                }
+            ],
+        });
+
+        $('#btn_EditLevel_OK').click(function () {
+            $('#form_EditLevel').form('submit');
+        });
+
+        $('#btn_EditLevel_Close').click(function () {
+            $('#edit_Level').dialog('close');
+        });
+
+        $('#form_EditLevel').form({
+            url: '@Href("~/Log/SetLevel")',
+            novalidate: true,
+            onSubmit: function (param) {
+                param._iframe_ajax = true;
+                return $(this).form('enableValidation').form('validate');
+            },
+            success: function (data) {
+                $('#edit_Level').dialog('close');
+                if (data && typeof (data) == 'string') data = JSON.parse(data);
+                if (data && data.Status == 0 && data.Data == true) {
+                    
+                }
+                else {
+                    $.showDataMsg('保存失败！', data);
+                }
+            }
+        });
+
+        window.onresize = function () {
+            window.setTimeout(function () { $('#dataGrid_log').datagrid('resize'); }, 100);
+        }
+    });
+</script>

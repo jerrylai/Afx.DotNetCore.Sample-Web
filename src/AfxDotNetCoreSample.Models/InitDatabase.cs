@@ -14,14 +14,14 @@ namespace AfxDotNetCoreSample.Models
         {
             if (ConfigUtils.IsWriteSqlLog)
             {
-               LogUtils.Debug("【SQL】" + sql);
+               LogUtils.Debug("【SQL】" + sql, SqlLogger.LOG_NAME);
             }
 
         }
         
         static object lockObj = new object();
         static bool IsInit = false;
-        public static void InitDb(AfxDotNetCoreSampleContext db)
+        public static void InitDb<T>(T db) where T: Afx.Data.Entity.EntityContext
         {
             if (!ConfigUtils.InitDatabase || IsInit) return;
             lock (lockObj)
@@ -48,7 +48,7 @@ namespace AfxDotNetCoreSample.Models
                 tableSchema.Log = WriteSQL;
                 using (var build = new BuildDatabase(databaseSchema, tableSchema))
                 {
-                    build.Build<AfxDotNetCoreSampleContext>();
+                    build.Build<T>();
                 }
 
                 IsInit = true;

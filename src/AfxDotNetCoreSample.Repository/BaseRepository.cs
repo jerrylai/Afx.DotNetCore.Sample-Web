@@ -14,14 +14,7 @@ namespace AfxDotNetCoreSample.Repository
 {
     public abstract class BaseRepository: IBaseRepository
     {
-        protected virtual AfxDotNetCoreSampleContext GetContext() => new AfxDotNetCoreSampleContext();
+        protected virtual AfxContext GetContext() => new AfxContext();
 
-        protected virtual T GetCache<T>() where T : IBaseCache => IocUtils.Get<T>();
-
-        protected virtual T GetCache<T>(string name) where T : IBaseCache => IocUtils.Get<T>(name);
-
-        protected virtual T GetCache<T>(object[] args) where T : IBaseCache => IocUtils.Get<T>(args);
-
-        protected virtual T GetCache<T>(string name, object[] args) where T : IBaseCache => IocUtils.Get<T>(name, args);
     }
 }

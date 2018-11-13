@@ -1,0 +1,24 @@
+﻿version: "3"
+services:
+  web:
+    build:
+      context: ./publish
+    image: afxsample:v1.0.0.0
+    restart: always
+    container_name: afxsample
+    ports:
+       - "80:80"
+    volumes:
+       - "/yunpan/appfile:/app/webfiles"
+    environment:
+      - "HostUrl=http://www.afxsample.com/"
+      - "ServerUrls=http://*:80"
+      - "MultipartBodyLengthLimit=20971520"
+      - "Threads:Min=6"
+      - "Threads:IO=6"
+      - "Database:Type=MySQL"
+      - "Database:Init=false"
+      - "Database:IsLog=false"
+      - "Database:MySQL=Server=127.0.0.1;Port=3306;Database=afxsample;User Id=root;Password=123456;CharacterSet=utf8"
+      - "Cache:Prefix=afxsample:"
+      - "RedisConfig=127.0.0.1:6379,password=,syncTimeout=5000,name=afxsample.web"

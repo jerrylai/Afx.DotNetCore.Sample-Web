@@ -31,22 +31,28 @@ namespace AfxDotNetCoreSample.Common
             }
         }
 
-        private static Lazy<ILog> _default = new Lazy<ILog>(GetLog, false);
-
+        private static ILog _default = null;
         private static ILoggerRepository defaultPepository;
-        private static ILog GetLog()
+        public static ILog GetLog(string name = null)
         {
-
             if (defaultPepository == null)
             {
                 defaultPepository = LogManager.CreateRepository("DefaultRepository");
+                if (File.Exists(ConfigFile))
+                {
+                    XmlConfigurator.ConfigureAndWatch(defaultPepository, new FileInfo(ConfigFile));
+                }
             }
-            if (File.Exists(ConfigFile))
+            
+            if (string.IsNullOrEmpty(name))
             {
-                XmlConfigurator.ConfigureAndWatch(defaultPepository, new FileInfo(ConfigFile));
+                name = "Default";
+                if(_default == null) _default = LogManager.GetLogger(defaultPepository.Name, name);
+
+                return _default;
             }
 
-            return LogManager.GetLogger(defaultPepository.Name, "Default");
+            return LogManager.GetLogger(defaultPepository.Name, name);
         }
 
 
@@ -54,15 +60,16 @@ namespace AfxDotNetCoreSample.Common
         /// <summary>
         /// 默认 ILog
         /// </summary>
-        public static ILog Default => _default.Value;
+        public static ILog Default => GetLog();
 
         /// <summary>
         /// debug 级别日志
         /// </summary>
         /// <param name="msg">消息</param>
-        public static void Debug(string msg)
+        public static void Debug(string msg, string logName = null)
         {
-            Default.Debug(msg);
+            ILog log = GetLog(logName);
+            log.Debug(msg);
         }
 
         /// <summary>
@@ -70,8 +77,9 @@ namespace AfxDotNetCoreSample.Common
         /// </summary>
         /// <param name="msg">消息</param>
         /// <param name="ex">异常</param>
-        public static void Debug(string msg, Exception ex)
+        public static void Debug(string msg, Exception ex, string logName = null)
         {
+            ILog log = GetLog(logName);
             if (ex != null)
             {
                 StringBuilder s = new StringBuilder();
@@ -84,11 +92,11 @@ namespace AfxDotNetCoreSample.Common
                     s.Append(Environment.NewLine);
                     s.Append($"ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
                 }
-                Default.Debug(s.ToString());
+                log.Debug(s.ToString());
             }
             else
             {
-                Default.Debug(msg);
+                log.Debug(msg);
             }
         }
 
@@ -96,9 +104,10 @@ namespace AfxDotNetCoreSample.Common
         /// info 级别日志
         /// </summary>
         /// <param name="msg">消息</param>
-        public static void Info(string msg, bool isTriggerWriteEvent = true)
+        public static void Info(string msg, string logName = null)
         {
-            Default.Info(msg);
+            ILog log = GetLog(logName);
+            log.Info(msg);
         }
 
         /// <summary>
@@ -106,8 +115,9 @@ namespace AfxDotNetCoreSample.Common
         /// </summary>
         /// <param name="msg">消息</param>
         /// <param name="ex">异常</param>
-        public static void Info(string msg, Exception ex, bool isTriggerWriteEvent = true)
+        public static void Info(string msg, Exception ex, string logName = null)
         {
+            ILog log = GetLog(logName);
             if (ex != null)
             {
                 StringBuilder s = new StringBuilder();
@@ -120,11 +130,11 @@ namespace AfxDotNetCoreSample.Common
                     s.Append(Environment.NewLine);
                     s.Append($"ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
                 }
-                Default.Info(s.ToString());
+                log.Info(s.ToString());
             }
             else
             {
-                Default.Info(msg);
+                log.Info(msg);
             }
         }
 
@@ -132,9 +142,10 @@ namespace AfxDotNetCoreSample.Common
         /// warn 级别日志
         /// </summary>
         /// <param name="msg">消息</param>
-        public static void Warn(string msg)
+        public static void Warn(string msg, string logName = null)
         {
-            Default.Warn(msg);
+            ILog log = GetLog(logName);
+            log.Warn(msg);
         }
 
         /// <summary>
@@ -142,8 +153,9 @@ namespace AfxDotNetCoreSample.Common
         /// </summary>
         /// <param name="msg">消息</param>
         /// <param name="ex">异常</param>
-        public static void Warn(string msg, Exception ex)
+        public static void Warn(string msg, Exception ex, string logName = null)
         {
+            ILog log = GetLog(logName);
             if (ex != null)
             {
                 StringBuilder s = new StringBuilder();
@@ -156,11 +168,11 @@ namespace AfxDotNetCoreSample.Common
                     s.Append(Environment.NewLine);
                     s.Append($"ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
                 }
-                Default.Warn(s.ToString());
+                log.Warn(s.ToString());
             }
             else
             {
-                Default.Warn(msg);
+                log.Warn(msg);
             }
         }
 
@@ -168,9 +180,10 @@ namespace AfxDotNetCoreSample.Common
         /// error 级别日志
         /// </summary>
         /// <param name="msg">消息</param>
-        public static void Error(string msg)
+        public static void Error(string msg, string logName = null)
         {
-            Default.Error(msg);
+            ILog log = GetLog(logName);
+            log.Error(msg);
         }
 
         /// <summary>
@@ -178,8 +191,9 @@ namespace AfxDotNetCoreSample.Common
         /// </summary>
         /// <param name="msg">消息</param>
         /// <param name="ex">异常</param>
-        public static void Error(string msg, Exception ex)
+        public static void Error(string msg, Exception ex, string logName = null)
         {
+            ILog log = GetLog(logName);
             if (ex != null)
             {
                 StringBuilder s = new StringBuilder();
@@ -192,11 +206,11 @@ namespace AfxDotNetCoreSample.Common
                     s.Append(Environment.NewLine);
                     s.Append($"ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
                 }
-                Default.Error(s.ToString());
+                log.Error(s.ToString());
             }
             else
             {
-                Default.Error(msg);
+                log.Error(msg);
             }
         }
 
@@ -204,9 +218,10 @@ namespace AfxDotNetCoreSample.Common
         /// fatal 级别日志
         /// </summary>
         /// <param name="msg">消息</param>
-        public static void Fatal(string msg)
+        public static void Fatal(string msg, string logName = null)
         {
-            Default.Fatal(msg);
+            ILog log = GetLog(logName);
+            log.Fatal(msg);
         }
 
         /// <summary>
@@ -214,8 +229,9 @@ namespace AfxDotNetCoreSample.Common
         /// </summary>
         /// <param name="msg">消息</param>
         /// <param name="ex">异常</param>
-        public static void Fatal(string msg, Exception ex)
+        public static void Fatal(string msg, Exception ex, string logName = null)
         {
+            ILog log = GetLog(logName);
             if (ex != null)
             {
                 StringBuilder s = new StringBuilder();
@@ -228,53 +244,94 @@ namespace AfxDotNetCoreSample.Common
                     s.Append(Environment.NewLine);
                     s.Append($"ExceptionType: {ex.GetType().Name}, Message: {ex?.Message}, StackTrace: {ex?.StackTrace}");
                 }
-                Default.Fatal(s.ToString());
+                log.Fatal(s.ToString());
             }
             else
             {
-                Default.Fatal(msg);
+                log.Fatal(msg);
             }
         }
 
         #region log
 
 
-        private static string logDir = null;
-        public static string GetLogDir()
+        public static string GetLogDir(string name)
         {
-            if (logDir == null)
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+            string logDir = null;
+            string configpath = ConfigFile;
+            if (!string.IsNullOrEmpty(configpath) && File.Exists(configpath))
             {
-                string configpath = ConfigFile;
-                if (!string.IsNullOrEmpty(configpath) && File.Exists(configpath))
+                using (var fs = File.Open(configpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
-                    using (var fs = File.Open(configpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(fs);
+                    var nodes = doc.SelectNodes("configuration/log4net/logger");
+                    string appender = null;
+                    foreach (XmlNode node in nodes)
                     {
-                        XmlDocument doc = new XmlDocument();
-                        doc.Load(fs);
-                        var node = doc.SelectSingleNode("configuration/log4net/appender/file");
-                        if (node != null)
+                        if (node is XmlElement)
                         {
                             XmlElement ch = node as XmlElement;
-                            if (ch != null) logDir = ch.GetAttribute("value");
+                            if (ch.GetAttribute("name") == name)
+                            {
+                                XmlElement lch = null;
+                                foreach (XmlNode lchn in ch)
+                                {
+                                    if (lchn is XmlElement && lchn.Name == "appender-ref")
+                                    {
+                                        lch = lchn as XmlElement;
+                                        break;
+                                    }
+                                }
+                                if (lch != null) appender = lch.GetAttribute("ref");
+                                if (!string.IsNullOrEmpty(appender)) break;
+                            }
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(appender))
+                    {
+                        nodes = doc.SelectNodes("configuration/log4net/appender");
+                        foreach (XmlNode node in nodes)
+                        {
+                            if (node is XmlElement)
+                            {
+                                XmlElement ch = node as XmlElement;
+                                if (ch.GetAttribute("name") == appender)
+                                {
+                                    XmlElement lch = null;
+                                    foreach (XmlNode lchn in ch)
+                                    {
+                                        if (lchn is XmlElement && lchn.Name == "file")
+                                        {
+                                            lch = lchn as XmlElement;
+                                            break;
+                                        }
+                                    }
+                                    if (lch != null) logDir = lch.GetAttribute("value");
+                                    if (!string.IsNullOrEmpty(logDir)) break;
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            if (logDir == null)
+            if (!string.IsNullOrEmpty(logDir))
             {
-                logDir = "log\\";
+                logDir = PathUtils.GetDirectoryFullPath(logDir);
             }
-
-            logDir = PathUtils.GetDirectoryFullPath(logDir);
 
             return logDir;
         }
 
         const string LEVEL = "ALL|DEBUG|INFO|WARN|ERROR|FATAL|OFF";
-        public static bool SetLevel(string level)
+        public static bool SetLevel(string name, string level)
         {
-            level = level?.ToUpper();
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrEmpty(level)) throw new ArgumentNullException(nameof(level));
+            level = level.ToUpper();
             bool isok = false;
             if (!string.IsNullOrEmpty(level) && LEVEL.Split('|').Contains(level))
             {
@@ -285,22 +342,39 @@ namespace AfxDotNetCoreSample.Common
                     {
                         XmlDocument doc = new XmlDocument();
                         doc.Load(fs);
-                        var node = doc.SelectSingleNode("configuration/log4net/root/level");
-                        if (node != null)
+                        var nodes = doc.SelectNodes("configuration/log4net/logger");//"configuration/log4net/root/level");
+                        foreach (XmlNode node in nodes)
                         {
-                            XmlElement ch = node as XmlElement;
-                            if (ch != null)
+                            if (node is XmlElement)
                             {
-                                if (ch.GetAttribute("value")?.ToUpper() != level)
+                                XmlElement ch = node as XmlElement;
+                                if (ch.GetAttribute("name") == name)
                                 {
-                                    ch.SetAttribute("value", level);
-                                    fs.Seek(0, SeekOrigin.Begin);
-                                    fs.SetLength(0);
-                                    doc.Save(fs);
-                                    fs.Flush();
+                                    XmlElement lch = null;
+                                    foreach (XmlNode lchn in ch)
+                                    {
+                                        if (lchn is XmlElement && lchn.Name == "level")
+                                        {
+                                            lch = lchn as XmlElement;
+                                            break;
+                                        }
+                                    }
+                                    if (lch!= null && lch.GetAttribute("value")?.ToUpper() != level)
+                                    {
+                                        lch.SetAttribute("value", level);
+                                        isok = true;
+                                        break;
+                                    }
                                 }
-                                isok = true;
                             }
+                        }
+
+                        if (isok)
+                        {
+                            fs.Seek(0, SeekOrigin.Begin);
+                            fs.SetLength(0);
+                            doc.Save(fs);
+                            fs.Flush();
                         }
                     }
                 }
@@ -309,8 +383,9 @@ namespace AfxDotNetCoreSample.Common
             return isok;
         }
 
-        public static string GetLevel()
+        public static string GetLevel(string name)
         {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
             string level = "";
             string configpath = ConfigFile;
             if (!string.IsNullOrEmpty(configpath) && File.Exists(configpath))
@@ -319,46 +394,32 @@ namespace AfxDotNetCoreSample.Common
                 {
                     XmlDocument doc = new XmlDocument();
                     doc.Load(fs);
-                    var node = doc.SelectSingleNode("configuration/log4net/root/level");
-                    if (node != null)
+                    var nodes = doc.SelectNodes("configuration/log4net/logger");//"configuration/log4net/root/level");
+                    foreach (XmlNode node in nodes)
                     {
-                        XmlElement ch = node as XmlElement;
-                        if (ch != null)
+                        if (node is XmlElement)
                         {
-                            level = ch.GetAttribute("value");
+                            XmlElement ch = node as XmlElement;
+                            if (ch.GetAttribute("name") == name)
+                            {
+                                XmlElement lch = null;
+                                foreach (XmlNode lchn in ch)
+                                {
+                                    if(lchn is XmlElement && lchn.Name == "level")
+                                    {
+                                        lch = lchn as XmlElement;
+                                        break;
+                                    }
+                                }
+                                if (lch != null) level = lch.GetAttribute("value");
+                                if (!string.IsNullOrEmpty(level)) break;
+                            }
                         }
                     }
                 }
             }
 
             return level;
-        }
-
-        public static void DeleteLogs(string date = null)
-        {
-            try
-            {
-                string dir = GetLogDir();
-                if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
-                {
-                    DateTime deltime = DateTime.Now.AddHours(-1);
-                    if (string.IsNullOrEmpty(date) && !DateTime.TryParse(date, out deltime))
-                    {
-                        int day = ConfigUtils.LogSaveDay;
-                        if (day > 0) deltime = DateTime.Now.Date.AddDays(-day);
-                        else deltime = DateTime.Now.AddHours(-1);
-                    }
-
-                    System.IO.DirectoryInfo dirInfo = new System.IO.DirectoryInfo(dir);
-                    var files = dirInfo.EnumerateFiles("*", SearchOption.AllDirectories).Where(q => q.CreationTime <= deltime);
-                    foreach (var f in files)
-                    {
-                        try { f.Delete(); }
-                        catch { }
-                    }
-                }
-            }
-            catch { }
         }
 
         #endregion

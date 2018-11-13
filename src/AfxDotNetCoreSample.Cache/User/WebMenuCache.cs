@@ -8,11 +8,11 @@ using AfxDotNetCoreSample.ICache;
 
 namespace AfxDotNetCoreSample.Cache
 {
-    public class WebMenuCache : ListDbCache, IWebMenuCache
+    public class WebMenuCache : ListDbCache<WebMenuCache>, IWebMenuCache
     {
-        public virtual List<WebMenuOutputDto> Get()
+        public virtual List<WebMenuDto> Get()
         {
-            return base.GetData<List<WebMenuOutputDto>>();
+            return base.GetData<List<WebMenuDto>>();
         }
 
         public virtual void Remove()
@@ -20,7 +20,7 @@ namespace AfxDotNetCoreSample.Cache
             base.RemoveKey();
         }
 
-        public virtual void Set(List<WebMenuOutputDto> list)
+        public virtual void Set(List<WebMenuDto> list)
         {
             base.SetData(list);
         }

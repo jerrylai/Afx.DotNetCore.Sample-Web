@@ -2,52 +2,169 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
-    <Version>1.0.0.11</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="logs\**" />
-    <Compile Remove="log\**" />
-    <Content Remove="logs\**" />
-    <Content Remove="log\**" />
-    <EmbeddedResource Remove="logs\**" />
-    <EmbeddedResource Remove="log\**" />
-    <None Remove="logs\**" />
-    <None Remove="log\**" />
+    <Compile Remove="webfiles\**" />
+    <Compile Remove="wwwroot\lib\layui-v2.4.3\**" />
+    <Content Remove="webfiles\**" />
+    <Content Remove="wwwroot\lib\layui-v2.4.3\**" />
+    <EmbeddedResource Remove="webfiles\**" />
+    <EmbeddedResource Remove="wwwroot\lib\layui-v2.4.3\**" />
+    <None Remove="webfiles\**" />
+    <None Remove="wwwroot\lib\layui-v2.4.3\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Config\AopConfig.xml" />
     <None Remove="Config\CacheKey.xml" />
     <None Remove="Config\DefaultImplement.xml" />
+    <None Remove="Config\IocConfig.xml" />
+    <None Remove="Config\region.txt" />
+    <None Remove="Dockerfile" />
     <None Remove="Langue\Enum\zh-CN\ApiStatus.xml" />
     <None Remove="Langue\Enum\zh-CN\UserStatus.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Config\DefaultImplement.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="Config\AopConfig.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
     <Content Include="Config\CacheKey.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\DefaultImplement.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\IocConfig.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\region.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Dockerfile">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Langue\Enum\zh-CN\ApiStatus.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
     <Content Include="Langue\Enum\zh-CN\UserStatus.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Afx.AspNetCore.Mvc" Version="6.5.3" />
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.4" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\easyloader.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\jquery.easyui.min.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\jquery.easyui.mobile.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\jquery.min.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-af.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-am.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-ar.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-bg.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-ca.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-cs.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-cz.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-da.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-de.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-el.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-en.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-es.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-fa.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-fr.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-it.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-jp.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-ko.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-nl.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-pl.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-pt_BR.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-ru.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-sv_SE.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-tr.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-ua.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-zh_CN.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\locale\easyui-lang-zh_TW.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.accordion.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.calendar.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.checkbox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.combo.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.combobox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.combogrid.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.combotree.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.combotreegrid.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.datagrid.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.datalist.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.datebox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.datetimebox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.datetimespinner.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.dialog.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.draggable.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.droppable.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.filebox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.form.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.layout.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.linkbutton.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.maskedbox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.menu.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.menubutton.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.messager.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.mobile.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.numberbox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.numberspinner.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.pagination.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.panel.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.parser.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.passwordbox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.progressbar.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.propertygrid.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.radiobutton.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.resizable.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.searchbox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.sidemenu.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.slider.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.spinner.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.splitbutton.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.switchbutton.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.tabs.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.tagbox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.textbox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.timespinner.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.tooltip.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.tree.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.treegrid.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.validatebox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\plugins\jquery.window.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\easyloader.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.accordion.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.calendar.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.combobox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.datebox.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.draggable.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.droppable.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.form.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.linkbutton.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.menu.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.parser.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.progressbar.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.propertygrid.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.resizable.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.slider.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.tabs.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\src\jquery.window.js" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\themes\material-teal\images\Thumbs.db" />
+    <None Include="wwwroot\lib\jquery-easyui-1.6.6\themes\material\images\Thumbs.db" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Afx.AspNetCore.Mvc" Version="6.5.9" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" />
+    <!--<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" />-->
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AfxDotNetCoreSample.Cache\AfxDotNetCoreSample.Cache.csproj" />
     <ProjectReference Include="..\AfxDotNetCoreSample.Common\AfxDotNetCoreSample.Common.csproj" />
-    <ProjectReference Include="..\AfxDotNetCoreSample.Controllers\AfxDotNetCoreSample.Controllers.csproj" />
     <ProjectReference Include="..\AfxDotNetCoreSample.Dto\AfxDotNetCoreSample.Dto.csproj" />
     <ProjectReference Include="..\AfxDotNetCoreSample.Enums\AfxDotNetCoreSample.Enums.csproj" />
     <ProjectReference Include="..\AfxDotNetCoreSample.ICache\AfxDotNetCoreSample.ICache.csproj" />
@@ -59,15 +176,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Config\AopConfig.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Config\IocConfig.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Dockerfile">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Content Update="log4net.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="http://json.schemastore.org/2.0.0-csd.2.beta.2018-10-10.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

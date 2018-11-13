@@ -104,13 +104,27 @@ namespace AfxDotNetCoreSample.Common
             return Default.GetDatabase(db);
         }
 
+        public static List<IServer> GetServer()
+        {
+            List<IServer> list = new List<IServer>();
+
+            var enp = Default.GetEndPoints();
+            foreach(var ep in enp)
+            {
+                var server = Default.GetServer(ep);
+                list.Add(server);
+            }
+
+            return list;
+        }
+
         private static IConnectionMultiplexer LoadRedis()
         {
             var con = ConnectionMultiplexer.Connect(ConfigUtils.RedisConfig);
             con.ConnectionFailed += OnConnectionFailed;
             con.ErrorMessage += OnErrorMessage;
             con.InternalError += OnInternalError;
-            con.PreserveAsyncOrder = false;
+            //con.PreserveAsyncOrder = false;
 
             return con;
         }

@@ -8,18 +8,23 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 using AfxDotNetCoreSample.Common;
+using System.Text.Unicode;
+using System.Text.Encodings.Web;
 
 namespace AfxDotNetCoreSample.Web
 {
     public class Startup
     {
+        private readonly TimeSpan? sidExpire;
+        private readonly double minRefExpire;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
             IocConfig.Register(configuration);
-            ConfigUtils.SetThreads();
+            sidExpire = CacheKeyUtils.GetExpire("SessionDb", "UserSession");
+            minRefExpire = sidExpire.HasValue ? sidExpire.Value.TotalMinutes / 2 : 0d;
+            if (minRefExpire > 10d) minRefExpire = 10d;
         }
 
         public IConfiguration Configuration { get; }
@@ -34,11 +39,17 @@ namespace AfxDotNetCoreSample.Web
                 options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
             });
 
+            services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = AfxDotNetCoreSample.Common.ConfigUtils.MultipartBodyLengthLimit;
+            });
 
-            services.AddMvc(option=> 
+            services.AddMvc(option =>
             {
                 option.Filters.Add<ApiExceptionFilter>();
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,49 +61,80 @@ namespace AfxDotNetCoreSample.Web
             }
             else
             {
-                //app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Home/Error");
             }
 
             app.UseStaticFiles();
 
             app.UseSid(option =>
             {
-                option.RequestSidCallback = SessionUtils.OnRequestSid;
-                option.ResponseSidCallback = SessionUtils.OnResponseSid;
-                SessionUtils.ResponseSidCall = () => IocUtils.Get<IService.IUserSessionService>().Expire();
+                option.IsCookie = true;
+                option.Name = SessionUtils.SidName;
+                option.EncryptCallback = (val) => EncryptUtils.Encrypt(val);
+                option.DecryptCallback = (val) => EncryptUtils.Decrypt(val);
+                option.BeginRequestCallback = this.OnRequest;
+                option.EndRequestCallback = this.OnResponse;
             });
 
-            app.Use((fun) => new LogMiddleware(fun).Invoke);
-
-            
             app.UseMvc(routes =>
             {
+                //routes.MapRoute(
+                //    name: "areas",
+                //    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            
             //生成数据库
             IocUtils.Get<IService.ISystemService>().Init();
-        }
-    }
 
-    class LogMiddleware
-    {
-        private RequestDelegate next;
-        public LogMiddleware(RequestDelegate next)
-        {
-            this.next = next;
+            LogDelete.Start();
         }
 
-        public async Task Invoke(HttpContext context)
+        private void OnRequest(HttpContext context, string sid)
         {
-            DateTime startTime = DateTime.Now;
-            await this.next(context);
+            context.Items["BeginRequestTime"] = DateTime.Now;
+        }
+
+        private string OnResponse(HttpContext context, string sid)
+        {
+            string newsid = sid;
+            if (sidExpire.HasValue)
+            {
+                var arr = sid.Split('-');
+                long ticks = 0;
+                if (arr.Length >= 2)
+                {
+                    long.TryParse(arr[1], out ticks);
+                }
+                var now = DateTime.Now;
+                var expire = now;
+                if (ticks > now.Ticks) expire = new DateTime(ticks);
+                var ets = expire - now;
+                if (ets.TotalMinutes < minRefExpire)
+                {
+                    var sessionService = IocUtils.Get<IService.IUserSessionService>();
+                    sessionService.Expire(sid);
+                    ticks = now.Add(sidExpire.Value).Ticks;
+                    newsid = $"{arr[0]}-{ticks}";
+                }
+            }
+
+            //请求日志
+            DateTime startTime = (DateTime)context.Items["BeginRequestTime"];
             DateTime endTime = DateTime.Now;
+            var ts = endTime - startTime;
             string url = context.Request.Path;
             string method = context.Request.Method;
-            var ts = endTime - startTime;
-            LogUtils.Debug($"【Api】method: {method}, url: {url}, TotalMilliseconds: {ts.TotalMilliseconds}");
+            Microsoft.Extensions.Primitives.StringValues stringValues;
+            context.Request.Headers.TryGetValue("User-Agent", out stringValues);
+            var msg = $"【Api】method: {method}, url: {url}, TotalMilliseconds: {ts.TotalMilliseconds}, scheme: {context.Request.Scheme}, host: {context.Request.Host }, sid: {sid}, newsid: {newsid} UserAgent:{stringValues.FirstOrDefault()}";
+            LogUtils.Debug(msg, WebLogger.LOG_NAME);
+
+            return newsid;
         }
     }
+
 }

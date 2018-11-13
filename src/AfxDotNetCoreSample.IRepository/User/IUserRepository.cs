@@ -12,6 +12,10 @@ namespace AfxDotNetCoreSample.IRepository
 
         string GetId(string account);
 
+        string GetIdByMobile(string mobile);
+
+        string GetIdByMail(string mail);
+
         int Update(UserDto vm);
 
         int UpdatePassword(string id, string pwd);
@@ -20,5 +24,8 @@ namespace AfxDotNetCoreSample.IRepository
 
         int Delete(string id);
 
+        PageDataOutputDto<UserDto> GetPageData(UserPageInputDto vm);
+
+        int GetUserCount(string roleId);
     }
 }

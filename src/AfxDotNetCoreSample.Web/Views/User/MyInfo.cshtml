@@ -1,0 +1,128 @@
+﻿@model UserDto
+@{
+    Layout = null;
+}
+
+<style type="text/css">
+    #form_EditPwd table, #form_EditPwd tbody, #form_EditPwd tr, #form_EditPwd td {
+        margin: 0;
+        padding: 0;
+        border-width: 0;
+    }
+
+    #form_EditPwd td {
+        padding-top:5px;
+    }
+
+    #form_EditPwd .lb {
+        text-align: right;
+    }
+</style>
+<div style="min-height:500px;min-width:600px">
+    <form id="form_EditPwd" method="post" action="@Href("~/User/MyInfo")" class="easyui-form" data-options="novalidate:true" style="overflow:hidden">
+        <input type="hidden" id="hid_edit_user_id" value="@Model.Id" />
+        <table>
+            <tbody>
+                <tr>
+                    <td class="lb">姓名：</td>
+                    <td><input class="easyui-textbox" name="Name" value="@Model.Name" style="width:300px;" maxlength="100" data-options="required:true,validType:{length: [1, 100]}" /></td>
+                </tr>
+                <tr>
+                    <td class="lb">邮箱：</td>
+                    <td><input name="Mail" id="edit_Mail" style="width:300px;" /></td>
+                </tr>
+                <tr>
+                    <td class="lb">手机号码：</td>
+                    <td><input name="Mobile" id="edit_Mobile" style="width:300px;" /></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <a id="btn_EditPwd" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="height:30px;width:100px;margin-top:10px">
+                            <span style="font-size:14px;">保 存</span>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#form_EditPwd').form({
+            onSubmit: function (param) {
+                param._iframe_ajax = true;
+                return $(this).form('enableValidation').form('validate');
+            },
+            success: function (data) {
+                if (typeof (data) == 'string') data = JSON.parse(data);
+                if (data.Status == 0) {
+                    $.messager.alert('提示', '保存成功！', '');
+                    $('#lbUserName').text(data.Data.Name);
+                }
+                else {
+                    $.showDataMsg('保存失败！', data);
+                }
+            }
+        });
+
+        $('#btn_EditPwd').linkbutton({
+            onClick: function () {
+                $('#form_EditPwd').form('submit');
+            }
+        });
+
+        $('#edit_Mobile').textbox({
+            validType: {
+                mobile: [],
+                func: [function (val) {
+                    if (val) {
+                        var isv = true;
+                        $.postPrivate('/User/IsExist', {
+                            Id: $('#hid_edit_user_id').val(),
+                            Type: 2,
+                            Key: val
+                        }, function (data) {
+
+                            isv = !data.Data;
+                        }, false);
+                        return isv;
+                    }
+                    else {
+                        return true;
+                    }
+                }, '手机号已存在！']
+            }
+        });
+
+        $('#edit_Mail').textbox({
+            validType: {
+                func: [function (val) {
+                    if (val) {
+                        var isv = true;
+                        $.postPrivate('/User/IsExist', {
+                            Id: $('#hid_edit_user_id').val(),
+                            Type: 3,
+                            Key: val
+                        }, function (data) {
+                            isv = !data.Data;
+                        }, false);
+                        return isv;
+                    }
+                    else {
+                        return true;
+                    }
+                }, '邮箱已存在！'],
+                mail: [],
+                length: [0, 200],
+            }
+        });
+
+        $('#edit_Mobile').textbox('setValue', '@Model.Mobile');
+
+        $('#edit_Mail').textbox('setValue', '@Model.Mail');
+
+    });
+</script>

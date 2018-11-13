@@ -5,8 +5,6 @@
 *.user
 .vs
 /publish
+/src/AfxDotNetCoreSample.Web/webfiles
 bin
 obj
-log
-logs
-

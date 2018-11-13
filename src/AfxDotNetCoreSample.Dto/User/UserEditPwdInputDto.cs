@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace AfxDotNetCoreSample.Dto
 {
@@ -9,8 +10,10 @@ namespace AfxDotNetCoreSample.Dto
     {
         public string UserId { get; set; }
 
+        [Required]
         public string OldPwd { get; set; }
 
+        [Required]
         public string NewPwd { get; set; }
     }
 }

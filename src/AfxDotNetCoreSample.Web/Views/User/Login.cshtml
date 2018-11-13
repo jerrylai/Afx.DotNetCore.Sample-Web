@@ -1,0 +1,141 @@
+﻿@{
+    ViewData["Title"] = "AfxDotNetCoreSample";
+    ViewBag.BodyClass = "login_body";
+}
+
+@section style{
+    <style type="text/css">
+        .login_body {
+            background-color: #2d3e50;
+        }
+
+        table, tbody, tr, td {
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+}
+
+<table style="width:100%; height:100%;min-height:450px;min-width:600px">
+    <tr style="height:25%;">
+        <td></td>
+    </tr>
+    <tr>
+        <td>
+            <form id="form_login" class="easyui-form" data-options="novalidate:true" style="overflow:hidden;margin:auto;width:420px;height:300px">
+                <div class="easyui-panel" title="登录" data-options="noheader:true" style="width:420px;padding:20px 40px 30px 40px;overflow:hidden;">
+                    <div style="margin-bottom:20px; height:40px;line-height:40px;font-size:24px;font:bold;text-align:center">
+                        AfxDotNetCoreSample
+                    </div>
+                    <div style="margin-bottom:10px;height:40px;line-height:40px">
+                        <label style="font-size:16px;float:left;width:60px">账号：</label>
+                        <input id="textbox_Account" name="Account" type="text" class="easyui-textbox" style="width:250px;height:40px;padding:12px;"
+                               data-options="prompt:'输入账号、手机号、邮箱',required:true,validType:['loginAccount','length[1,100]']">
+                    </div>
+                    <div style="margin-bottom:20px;height:40px;line-height:40px">
+                        <label style="font-size:16px;float:left;width:60px">密码：</label>
+                        <input id="textbox_Password" name="Password" type="password" class="easyui-textbox" style="width:250px;height:40px;padding:12px"
+                               data-options="prompt:'输入密码',required:true">
+                    </div>
+                    <div style="margin-bottom:20px;padding-left:60px;">
+                        <input id="checkbox_Remember" name="Remember" class="easyui-checkbox" value="1" label="记住密码" />
+                    </div>
+                    <div style="padding-left:60px">
+                        <a id="linkbutton_login" class="easyui-linkbutton c6" style="padding:5px 0px;width:250px;">
+                            <span style="font-size:14px;">登 录</span>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </td>
+    </tr>
+    <tr style="height:30%;">
+        <td></td>
+    </tr>
+    <tr style="height:30px;">
+        <td style="text-align:center;color:white;height:30px;vertical-align:middle">
+            版权所有 © jerrylai@@aliyun.com
+        </td>
+    </tr>
+</table>
+
+<script src="~/js/md5.min.js"></script>
+<script type="text/javascript">
+    var mainPage = '/Home/Index';
+    $(document).ready(function () {
+        
+        $('#checkbox_Remember').checkbox({
+            checked: false,
+            labelPosition: 'after'
+        });
+        
+        var accountCookieName = 'account';
+        var pwdCookieName = 'password';
+        function setLogin() {
+            var account = $.cookie(accountCookieName);
+            if (account) {
+                $('#textbox_Account').textbox('setValue', account);
+                var pwd = $.cookie(pwdCookieName);
+                if (pwd) {
+                    $('#textbox_Password').textbox('setValue', pwd);
+                }
+                $('#checkbox_Remember').checkbox('check');
+            }
+        }
+
+        $('#textbox_Account').textbox('textbox').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                $('#textbox_Password').textbox('textbox').focus();
+            }
+        });
+
+        $('#textbox_Password').textbox('textbox').keydown(function (e) {
+            if (e.keyCode == 13) {
+                login();
+            }
+        });
+
+        function login() {
+            if ($('#form_login').form('enableValidation').form('validate')) {
+                var formdata = $.getFormData('form_login');
+                var user = { Account: formdata.Account, Password: formdata.Password };
+                var pwd = formdata.Password;
+                user.Random = Math.random();
+                var oldPwd = $.cookie(pwdCookieName);
+                if (pwd != oldPwd) {
+                    pwd = md5(pwd).toUpperCase();
+                }
+                user.Password = md5(pwd + "|" + user.Random).toUpperCase();
+                $.postPublic('/User/Login', user, function (data) {
+                    if (data && data.Status == 0 && data.Data == true) {
+                        if (formdata.Remember == '1') {
+                            $.cookie(accountCookieName, user.Account, { expires: 365 });
+                            $.cookie(pwdCookieName, pwd, { expires: 365 });
+                        }
+                        else {
+                            $.cookie(accountCookieName, null);
+                            $.cookie(pwdCookieName, null);
+                        }
+                        var returnurl = $.cookie('returnurl');
+                        $.cookie('returnurl', null);
+                        
+                        if (returnurl) window.location.href = returnurl;
+                        else window.location.href = mainPage;
+                    }
+                    else {
+                        $.showDataMsg('账号或密码错误！', data);
+                    }
+                });
+            }
+        }
+
+        $('#linkbutton_login').linkbutton({
+            onClick: function () {
+                login();
+            }
+        });
+
+        setLogin();
+    });
+</script>

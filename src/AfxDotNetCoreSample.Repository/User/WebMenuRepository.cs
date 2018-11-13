@@ -6,33 +6,37 @@ using System.Text;
 using AfxDotNetCoreSample.Dto;
 using AfxDotNetCoreSample.ICache;
 using AfxDotNetCoreSample.IRepository;
+using AfxDotNetCoreSample.Common;
 
 namespace AfxDotNetCoreSample.Repository
 {
     public class WebMenuRepository : BaseRepository, IWebMenuRepository
     {
-        public virtual List<WebMenuOutputDto> GetList()
+        private readonly Lazy<IWebMenuCache> _cache = new Lazy<IWebMenuCache>(IocUtils.Get<IWebMenuCache>);
+        internal protected virtual IWebMenuCache cache => _cache.Value;
+
+
+        public virtual List<WebMenuDto> GetList()
         {
-            List<WebMenuOutputDto> list = null;
-            var cache = this.GetCache<IWebMenuCache>();
-            list = cache.Get();
+            var list = this.cache.Get();
             if (list == null)
             {
                 using(var db = this.GetContext())
                 {
                     var query = from q in db.WebMenu
-                                orderby q.Order, q.Id
-                                select new WebMenuOutputDto
+                                select new WebMenuDto
                                 {
                                     Id = q.Id,
                                     ParentId = q.ParentId,
                                     Name = q.Name,
                                     Order = q.Order,
-                                    Url = q.Url,
-                                    IsMenu = q.IsMenu
+                                    PageUrl = q.PageUrl,
+                                    ImageUrl = q.ImageUrl,
+                                    IsMenu = q.IsMenu,
+                                    Description = q.Description
                                 };
                     list = query.ToList();
-                    cache.Set(list);
+                    this.cache.Set(list);
                 }
             }
 

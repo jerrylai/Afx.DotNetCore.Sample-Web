@@ -7,9 +7,19 @@ namespace AfxDotNetCoreSample.Dto
     public interface ISyncLock: IDisposable
     {
         /// <summary>
+        /// 初始化
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="key"></param>
+        /// <param name="owner"></param>
+        /// <param name="timeout"></param>
+        void Init(LockType type, string key, string owner = null,
+            TimeSpan? timeout = null);
+
+        /// <summary>
         /// 任务类型 TaskLockType
         /// </summary>
-        TaskLockType Type { get; }
+        LockType Type { get; }
         /// <summary>
         /// 任务key
         /// </summary>

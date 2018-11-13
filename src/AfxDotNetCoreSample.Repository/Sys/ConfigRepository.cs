@@ -8,6 +8,7 @@ using AfxDotNetCoreSample.Enums;
 using AfxDotNetCoreSample.ICache;
 using AfxDotNetCoreSample.IRepository;
 using AfxDotNetCoreSample.Models;
+using AfxDotNetCoreSample.Common;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -16,6 +17,9 @@ namespace AfxDotNetCoreSample.Repository
     /// </summary>
     public class ConfigRepository : BaseRepository, IConfigRepository
     {
+        private readonly Lazy<IConfigCache> _cache = new Lazy<IConfigCache>(() => IocUtils.Get<IConfigCache>());
+        internal protected virtual IConfigCache cache => this._cache.Value;
+
         /// <summary>
         /// 根据配置类型获取
         /// </summary>
@@ -24,8 +28,7 @@ namespace AfxDotNetCoreSample.Repository
         public virtual Dictionary<string, string> Get(ConfigType type)
         {
             List<ConfigDto> list = null;
-            var cache = this.GetCache<IConfigCache>();
-            list = cache.Get(type);
+            list = this.cache.Get(type);
             if(list == null)
             {
                 using (var db = this.GetContext())
@@ -43,7 +46,7 @@ namespace AfxDotNetCoreSample.Repository
                     #endregion
 
                     list = query.ToList();
-                    cache.Set(type, list);
+                    this.cache.Set(type, list);
                 }
             }
             Dictionary<string, string> dic = new Dictionary<string, string>(list.Count);
@@ -53,6 +56,55 @@ namespace AfxDotNetCoreSample.Repository
             }
 
             return dic;
+        }
+
+        /// <summary>
+        /// 更新系统配置
+        /// </summary>
+        /// <param name="type">ConfigType枚举值</param>
+        /// <param name="dic">系统配置集合</param>
+        /// <returns></returns>
+        public virtual int Set(ConfigType type, Dictionary<string, string> dic)
+        {
+            int count = 0;
+            using (var db = this.GetContext())
+            {
+                using (db.BeginTransaction())
+                {
+                    var list = db.SysConfig.Where(q => q.Type == type).ToList();
+                    foreach (var kv in dic)
+                    {
+                        string key = string.IsNullOrEmpty(kv.Key) ? "*" : kv.Key;
+                        SysConfig m = list.Find(q => q.Name == key);
+                        if (m == null)
+                        {
+                            m = new SysConfig()
+                            {
+                                Id = IdGenerator.Get<SysConfig>(),
+                                Type = type,
+                                Name = key
+                            };
+                            db.SysConfig.Add(m);
+                        }
+                        m.Value = kv.Value;
+                    }
+
+                    var dellist = list.FindAll(q => !dic.ContainsKey(q.Name));
+                    foreach (var m in dellist)
+                    {
+                        db.SysConfig.Remove(m);
+                    }
+
+                    count = db.SaveChanges();
+                    db.Commit();
+                    if (count > 0)
+                    {
+                        this.cache.Remove(type);
+                    }
+                }
+            }
+
+            return count;
         }
 
         /// <summary>
@@ -104,57 +156,23 @@ namespace AfxDotNetCoreSample.Repository
             if (string.IsNullOrEmpty(name)) name = "*";
             Dictionary<string, string> dic = new Dictionary<string, string>() { { name, value } };
 
-            return this.SetValue(type, dic);
+            return this.Set(type, dic);
         }
 
-        /// <summary>
-        /// 更新系统配置
-        /// </summary>
-        /// <param name="type">ConfigType枚举值</param>
-        /// <param name="dic">系统配置集合</param>
-        /// <returns></returns>
-        public virtual int SetValue(ConfigType type, Dictionary<string, string> dic)
+        public DateTime GetLocalNow()
         {
-            int count = 0;
             using (var db = this.GetContext())
             {
-                using (db.BeginTransaction())
-                {
-                    var list = db.SysConfig.Where(q => q.Type == type).ToList();
-                    foreach(var kv in dic)
-                    {
-                        string key = string.IsNullOrEmpty(kv.Key) ? "*" : kv.Key;
-                        SysConfig m = list.Find(q => q.Name == key);
-                        if (m == null)
-                        {
-                            m = new SysConfig()
-                            {
-                                Id = IdGenerator.Get<SysConfig>(),
-                                Type = type,
-                                Name = key
-                            };
-                            db.SysConfig.Add(m);
-                        }
-                        m.Value = kv.Value;
-                    }
-                    
-                    var dellist = list.FindAll(q => !dic.ContainsKey(q.Name));
-                    foreach (var m in dellist)
-                    {
-                        db.SysConfig.Remove(m);
-                    }
-                    
-                    count = db.SaveChanges();
-                    db.Commit();
-                    if (count > 0)
-                    {
-                        var cache = this.GetCache<IConfigCache>();
-                        cache.Remove(type);
-                    }
-                }
+                return db.GetLocalNow();
             }
+        }
 
-            return count;
+        public DateTime GetUtcNow()
+        {
+            using (var db = this.GetContext())
+            {
+                return db.GetUtcNow();
+            }
         }
     }
 }

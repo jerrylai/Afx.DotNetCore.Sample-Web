@@ -89,5 +89,9 @@ namespace AfxDotNetCoreSample.Common
 
             return result;
         }
+
+        public static TService GetByKey<TService>(object key) => Default.GetByKey<TService>(key);
+
+        public static TService GetByKey<TService>(object key, object[] args) => Default.GetByKey<TService>(key, args);
     }
 }

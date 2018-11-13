@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AfxDotNetCoreSample.Cache
 {
-   public abstract  class SessionDbCache :  BaseCache
+   public abstract  class SessionDbCache<TCache> :  BaseCache<TCache>
     {
         public SessionDbCache() : base("SessionDb") { }
 

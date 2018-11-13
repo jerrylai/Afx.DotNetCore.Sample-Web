@@ -7,17 +7,24 @@ using AfxDotNetCoreSample.Dto;
 using AfxDotNetCoreSample.ICache;
 using AfxDotNetCoreSample.IRepository;
 using AfxDotNetCoreSample.Models;
+using AfxDotNetCoreSample.Common;
+using AfxDotNetCoreSample.Enums;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace AfxDotNetCoreSample.Repository
 {
     public class UserRepository : BaseRepository, IUserRepository
     {
-        internal static UserRepository Instance = new UserRepository();
-        
+        private readonly Lazy<IUserCache> _userCache = new Lazy<IUserCache>(() => IocUtils.Get<IUserCache>());
+        internal protected virtual IUserCache userCache => this._userCache.Value;
+
+        private readonly Lazy<IUserIdCache> _userIdCache = new Lazy<IUserIdCache>(() => IocUtils.Get<IUserIdCache>());
+        internal protected virtual IUserIdCache userIdCache => this._userIdCache.Value;
+
         public virtual UserDto Get(string id)
         {
-            var userCache = this.GetCache<IUserCache>();
-            UserDto vm = userCache.Get(id);
+            UserDto vm = this.userCache.Get(id);
             if(vm == null)
             {
                 using (var db = this.GetContext())
@@ -41,7 +48,7 @@ namespace AfxDotNetCoreSample.Repository
                     vm = query.FirstOrDefault();
                 }
 
-                if (vm != null) userCache.Set(id, vm);
+                if (vm != null) this.userCache.Set(id, vm);
             }
 
             return vm;
@@ -49,8 +56,9 @@ namespace AfxDotNetCoreSample.Repository
 
         public virtual string GetId(string account)
         {
-            var idcache = this.GetCache<IUserIdCache>();
-            var id = idcache.Get(account);
+            if (string.IsNullOrEmpty(account)) return null;
+            account = account.ToLower();
+            var id = this.userIdCache.Get(UserIdCacheType.Account,account);
             if(string.IsNullOrEmpty(id))
             {
                 using (var db = this.GetContext())
@@ -59,7 +67,46 @@ namespace AfxDotNetCoreSample.Repository
                                 where q.Account == account && q.IsDelete == false
                                 select q.Id;
                     id = query.FirstOrDefault();
-                    idcache.Set(account, id);
+                    this.userIdCache.Set(UserIdCacheType.Account, account, id);
+                }
+            }
+
+            return id;
+        }
+
+        public virtual string GetIdByMobile(string mobile)
+        {
+            if (string.IsNullOrEmpty(mobile)) return null;
+            var id = this.userIdCache.Get(UserIdCacheType.Mobile, mobile);
+            if (string.IsNullOrEmpty(id))
+            {
+                using (var db = this.GetContext())
+                {
+                    var query = from q in db.User
+                                where q.Mobile == mobile && q.IsDelete == false
+                                select q.Id;
+                    id = query.FirstOrDefault();
+                    this.userIdCache.Set(UserIdCacheType.Mobile, mobile, id);
+                }
+            }
+
+            return id;
+        }
+
+        public virtual string GetIdByMail(string mail)
+        {
+            if (string.IsNullOrEmpty(mail)) return null;
+            mail = mail.ToLower();
+            var id = this.userIdCache.Get(UserIdCacheType.Mail, mail);
+            if (string.IsNullOrEmpty(id))
+            {
+                using (var db = this.GetContext())
+                {
+                    var query = from q in db.User
+                                where q.Mail == mail && q.IsDelete == false
+                                select q.Id;
+                    id = query.FirstOrDefault();
+                    this.userIdCache.Set(UserIdCacheType.Mail, mail, id);
                 }
             }
 
@@ -68,29 +115,37 @@ namespace AfxDotNetCoreSample.Repository
 
         public virtual int Update(UserDto vm)
         {
-            int count = 0;
             using (var db = this.GetContext())
             {
-                var m = db.User.Where(q => q.Id == vm.Id && q.IsDelete == false).FirstOrDefault();
-                if (m != null)
+                return this.Update(vm, db);
+            }
+        }
+
+        public virtual int Update(UserDto vm, AfxContext db)
+        {
+            int count = 0;
+            var m = db.User.Where(q => q.Id == vm.Id && q.IsDelete == false).FirstOrDefault();
+            if (m != null)
+            {
+                m.Name = vm.Name;
+                m.RoleId = vm.RoleId;
+                m.Status = vm.Status;
+                var oldMobile = m.Mobile;
+                var oldMail = m.Mail;
+                m.Mobile = vm.Mobile;
+                m.Mail = vm.Mail;
+                if (!string.IsNullOrEmpty(vm.Password))
                 {
-                    m.Name = vm.Name;
-                    if (m.IsSystem == false)
-                    {
-                        m.RoleId = vm.RoleId;
-                    }
-                    m.Mobile = vm.Mobile;
-                    m.Mail = vm.Mail;
-                    m.Status = vm.Status;
-                    if (!string.IsNullOrEmpty(vm.Password))
-                    {
-                        m.Password = vm.Password;
-                    }
-                    count = db.SaveChanges();
-                    vm.UpdateTime = m.UpdateTime;
-                    var userCache = this.GetCache<IUserCache>();
-                    userCache.Remove(m.Id);
+                    m.Password = vm.Password;
                 }
+                db.AddCommitCallback((num) =>
+                {
+                    this.userCache.Remove(m.Id);
+                    if (!string.IsNullOrEmpty(oldMail) && m.Mail != oldMail) this.userIdCache.Remove(UserIdCacheType.Mail, oldMail);
+                    if (!string.IsNullOrEmpty(oldMobile) && m.Mobile != oldMobile) this.userIdCache.Remove(UserIdCacheType.Mobile, oldMobile);
+                });
+                count = db.SaveChanges();
+                vm.UpdateTime = m.UpdateTime;
             }
 
             return count;
@@ -105,9 +160,8 @@ namespace AfxDotNetCoreSample.Repository
                 if(m != null)
                 {
                     m.Password = pwd;
+                    db.AddCommitCallback((num) => this.userCache.Remove(m.Id));
                     count = db.SaveChanges();
-                    var userCache = this.GetCache<IUserCache>();
-                    userCache.Remove(m.Id);
                 }
             }
 
@@ -116,35 +170,45 @@ namespace AfxDotNetCoreSample.Repository
 
         public virtual int Add(UserDto vm)
         {
-            int count = 0;
             using (var db = this.GetContext())
             {
-                vm.Account = vm.Account.ToLower();
-                var user = db.User.Where(q => q.Account == vm.Account).FirstOrDefault();
-                if (user == null)
+                using (db.BeginTransaction())
                 {
-                    var m = new User()
-                    {
-                        Id = IdGenerator.Get<User>(),
-                        Account = vm.Account,
-                        Name = vm.Name,
-                        RoleId = vm.RoleId,
-                        Mail = vm.Mail,
-                        Mobile = vm.Mobile,
-                        Status = vm.Status,
-                        Password = string.IsNullOrEmpty(vm.Password) ? null : vm.Password,
-                        IsSystem = false,
-                        IsDelete = false
-                    };
-
-                    count += db.SaveChanges();
-                    vm.Id = m.Id;
-                    vm.UpdateTime = m.UpdateTime;
-                    vm.CreateTime = m.CreateTime;
-                    var idcache = this.GetCache<IUserIdCache>();
-                    idcache.Remove(vm.Account);
+                    int count = this.Add(vm, db);
+                    db.Commit();
+                    return count;
                 }
             }
+        }
+
+        public virtual int Add(UserDto vm, AfxContext db)
+        {
+            int count = 0;
+            var m = new User()
+            {
+                Id = IdGenerator.Get<User>(),
+                Account = vm.Account.ToLower(),
+                Name = vm.Name,
+                RoleId = vm.RoleId,
+                Mail = vm.Mail?.ToLower(),
+                Mobile = vm.Mobile,
+                Status = vm.Status,
+                Password = !string.IsNullOrEmpty(vm.Password) ? vm.Password : null,
+                IsSystem = false,
+                IsDelete = false
+            };
+
+            db.AddCommitCallback((num) =>
+            {
+                this.userIdCache.Remove(UserIdCacheType.Account, m.Account);
+                if (!string.IsNullOrEmpty(m.Mail)) this.userIdCache.Remove(UserIdCacheType.Mail, m.Mail);
+                if (!string.IsNullOrEmpty(m.Mobile)) this.userIdCache.Remove(UserIdCacheType.Mobile, m.Mobile);
+            });
+            db.Add(m);
+            db.SaveChanges();
+            vm.Id = m.Id;
+            vm.UpdateTime = m.UpdateTime;
+            vm.CreateTime = m.CreateTime;
 
             return count;
         }
@@ -154,19 +218,89 @@ namespace AfxDotNetCoreSample.Repository
             int count = 0;
             using (var db = this.GetContext())
             {
-                var m = db.User.Where(q => q.Id == id && q.IsSystem == false && q.IsDelete == false).FirstOrDefault();
-                if (m != null)
-                {
-                    db.User.Remove(m);
-                    count += db.SaveChanges();
-                    var userCache = this.GetCache<IUserCache>();
-                    userCache.Remove(m.Id);
-                    var idcache = this.GetCache<IUserIdCache>();
-                    idcache.Remove(m.Account);
-                }
+                count = this.Delete(id, db);
             }
             return count;
         }
 
+        public virtual int Delete(string id, AfxContext db)
+        {
+            int count = 0;
+
+            var m = db.User.Where(q => q.Id == id && q.IsSystem == false && q.IsDelete == false).FirstOrDefault();
+            if (m != null)
+            {
+                db.User.Remove(m);
+                db.AddCommitCallback((num) =>
+                {
+                    this.userCache.Remove(m.Id);
+                    this.userIdCache.Remove(UserIdCacheType.Account, m.Account);
+                    if (!string.IsNullOrEmpty(m.Mail)) this.userIdCache.Remove(UserIdCacheType.Mail, m.Mail);
+                    if (!string.IsNullOrEmpty(m.Mobile)) this.userIdCache.Remove(UserIdCacheType.Mobile, m.Mobile);
+                });
+                count += db.SaveChanges();
+            }
+
+            return count;
+        }
+
+        public virtual PageDataOutputDto<UserDto> GetPageData(UserPageInputDto vm)
+        {
+            PageDataOutputDto<UserDto> pageData = null;
+            using (var db = this.GetContext())
+            {
+                var query = from q in db.User
+                            where q.IsDelete == false
+                            select new UserDto
+                            {
+                                Id = q.Id,
+                                Account = q.Account,
+                                Name = q.Name,
+                                //Password = q.Password,
+                                RoleId = q.RoleId,
+                                Mail = q.Mail,
+                                Mobile = q.Mobile,
+                                Status = q.Status,
+                                IsSystem = q.IsSystem,
+                                UpdateTime = q.UpdateTime,
+                                CreateTime = q.CreateTime
+                            };
+
+                if (!string.IsNullOrEmpty(vm.RoleId))
+                {
+                    query = query.Where(q => q.RoleId == vm.RoleId);
+                }
+
+                if (vm.Status.HasValue)
+                {
+                    var status = vm.Status.Value;
+                    query = query.Where(q => q.Status == status);
+                }
+
+                if (!string.IsNullOrEmpty(vm.Keyword))
+                {
+                    var value = vm.Keyword.DbLike(DbLikeType.All);
+                    query = query.Where(q => EF.Functions.Like(q.Account, value) || EF.Functions.Like(q.Name, value) || EF.Functions.Like(q.Mobile, value) || EF.Functions.Like(q.Mail, value));
+                }
+
+                pageData = query.ToPage(vm);
+            }
+
+            return pageData;
+        }
+
+        public virtual int GetUserCount(string roleId)
+        {
+            int count = 0;
+            if (!string.IsNullOrEmpty(roleId))
+            {
+                using(var db = this.GetContext())
+                {
+                    count = db.User.Where(q => q.RoleId == roleId && q.IsDelete == false).Count();
+                }
+            }
+
+            return count;
+        }
     }
 }

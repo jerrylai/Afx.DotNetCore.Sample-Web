@@ -1,0 +1,40 @@
+﻿@{ 
+    string version = @ConfigUtils.JsVersion;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @RenderSection("meta", required: false)
+    <title>@ViewData["Title"]</title>
+    <link href="~/lib/jquery-easyui-1.6.6/themes/bootstrap/easyui.css?v=@version" rel="stylesheet" />
+    <link href="~/lib/jquery-easyui-1.6.6/themes/icon.css?v=@version" rel="stylesheet" />
+    <link href="~/lib/jquery-easyui-1.6.6/themes/color.css?v=@version" rel="stylesheet" />
+    <link href="~/css/base.css?v=@version" rel="stylesheet" />
+    <script src="~/lib/jquery-easyui-1.6.6/jquery.min.js?v=@version"></script>
+    <script src="~/lib/jquery-easyui-1.6.6/jquery.easyui.min.js?v=@version"></script>
+    <script src="~/lib/jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js?v=@version"></script>
+    <script src="~/js/json.js?v=@version"></script>
+    <script src="~/js/base.js?v=@version"></script>
+    @RenderSection("style", required: false)
+</head>
+<body class="@ViewBag.BodyClass">
+    @RenderBody()
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $(window).ajaxStart(function () {
+                $('#loadWin').window('center').window({ width: 60, height: 60 }).window('open');
+            });
+
+            $(window).ajaxStop(function () {
+                $('#loadWin').window('close');
+            });
+        });
+    </script>
+    <div id="loadWin" class="easyui-window" style="width:60px;height:60px;overflow:hidden;display:none" data-options="modal:true,border:false,resizable:false,closed:true,noheader:true">
+        <img width="60" height="60" src="~/images/loading.gif" />
+    </div>
+</body>
+</html>

@@ -14,6 +14,12 @@ namespace AfxDotNetCoreSample.Service
 {
     public class SystemService : BaseService, ISystemService
     {
+        private readonly Lazy<ISystemRepository> _systemRepository = new Lazy<ISystemRepository>(() => IocUtils.Get<ISystemRepository>());
+        internal protected virtual ISystemRepository systemRepository => this._systemRepository.Value;
+
+        private readonly Lazy<IConfigRepository> _configRepository = new Lazy<IConfigRepository>(() => IocUtils.Get<IConfigRepository>());
+        internal protected virtual IConfigRepository configRepository => this._configRepository.Value;
+
         private Version version;
 
         public SystemService()
@@ -29,19 +35,19 @@ namespace AfxDotNetCoreSample.Service
         /// <returns></returns>
         public virtual void Init()
         {
-            var repository = this.GetRepository<ISystemRepository>();
-            try { repository.InitDb(); }
+            try { systemRepository.InitDb(); }
             catch(Exception ex)
             {
                 LogUtils.Info("【InitDatabase】", ex);
             }
             if (this.IsInitSystemData())
             {
-                using (var locked = this.GetSyncLock(TaskLockType.InitSystemData, "0", null, TimeSpan.FromHours(1)))
+                using (var syncLock = IocUtils.Get<ISyncLock>())
                 {
-                    if (locked.Lock())
+                    syncLock.Init(LockType.InitSystemData, "0", null, TimeSpan.FromHours(1));
+                    if (syncLock.Lock())
                     {
-                        repository.InitData();
+                        systemRepository.InitData();
                         this.SetInitSystemData();
                     }
                 }
@@ -54,8 +60,7 @@ namespace AfxDotNetCoreSample.Service
         /// <returns></returns>
         private bool IsInitSystemData()
         {
-            var repository = this.GetRepository<IConfigRepository>();
-            var s = repository.GetValue(ConfigType.SystemVersion, "service.version");
+            var s = configRepository.GetValue(ConfigType.SystemVersion, "service.version");
             Version ver = null;
 
             if (!Version.TryParse(s, out ver) || ver < this.version)
@@ -70,8 +75,7 @@ namespace AfxDotNetCoreSample.Service
         /// <param name="val"></param>
         private void SetInitSystemData()
         {
-            var repository = GetRepository<IConfigRepository>();
-            repository.SetValue(ConfigType.SystemVersion, "service.version", this.version.ToString());
+            configRepository.SetValue(ConfigType.SystemVersion, "service.version", this.version.ToString());
         }
         
     }

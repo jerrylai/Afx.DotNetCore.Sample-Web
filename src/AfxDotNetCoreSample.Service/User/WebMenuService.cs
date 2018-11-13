@@ -14,61 +14,15 @@ namespace AfxDotNetCoreSample.Service
 {
     public class WebMenuService : BaseService, IWebMenuService
     {
-        public virtual List<WebMenuOutputDto> GetList()
+        private readonly Lazy<IWebMenuRepository> _repository = new Lazy<IWebMenuRepository>(() => IocUtils.Get<IWebMenuRepository>());
+        internal protected virtual IWebMenuRepository repository => this._repository.Value;
+
+        public virtual List<WebMenuDto> GetList()
         {
-            var repository = this.GetRepository<IWebMenuRepository>();
-            var list = repository.GetList();
+            var list = this.repository.GetList();
 
             return list;
         }
 
-        public virtual List<TreeNodeOutputDto> GetTreeNodeList()
-        {
-            var list = this.GetList();
-            var nodelist = this.GetChildren(null, list);
-
-            return nodelist;
-        }
-
-        public virtual List<TreeNodeOutputDto> GetTreeNodeList(string roleId)
-        {
-            var list = this.GetList();
-
-            var repository = this.GetRepository<IRoleWebMenuRepository>();
-            var roleauths = repository.Get(roleId);
-            list.RemoveAll(q => !roleauths.Contains(q.Id));
-
-            var nodelist = this.GetChildren(null, list);
-
-            return nodelist;
-        }
-
-        private List<TreeNodeOutputDto> GetChildren(string parentId, List<WebMenuOutputDto> list)
-        {
-            List<TreeNodeOutputDto> child = null;
-            var query = from q in list
-                        where q.ParentId == parentId
-                        select new TreeNodeOutputDto
-                        {
-                            id = q.Id,
-                            text = q.Name,
-                            url = q.Url
-                        };
-            child = query.ToList();
-            if (child.Count > 0)
-            {
-                foreach (var ch in child)
-                {
-                    ch.children = this.GetChildren(ch.id, list);
-                    ch.state = ch.children != null ? "closed" : null;
-                }
-            }
-            else
-            {
-                child = null;
-            }
-
-            return child;
-        }
     }
 }

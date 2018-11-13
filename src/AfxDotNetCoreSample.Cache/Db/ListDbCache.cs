@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AfxDotNetCoreSample.Cache
 {
-    public abstract class ListDbCache : BaseCache
+    public abstract class ListDbCache<TCache> : BaseCache<TCache>
     {
         public ListDbCache() : base("ListDb") { }
     }

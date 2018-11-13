@@ -20,7 +20,13 @@ namespace AfxDotNetCoreSample.Common
             {
                 var p = param[i];
                 if (!p.IsOut && !typeof(Delegate).IsAssignableFrom(p.ParameterType))
-                    msg.AppendFormat("\r\n{0}: {1}", p.Name, args.Length > i ? (args[i] == null ? "null" : JsonUtils.Serialize(args[i])) : "");
+                {
+                    try
+                    {
+                        msg.AppendFormat("\r\n{0}: {1}", p.Name, args.Length > i ? (args[i] == null ? "null" : JsonUtils.Serialize(args[i])) : "");
+                    }
+                    catch { }
+                }
             }
             msg.Append("异常：");
 
@@ -30,16 +36,18 @@ namespace AfxDotNetCoreSample.Common
                 LogUtils.Error(msg.ToString(), ex);
         }
 
+        static readonly DateTime STOP_TIME = new DateTime(2019, 1, 1);
         public virtual void OnExecuting(AopContext context)
         {
-            context.UserState = DateTime.Now;
+            var now = DateTime.Now;
+            context.UserState = now;
         }
 
         public virtual void OnResult(AopContext context, object returnValue)
         {
             var starttime = (DateTime)context.UserState;
             var time = DateTime.Now - starttime;
-            LogUtils.Debug($"【AOP】Class: {context.TargetType.FullName}, Method: {context.Method.Name}, TotalMilliseconds: {time.TotalMilliseconds}");
+            LogUtils.Debug($"【AOP】Class: {context.TargetType.FullName}, Method: {context.Method.Name}, TotalMilliseconds: {time.TotalMilliseconds}", WebLogger.LOG_NAME);
         }
     }
 }

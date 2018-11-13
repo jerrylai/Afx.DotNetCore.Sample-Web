@@ -25,11 +25,23 @@ namespace AfxDotNetCoreSample.Common
             return value;
         }
 
+        public static string WebFileDirectory
+        {
+            get
+            {
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "webfiles");
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                return path;
+            }
+        }
+
         public static string TempDirectory
         {
             get
             {
-                return Path.Combine(Directory.GetCurrentDirectory(), "temp");
+                string path = Path.Combine(WebFileDirectory, "temp");
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                return path;
             }
         }
 
@@ -39,12 +51,9 @@ namespace AfxDotNetCoreSample.Common
             LogUtils.Debug($"【SetThreads】ProcessorCount: {ProcessorCount}");
             int minThreads = ProcessorCount * 2;
             int minIoThreads = ProcessorCount * 2;
-            int maxThreads = ProcessorCount * 1000;
-            int maxIoThreads = 1000;
 
-            if (minThreads < 10) minThreads = 10;
-            if (minIoThreads < 10) minIoThreads = 10;
-            if (maxThreads < 1000) maxThreads = 1000;
+            if (minThreads < 10) minThreads = 5;
+            if (minIoThreads < 10) minIoThreads = 5;
 
             var s = GetValue("Threads:Min");
             if (!string.IsNullOrEmpty(s))
@@ -66,18 +75,16 @@ namespace AfxDotNetCoreSample.Common
                 }
             }
 
-            LogUtils.Debug($"【SetThreads】minThreads: {minThreads}, minIoThreads: {minIoThreads}, maxThreads: {maxThreads}, minIoThreads: {minIoThreads}");
+            LogUtils.Debug($"【SetThreads->Config】minThreads: {minThreads}, minIoThreads: {minIoThreads}");
 
+            //GetMaxThreads
+            int maxThreads = 0;
+            int maxIoThreads = 0;
+            System.Threading.ThreadPool.GetMaxThreads(out maxThreads, out maxIoThreads);
+            LogUtils.Debug($"【SetThreads->GetMaxThreads】maxThreads: {maxThreads}, maxIoThreads: {maxIoThreads}");
+            //SetMinThreads
             int workerThreads = 0;
             int completionPortThreads = 0;
-            //SetMaxThreads
-            System.Threading.ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
-            LogUtils.Debug($"【SetThreads->GetMaxThreads】workerThreads: {workerThreads}, completionPortThreads: {completionPortThreads}");
-            if (workerThreads < maxThreads) workerThreads = maxThreads;
-            if (completionPortThreads < maxIoThreads) completionPortThreads = maxIoThreads;
-            System.Threading.ThreadPool.SetMaxThreads(workerThreads, completionPortThreads);
-            LogUtils.Debug($"【SetThreads->SetMaxThreads】workerThreads: {workerThreads}, completionPortThreads: {completionPortThreads}");
-            //SetMinThreads
             System.Threading.ThreadPool.GetMinThreads(out workerThreads, out completionPortThreads);
             LogUtils.Debug($"【SetThreads->GetMinThreads】workerThreads: {workerThreads}, completionPortThreads: {completionPortThreads}");
             if (workerThreads < minThreads) workerThreads = minThreads;
@@ -96,6 +103,68 @@ namespace AfxDotNetCoreSample.Common
                 List<string> list = new List<string>(arr.Length);
                 foreach (var v in arr) if (!string.IsNullOrEmpty(v.Trim())) list.Add(v.Trim());
                 return list.ToArray();
+            }
+        }
+
+        public static string JsVersion
+        {
+            get
+            {
+                var s = GetValue("JsVersion");
+                if (string.IsNullOrEmpty(s)) s = "v1.0.0.0";
+                return s;
+            }
+        }
+
+        public static string HostUrl
+        {
+            get
+            {
+                var s = GetValue("HostUrl");
+                if (string.IsNullOrEmpty(s)) s = "http://wx.huayacnc.com/";
+                return s;
+            }
+        }
+
+        private static long _multipartBodyLengthLimit = 0;
+        public static long MultipartBodyLengthLimit
+        {
+            get
+            {
+                if (_multipartBodyLengthLimit == 0)
+                {
+                    long length = 0;
+                    var s = GetValue("MultipartBodyLengthLimit");
+                    if (!long.TryParse(s, out length) || length < 1 * 1024 * 1024)
+                    {
+                        length = 1 * 1024 * 1024;
+                    }
+                    _multipartBodyLengthLimit = length;
+                }
+
+                return _multipartBodyLengthLimit;
+            }
+        }
+
+        private static List<string> _mageFileExtension;
+        public static List<string> ImageFileExtension
+        {
+            get
+            {
+                if (_mageFileExtension == null)
+                {
+                    var s = GetValue("ImageFileExtension");
+                    if (string.IsNullOrEmpty(s)) s = ".png,.jpg,.jpeg,.bmp,.gif,.icon,.tiff,.exif,.emf,.wmf";
+                    var arr = s.Split(',');
+                    var list = new List<string>(arr.Length);
+                    foreach(var item in arr)
+                    {
+                        if (!string.IsNullOrEmpty(item.Trim())) list.Add(item.Trim());
+                    }
+                    _mageFileExtension = list;
+                }
+
+                return _mageFileExtension;
             }
         }
 
@@ -284,6 +353,37 @@ namespace AfxDotNetCoreSample.Common
             }
         }
 
-        public static int LogSaveDay = 7;
+        private static int _idGeneratorFormatNum = 0;
+        public static int IdGeneratorFormatNum
+        {
+            get
+            {
+                if (_idGeneratorFormatNum == 0)
+                {
+                    var s = GetValue("IdGenerator:FormatNum");
+                    if (int.TryParse(s, out _idGeneratorFormatNum) || _idGeneratorFormatNum <= 0)
+                    {
+                        _idGeneratorFormatNum = 8;
+                    }
+                }
+                return _idGeneratorFormatNum;
+            }
+        }
+
+
+        public static int LogSaveDay
+        {
+            get
+            {
+                int temp = 0;
+                var s = GetValue("LogSaveDay");
+                if (!int.TryParse(s, out temp) || temp < 1)
+                {
+                    temp = 1;
+                }
+
+                return temp;
+            }
+        }
     }
 }

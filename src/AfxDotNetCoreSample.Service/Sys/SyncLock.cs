@@ -16,8 +16,9 @@ namespace AfxDotNetCoreSample.Service
     public class SyncLock : ISyncLock
     {
         private Lazy<ITaskLockService> service = new Lazy<ITaskLockService>(() => IocUtils.Get<ITaskLockService>(), false);
+        internal protected virtual ITaskLockService taskLockService => service.Value;
 
-        public TaskLockType Type { get; private set; }
+        public LockType Type { get; private set; }
 
         public string Key { get; private set; }
         
@@ -27,51 +28,72 @@ namespace AfxDotNetCoreSample.Service
         
         public bool IsLockSucceed { get; private set; }
 
-        public SyncLock(TaskLockType type, string key, string owner = null,
+        private bool isInit = false;
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="key"></param>
+        /// <param name="owner"></param>
+        /// <param name="timeout"></param>
+        public virtual void Init(LockType type, string key, string owner = null,
             TimeSpan? timeout = null)
         {
-            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
+            if (this.isInit) throw new InvalidOperationException("不能重复调用初始化方法！");
+            if (string.IsNullOrEmpty(key)) throw new ApiParamNullException(nameof(key));
             if (string.IsNullOrEmpty(owner)) owner = Guid.NewGuid().ToString("n");
             this.Type = type;
             this.Key = key;
             this.Owner = owner;
             this.Timeout = timeout;
-            
             this.IsLockSucceed = false;
+            this.isInit = true;
         }
 
-        public virtual bool IsOtherLock()
+        private void CheckInit()
         {
+            if (!this.isInit) throw new InvalidOperationException("未初始化！");
+        }
+
+        public bool IsOtherLock()
+        {
+            this.CheckInit();
             if (this.IsLockSucceed) return true;
-            var result = this.service.Value.IsOtherLock(this.Type, this.Key, this.Owner);
+            var result = this.taskLockService.IsOtherLock(this.Type, this.Key, this.Owner);
 
             return result;
         }
 
-        public virtual bool Lock()
+        public bool Lock()
         {
+            this.CheckInit();
             if (this.IsLockSucceed) throw new MethodAccessException("不能重复锁！");
-            this.IsLockSucceed = this.service.Value.Lock(this.Type, this.Key, this.Owner, this.Timeout);
+            this.IsLockSucceed = this.taskLockService.Lock(this.Type, this.Key, this.Owner, this.Timeout);
 
             return this.IsLockSucceed;
         }
 
-        public virtual void Release()
+        public void Release()
         {
+            this.CheckInit();
             if (!this.IsLockSucceed) return;
-            this.service.Value.Release(this.Type, this.Key);
+            this.taskLockService.Release(this.Type, this.Key);
             this.IsLockSucceed = false;
         }
 
-        public virtual void UpdateTimeout()
+        public void UpdateTimeout()
         {
+            this.CheckInit();
             if (!this.IsLockSucceed && !this.Timeout.HasValue) return;
-            this.service.Value.UpdateTimeout(this.Type, this.Key, this.Owner, this.Timeout);
+            this.taskLockService.UpdateTimeout(this.Type, this.Key, this.Owner, this.Timeout);
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
-            this.Release();
+            if (this.isInit)
+            {
+                this.Release();
+            }
         }
     }
 }

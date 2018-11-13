@@ -8,7 +8,7 @@ using AfxDotNetCoreSample.ICache;
 
 namespace AfxDotNetCoreSample.Cache
 {
-    public class UserSessionCache : SessionDbCache, IUserSessionCache
+    public class UserSessionCache : SessionDbCache<UserSessionCache>, IUserSessionCache
     {
         public virtual void Expire(string sid, TimeSpan? expireIn)
         {

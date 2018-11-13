@@ -38,7 +38,7 @@
             if (document.cookie && document.cookie != '') {
                 var cookies = document.cookie.split(';');
                 for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
+                    var cookie = $.trim(cookies[i]);
                     // Does this cookie string begin with the name we want? 
                     if (cookie.substring(0, name.length + 1) == (name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -51,25 +51,36 @@
     }
 });
 
+Date.prototype.Format = function (fmt) { //author: meizz   
+    var d = new Date();
+    var o = {
+        "M+": this.getMonth() + 1,                 //月份   
+        "d+": this.getDate(),                    //日   
+        "h+": this.getHours(),                   //小时   
+        "m+": this.getMinutes(),                 //分   
+        "s+": this.getSeconds(),                 //秒   
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度   
+        "S": this.getMilliseconds()             //毫秒   
+    };
+    if (/(y+)/.test(fmt))
+        fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+        if (new RegExp("(" + k + ")").test(fmt))
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+} 
+
 $.extend({
-    MsgStatus: {
-        OK: 0,
-        Error: 100,
-        ServerError: 101,
-        NeedLogin: 200,
-        NeedAuth: 201,
-        NeedLicence: 300
-    },
     stringToHex: function (str) {
         var val = "";
-        try{
+        try {
             for (var i = 0; i < str.length; i++) {
                 var s = str.charCodeAt(i).toString(16);
                 while (s.length < 4) s = '0' + s;
                 val = val + s;
             }
         }
-        catch(ex){}
+        catch (ex) { }
 
         return val;
     },
@@ -91,89 +102,71 @@ $.extend({
         catch (ex) { }
 
         return val;
-    }
-});
-
-$.extend($.fn.validatebox.defaults.rules, {
-    account: {
-        validator: function (value, param) {
-            var reg = /^[a-zA-Z]+$/;
-            var reg2 = /^[a-zA-Z]+[a-zA-Z0-9]+$/;
-            var reg3 = /^[a-zA-Z]+[_\.\-]+[a-zA-Z0-9]+$/;
-            var reg4 = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
-            return reg.test(value) || reg2.test(value) || reg3.test(value) || reg4.test(value);
-        },
-        message: '账号必须由字母、数字、下划线、小数点、@符<br/>号组成，并以字母开头，字母或数字结尾，或者<br/>是Email格式！'
     },
-    compare: {
-        validator: function (value, param) {
-            var s = param[0];
-            if (s.indexOf('#') < 0) s = '#' + s;
-            return value == $(s).val();
-        },
-        message: '{1}'
-    },
-    noCompare: {
-        validator: function (value, param) {
-            var s = param[0];
-            if (s.indexOf('#') < 0) s = '#' + s;
-            return value != $(s).val();
-        },
-        message: '{1}'
-    },
-    func: {
-        validator: function (value, param) {
-            var call = param[0];
-            var a = false;
-            try { call(value); }
-            catch (ex) { }
-            return a;
-        },
-        message: '{1}'
-    }
-});
-
-$.extend({
-    getUrlParam: function (name, url) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+    getUrlObj: function (url) {
+        var obj = {};
         url = url || window.location.search;
         var i = url.indexOf('?');
         if (i >= 0) {
-            var r = url.substring(i).match(reg);
-            if (r) {
-                return unescape(r[2]);
+            url = url.substring(i + 1);
+            var arr = url.split('&');
+            for (var i = 0; i < arr.length; i++) {
+                var av = arr[i].split('=');
+                obj[av[0]] = av.length < 2 ? '' : av[1];
             }
         }
 
+        return obj;
+    },
+    getUrlParam: function (name, url) {
+        var obj = $.getUrlObj(url);
+        for (var n in obj) {
+            if (n == name) {
+                return obj[n];
+            }
+        }
         return '';
     },
-    validMsg: function (data, is) {
-        switch (data.Status) {
-            case $.ModelStatus.NeedLogin:
-                if (is) {
-                    $.messager.alert('提示', data.Message || '未登录或登录已超时！', 'error', function () {
-                        window.location.href = '/index.html';
-                    });
-                }
-                break;
-            case $.ModelStatus.Error:
-            case $.ModelStatus.ServerError:
-            case $.ModelStatus.NeedAuth:
-            case $.ModelStatus.NeedLicence:
-            case $.ModelStatus.NeedEnabled:
-            case $.ModelStatus.NotExist:
-                if (is) {
-                    if (data.Message) {
-                        $.messager.alert('提示', data.Message, 'error');
-                    }
-                    break;
-                }
-            case $.ModelStatus.OK:
-                return true;
-            default:
-                break;
+    setUrlParam: function (obj, url) {
+        url = url || window.location.href;
+        var s = url;
+        var i = url.indexOf('?');
+        if (i > 0) s = url.substring(0, i);
+        if (obj) {
+            var p = '';
+            for (var n in obj) {
+                var v = obj[n];
+                if (v) p = p.concat('&', n, '=', v);
+            }
+            if (p.length > 0) {
+                p = p.substring(1);
+                s = s.concat('?', p);
+            }
         }
-        return false;
+        return s;
+    },
+    htmlEncode: function (html) {
+        var temp = document.createElement("div");
+        if (temp.textContent != null) {
+            temp.textContent = html;
+        } else {
+            temp.innerText = html;
+        }
+        var output = temp.innerHTML;
+        temp = null;
+        return output;
+    },
+    getFormData: function (form) {
+        if (typeof (form) == 'string') {
+            if (form.indexOf('#') != 0) form = '#' + form;
+        }
+        var arr = $(form).serializeArray();
+        var data = {};
+        $.each(arr, function () {
+            data[this.name] = this.value;
+        });
+
+        return data;
     },
     findArrayObject: function (arr, name, value) {
         if ($.isArray(arr) && name) {
@@ -202,7 +195,7 @@ $.extend({
         if ($.isArray(arr)) {
             for (var i = 0; i < arr.length; i++) {
                 var m = arr[i];
-                if (typeof(m) == 'object') {
+                if (typeof (m) == 'object') {
                     var _m = {};
                     for (var name in m) {
                         _m[name] = m[name];
@@ -216,89 +209,206 @@ $.extend({
         }
 
         return result;
-    },
-    getPrivate: function (url, data, callback) {
-        var d = data, call = callback;
-        if (typeof (d) == 'function') {
-            d = {};
-            call = data;
-        }
-        $.ajax({
-            type: 'GET',
-            url: url,
-            global: false,
-            async: true,
-            cache: false,
-            data: d,
-            success: function (data) {
-                if (typeof (call) == 'function') {
-                    try { call(data); }
-                    catch (e) { console.error(e.message); }
-                }
-            }
-        });
-    },
-    getPublic: function (url, data, callback) {
-        var d = data, call = callback;
-        if (typeof (d) == 'function') {
-            d = {};
-            call = data;
-        }
-        $.ajax({
-            type: 'GET',
-            url: url,
-            global: true,
-            async: true,
-            cache: false,
-            data: d,
-            success: function (data) {
-                if (typeof (call) == 'function') {
-                    try { call(data); }
-                    catch (e) { console.error(e.message); }
-                }
-            }
-        });
-    },
-    postPrivate: function (url, data, callback) {
-        var d = data, call = callback;
-        if (typeof (d) == 'function') {
-            d = {};
-            call = data;
-        }
-        $.ajax({
-            type: 'post',
-            url: url,
-            global: false,
-            async: true,
-            cache: false,
-            data: d,
-            success: function (data) {
-                if (typeof (call) == 'function') {
-                    try { call(data); }
-                    catch (e) { console.error(e.message); }
-                }
-            }
-        });
-    },
-    postPublic: function (url, data, callback) {
-        var d = data, call = callback;
-        if (typeof (d) == 'function') {
-            d = {};
-            call = data;
-        }
-        $.ajax({
-            type: 'post',
-            url: url,
-            global: true,
-            async: true,
-            cache: false,
-            data: d,
-            success: function (data) {
-                if (typeof (call) == 'function') {
-                    try { call(data); }
-                    catch (e) { console.error(e.message); }
-                }
-            }
-        });
     }
 });
+
+$.extend($.fn.validatebox.defaults.rules, {
+    loginAccount: {
+        validator: function (value, param) {
+            var reg = /^[a-zA-Z]+$/;
+            var reg2 = /^[a-zA-Z]+[a-zA-Z0-9]+$/;
+            var reg3 = /^[a-zA-Z]+[_\.\-]+[a-zA-Z0-9]+$/;
+            var reg4 = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+            var mobilereg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
+            return reg.test(value) || reg2.test(value) || reg3.test(value) || reg4.test(value) || mobilereg.test(value);
+        },
+        message: '登录账号格式不正确！'
+    },
+    account: {
+        validator: function (value, param) {
+            var reg = /^[a-zA-Z]+$/;
+            var reg2 = /^[a-zA-Z]+[a-zA-Z0-9]+$/;
+            var reg3 = /^[a-zA-Z]+[_\.\-]+[a-zA-Z0-9]+$/;
+            return reg.test(value) || reg2.test(value) || reg3.test(value);
+        },
+        message: '账号必须由字母、数字、下划线、小数点、减号<br/>组成，并以字母开头，字母或数字结尾！'
+    },
+    mail: {
+        validator: function (value, param) {
+            var reg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+            return reg.test(value);
+        },
+        message: 'Email格式不正确！'
+    },
+    mobile: {
+        validator: function (value, param) {
+            var reg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
+            return reg.test(value);
+        },
+        message: '手机号码格式不正确！'
+    },
+    compare: {
+        validator: function (value, param) {
+            var s = param[0];
+            if (s.indexOf('#') < 0) s = '#' + s;
+            return value == $(s).val();
+        },
+        message: '{1}'
+    },
+    noCompare: {
+        validator: function (value, param) {
+            var s = param[0];
+            if (s.indexOf('#') < 0) s = '#' + s;
+            return value != $(s).val();
+        },
+        message: '{1}'
+    },
+    func: {
+        validator: function (value, param) {
+            var call = param[0];
+            var a = false;
+            try { a = call(value); }
+            catch (ex) { }
+            return a;
+        },
+        message: '{1}'
+    },
+});
+
+$.extend({
+    showDataMsg: function (msg, data) {
+        var showmsg = msg || '请求失败！';
+        if (data && data.Msg) {
+            showmsg = data.Msg;
+        }
+        $.messager.alert('提示', showmsg, 'error');
+    },
+    getPrivate: function (url, data, callback, async) {
+        var d = data, call = callback;
+        if (typeof (d) == 'function') {
+            d = {};
+            call = data;
+        }
+        var isasync = true;
+        if (typeof (async) == 'boolean') isasync = async;
+        $.ajax({
+            type: 'GET',
+            url: url,
+            global: false,
+            async: isasync,
+            cache: false,
+            data: d,
+            success: function (data) {
+                if (typeof (call) == 'function') {
+                    try { call(data); }
+                    catch (e) { console.error(e.message); }
+                }
+            }
+        });
+    },
+    getPublic: function (url, data, callback, async) {
+        var d = data, call = callback;
+        if (typeof (d) == 'function') {
+            d = {};
+            call = data;
+        }
+        var isasync = true;
+        if (typeof (async) == 'boolean') isasync = async;
+        $.ajax({
+            type: 'GET',
+            url: url,
+            global: true,
+            async: isasync,
+            cache: false,
+            data: d,
+            success: function (data) {
+                if (typeof (call) == 'function') {
+                    try { call(data); }
+                    catch (e) { console.error(e.message); }
+                }
+            }
+        });
+    },
+    postPrivate: function (url, data, callback, async) {
+        var d = data, call = callback;
+        if (typeof (d) == 'function') {
+            d = {};
+            call = data;
+        }
+        var isasync = true;
+        if (typeof (async) == 'boolean') isasync = async;
+        $.ajax({
+            type: 'post',
+            url: url,
+            global: false,
+            async: isasync,
+            cache: false,
+            data: d,
+            success: function (data) {
+                if (typeof (call) == 'function') {
+                    try { call(data); }
+                    catch (e) { console.error(e.message); }
+                }
+            }
+        });
+    },
+    postPublic: function (url, data, callback, async) {
+        var d = data, call = callback;
+        if (typeof (d) == 'function') {
+            d = {};
+            call = data;
+        }
+        var isasync = true;
+        if (typeof (async) == 'boolean') isasync = async;
+        $.ajax({
+            type: 'post',
+            url: url,
+            global: true,
+            async: isasync,
+            cache: false,
+            data: d,
+            success: function (data) {
+                if (typeof (call) == 'function') {
+                    try { call(data); }
+                    catch (e) { console.error(e.message); }
+                }
+            }
+        });
+    },
+    datagridConfig: {
+        loadMsg: '',
+        pageSize: 20,
+        pageList: [15, 20, 30, 50, 100],
+        onBeforeLoad: function (param) {
+            param.PageSize = param.rows;
+            param.PageIndex = param.page;
+            delete param.rows;
+            delete param.page;
+            if (param.sort && param.order) {
+                var orderarr = param.sort.split(',');
+                var sortarr = param.order.split(',');
+                if (orderarr.length == sortarr.length) {
+                    var orderby = '';
+                    for (var i = 0; i < orderarr.length; i++) {
+                        var s1 = orderarr[i].trim();
+                        var s2 = sortarr[i].trim();
+                        if (s1 && s2) orderby = orderby.concat(s1, ' ', s2, ',')
+                    }
+                    if (orderby.length > 0) orderby = orderby.substring(0, orderby.length - 1);
+                    param.Orderby = orderby;
+                }
+                delete param.sort;
+                delete param.order;
+            }
+        },
+        loadFilter: function (data) {
+            var pagedata = { total: 0, rows: [] };
+            if (data.Data) {
+                pagedata.total = data.Data.TotalCount;
+                pagedata.rows = data.Data.Data;
+            }
+            return pagedata;
+        }
+    }
+});
+
