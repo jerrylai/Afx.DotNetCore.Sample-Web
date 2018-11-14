@@ -1,18 +1,24 @@
 ﻿version: "3"
-networks:
-  afx:
-    external:
-      name: afx
 services:
-  afx:
-    image: 192.168.1.8/afx:v1.0.0.4
+  web:
+    build:
+      context: ./publish
+    image: afxsample:v1.0.0.0
+    restart: always
+    container_name: afxsample
     ports:
        - "80:80"
     volumes:
-       - "/logs/afx:/app/logs"
+       - "/yunpan/appfile:/app/webfiles"
     environment:
-      - AfxDotNetCoreSample:ServerUrls=http://*:80
-    deploy:
-      replicas: 3
-    networks:
-      - afx
+      - "HostUrl=http://www.afxsample.com/"
+      - "ServerUrls=http://*:80"
+      - "MultipartBodyLengthLimit=20971520"
+      - "Threads:Min=6"
+      - "Threads:IO=6"
+      - "Database:Type=MySQL"
+      - "Database:Init=false"
+      - "Database:IsLog=false"
+      - "Database:MySQL=Server=127.0.0.1;Port=3306;Database=afxsample;User Id=root;Password=123456;CharacterSet=utf8"
+      - "Cache:Prefix=afxsample:"
+      - "RedisConfig=127.0.0.1:6379,password=,syncTimeout=5000,name=afxsample.web"

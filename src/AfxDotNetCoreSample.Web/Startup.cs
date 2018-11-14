@@ -100,27 +100,7 @@ namespace AfxDotNetCoreSample.Web
 
         private string OnResponse(HttpContext context, string sid)
         {
-            string newsid = sid;
-            if (sidExpire.HasValue)
-            {
-                var arr = sid.Split('-');
-                long ticks = 0;
-                if (arr.Length >= 2)
-                {
-                    long.TryParse(arr[1], out ticks);
-                }
-                var now = DateTime.Now;
-                var expire = now;
-                if (ticks > now.Ticks) expire = new DateTime(ticks);
-                var ets = expire - now;
-                if (ets.TotalMinutes < minRefExpire)
-                {
-                    var sessionService = IocUtils.Get<IService.IUserSessionService>();
-                    sessionService.Expire(sid);
-                    ticks = now.Add(sidExpire.Value).Ticks;
-                    newsid = $"{arr[0]}-{ticks}";
-                }
-            }
+            string newsid = context.RefreshSid(this.sidExpire, this.minRefExpire);
 
             //请求日志
             DateTime startTime = (DateTime)context.Items["BeginRequestTime"];
