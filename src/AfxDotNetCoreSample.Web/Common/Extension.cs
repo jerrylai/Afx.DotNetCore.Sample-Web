@@ -11,6 +11,11 @@ namespace AfxDotNetCoreSample.Web
 {
     public static class Extension
     {
+        private const string USER_SESSION_KEY = "__AFX_USER_SESSION";
+        private const string SET_USER_SESSION_KEY = "__AFX_SET_USER_SESSION";
+
+        private const string IFRAME_AJAX = "_iframe_ajax";
+
         public static bool IsAjax(this HttpRequest request)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
@@ -18,7 +23,7 @@ namespace AfxDotNetCoreSample.Web
             Microsoft.Extensions.Primitives.StringValues v;
             if (request.Headers.TryGetValue("x-requested-with", out v) && v.FirstOrDefault() == "XMLHttpRequest"
                 || string.Equals(request.Method, "post", StringComparison.OrdinalIgnoreCase)
-                && request.Form.TryGetValue("_iframe_ajax", out v) && v.FirstOrDefault() == "true")
+                && request.Form.TryGetValue(IFRAME_AJAX, out v) && v.FirstOrDefault() == "true")
             {
                 result = true;
             }
@@ -62,9 +67,10 @@ namespace AfxDotNetCoreSample.Web
                 if (setState == "1" || (ticks > 0 && (new DateTime(ticks) - now).TotalMinutes < minRefExpire))
                 {
                     var sessionService = IocUtils.Get<IService.IUserSessionService>();
-                    sessionService.Expire(sid);
+                    sessionService.Expire(arr[0]);
                     ticks = now.Add(sidExpire.Value).Ticks;
                     sid = $"{arr[0]}-{ticks}";
+                    LogUtils.Debug($"【刷新session】sid: {arr[0]}");
                 }
             }
 
@@ -85,8 +91,6 @@ namespace AfxDotNetCoreSample.Web
             return sid;
         }
 
-        const string USER_SESSION_KEY = "__AFX_USER_SESSION";
-        const string SET_USER_SESSION_KEY = "__AFX_SET_USER_SESSION";
         public static UserSessionDto GetUserSession(this HttpContext httpContext)
         {
             if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
