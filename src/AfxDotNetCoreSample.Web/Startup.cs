@@ -23,8 +23,8 @@ namespace AfxDotNetCoreSample.Web
             Configuration = configuration;
             IocConfig.Register(configuration);
             sidExpire = CacheKeyUtils.GetExpire("SessionDb", "UserSession");
-            minRefExpire = sidExpire.HasValue ? sidExpire.Value.TotalMinutes / 2 : 0d;
-            if (minRefExpire > 10d) minRefExpire = 10d;
+            minRefExpire = sidExpire.HasValue ? (sidExpire.Value.TotalMinutes - 5.0) : 0.0;
+            if (minRefExpire < 5.0) minRefExpire = sidExpire.Value.TotalMinutes - 1.0;
         }
 
         public IConfiguration Configuration { get; }
@@ -100,7 +100,7 @@ namespace AfxDotNetCoreSample.Web
 
         private string OnResponse(HttpContext context, string sid)
         {
-            string newsid = context.RefreshSid(this.sidExpire, this.minRefExpire);
+            string newsid = context.RefreshSid(sid, this.sidExpire, this.minRefExpire);
 
             //请求日志
             DateTime startTime = (DateTime)context.Items["BeginRequestTime"];

@@ -47,17 +47,17 @@ namespace AfxDotNetCoreSample.Web
             return result;
         }
 
-        public static string RefreshSid(this HttpContext httpContext, TimeSpan? sidExpire, double minRefExpire)
+        public static string RefreshSid(this HttpContext httpContext, string sid, TimeSpan? sidExpire, double minRefExpire)
         {
-            string sid = httpContext.Items[SessionUtils.SidName] as string;
+            var s = sid;
             string setState = httpContext.Items[SET_USER_SESSION_KEY] as string;
             if (setState == "0")
             {
-                sid = Guid.NewGuid().ToString("n");
+                s = Guid.NewGuid().ToString("n");
             }
             else if (sidExpire.HasValue)
             {
-                var arr = sid.Split('-');
+                var arr = s.Split('-');
                 long ticks = 0;
                 if (arr.Length == 2)
                 {
@@ -66,17 +66,21 @@ namespace AfxDotNetCoreSample.Web
                 var now = DateTime.Now;
                 if (setState == "1" || (ticks > 0 && (new DateTime(ticks) - now).TotalMinutes < minRefExpire))
                 {
-                    var sessionService = IocUtils.Get<IService.IUserSessionService>();
-                    sessionService.Expire(arr[0]);
-                    ticks = now.Add(sidExpire.Value).Ticks;
-                    sid = $"{arr[0]}-{ticks}";
-                    LogUtils.Debug($"【刷新session】sid: {arr[0]}");
+                    var userinfo = httpContext.GetUserSession();
+                    if (userinfo != null)
+                    {
+                        var sessionService = IocUtils.Get<IService.IUserSessionService>();
+                        sessionService.Expire(arr[0]);
+                        ticks = now.Add(sidExpire.Value).Ticks;
+                        LogUtils.Debug($"【刷新session】sid: {arr[0]}, Name: {userinfo.Name}, Account: {userinfo.Account}, LoginTime: {userinfo.LoginTime.ToString("yyyy-MM-dd HH:mm:ss")}");
+                        s = $"{arr[0]}-{ticks}";
+                    }
                 }
             }
 
-            httpContext.Items[SessionUtils.SidName] = sid;
+            httpContext.Items[SessionUtils.SidName] = s;
 
-            return sid;
+            return s;
         }
 
         public static string GetSid(this HttpContext httpContext)
