@@ -14,8 +14,7 @@ namespace AfxDotNetCoreSample.Service
 {
     public class WebMenuService : BaseService, IWebMenuService
     {
-        private readonly Lazy<IWebMenuRepository> _repository = new Lazy<IWebMenuRepository>(() => IocUtils.Get<IWebMenuRepository>());
-        internal protected virtual IWebMenuRepository repository => this._repository.Value;
+        protected virtual IWebMenuRepository repository => this.GetRepository<IWebMenuRepository>();
 
         public virtual List<WebMenuDto> GetList()
         {

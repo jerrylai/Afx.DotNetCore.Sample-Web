@@ -17,8 +17,7 @@ namespace AfxDotNetCoreSample.Repository
     /// </summary>
     public class ConfigRepository : BaseRepository, IConfigRepository
     {
-        private readonly Lazy<IConfigCache> _cache = new Lazy<IConfigCache>(() => IocUtils.Get<IConfigCache>());
-        internal protected virtual IConfigCache cache => this._cache.Value;
+        protected virtual IConfigCache cache => this.GetCache<IConfigCache>();
 
         /// <summary>
         /// 根据配置类型获取

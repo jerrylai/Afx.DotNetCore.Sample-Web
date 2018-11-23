@@ -16,11 +16,9 @@ namespace AfxDotNetCoreSample.Repository
 {
     public class UserRepository : BaseRepository, IUserRepository
     {
-        private readonly Lazy<IUserCache> _userCache = new Lazy<IUserCache>(() => IocUtils.Get<IUserCache>());
-        internal protected virtual IUserCache userCache => this._userCache.Value;
+        protected virtual IUserCache userCache => this.GetCache<IUserCache>();
 
-        private readonly Lazy<IUserIdCache> _userIdCache = new Lazy<IUserIdCache>(() => IocUtils.Get<IUserIdCache>());
-        internal protected virtual IUserIdCache userIdCache => this._userIdCache.Value;
+        protected virtual IUserIdCache userIdCache => this.GetCache<IUserIdCache>();
 
         public virtual UserDto Get(string id)
         {

@@ -14,11 +14,9 @@ namespace AfxDotNetCoreSample.Service
 {
     public class UserService : BaseService, IUserService
     {
-        private readonly Lazy<IUserRepository> _userRepository = new Lazy<IUserRepository>(() => IocUtils.Get<IUserRepository>());
-        internal protected virtual IUserRepository userRepository => this._userRepository.Value;
+        protected virtual IUserRepository userRepository => this.GetRepository<IUserRepository>();
 
-        private Lazy<IRoleRepository> _roleRepository = new Lazy<IRoleRepository>(IocUtils.Get<IRoleRepository>);
-        private IRoleRepository roleRepository => this._roleRepository.Value;
+        protected virtual IRoleRepository roleRepository => this.GetRepository<IRoleRepository>();
 
         public virtual string GetUserIdForValue(string value)
         {

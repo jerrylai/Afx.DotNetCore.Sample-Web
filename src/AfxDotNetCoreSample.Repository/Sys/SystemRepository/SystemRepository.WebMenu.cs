@@ -13,21 +13,23 @@ namespace AfxDotNetCoreSample.Repository
     {
         private void InitWebMenu(AfxContext db)
         {
-            var cache = IocUtils.Get<IWebMenuCache>();
-            using (db.BeginTransaction())
+            using (var cache = IocUtils.Get<IWebMenuCache>())
             {
-                db.AddCommitCallback((num) => cache.Remove());
-                foreach (var m in WebMenuList)
+                using (db.BeginTransaction())
                 {
-                    var _m = db.WebMenu.Where(q => q.Id == m.Id).FirstOrDefault();
-                    if (_m == null)
+                    db.AddCommitCallback((num) => cache.Remove());
+                    foreach (var m in WebMenuList)
                     {
-                        db.WebMenu.Add(m);
-                        db.SaveChanges();
+                        var _m = db.WebMenu.Where(q => q.Id == m.Id).FirstOrDefault();
+                        if (_m == null)
+                        {
+                            db.WebMenu.Add(m);
+                            db.SaveChanges();
+                        }
                     }
-                }
 
-                db.Commit();
+                    db.Commit();
+                }
             }
         }
 

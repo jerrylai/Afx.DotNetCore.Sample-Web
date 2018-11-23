@@ -144,5 +144,10 @@ namespace AfxDotNetCoreSample.Cache
         {
             this.Cache.FlushAll();
         }
+
+        public virtual void Dispose()
+        {
+            
+        }
     }
 }

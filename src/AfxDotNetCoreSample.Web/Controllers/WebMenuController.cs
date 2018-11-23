@@ -13,16 +13,16 @@ namespace AfxDotNetCoreSample.Web.Controllers
 {
     public class WebMenuController : BaseController
     {
-        private Lazy<IWebMenuService> webMenuService = new Lazy<IWebMenuService>(IocUtils.Get<IWebMenuService>);
-        private Lazy<IRoleWebMenuService> roleWebMenuService = new Lazy<IRoleWebMenuService>(IocUtils.Get<IRoleWebMenuService>);
+        private IWebMenuService webMenuService => this.GetService<IWebMenuService>();
+        private IRoleWebMenuService roleWebMenuService => this.GetService<IRoleWebMenuService>();
 
-        private readonly Lazy<IRoleService> roleService = new Lazy<IRoleService>(IocUtils.Get<IRoleService>);
+        private IRoleService roleService => this.GetService<IRoleService>();
 
         [UserAuth]
         public IActionResult GetUserMenu()
         {
-           var list = webMenuService.Value.GetList();
-            var ids = this.roleWebMenuService.Value.Get(this.UserSession.RoleId);
+           var list = webMenuService.GetList();
+            var ids = this.roleWebMenuService.Get(this.UserSession.RoleId);
             list = list.FindAll(q => ids.Contains(q.Id));
 
             var treelist = this.GetTreeList(null, list, true, false);
@@ -33,7 +33,7 @@ namespace AfxDotNetCoreSample.Web.Controllers
         [UserAuth]
         public IActionResult GetAll()
         {
-            var list = webMenuService.Value.GetList();
+            var list = webMenuService.GetList();
             var treelist = this.GetTreeList(null, list, null, true);
 
             return Success(treelist);
@@ -81,7 +81,7 @@ namespace AfxDotNetCoreSample.Web.Controllers
         {
             if (!string.IsNullOrEmpty(roleId))
             {
-                var data = this.roleWebMenuService.Value.Get(roleId);
+                var data = this.roleWebMenuService.Get(roleId);
 
                 return Success(data);
             }
@@ -93,12 +93,12 @@ namespace AfxDotNetCoreSample.Web.Controllers
         {
             if(vm != null && this.ModelState.IsValid)
             {
-                var role = this.roleService.Value.Get(vm.RoleId);
+                var role = this.roleService.Get(vm.RoleId);
                 if (role != null)
                 {
                     var arr = (vm.WebMenuIds ?? "").Split(',');
                     var list = new List<string>(arr);
-                    var result = this.roleWebMenuService.Value.Update(vm.RoleId, list);
+                    var result = this.roleWebMenuService.Update(vm.RoleId, list);
                     var userinfo = this.UserSession;
                     LogUtils.Debug($"【修改角色权限】{userinfo.Name}({userinfo.Account})，角色: {role.Name}！");
 

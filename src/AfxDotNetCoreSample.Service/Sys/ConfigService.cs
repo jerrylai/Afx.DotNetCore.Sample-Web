@@ -17,8 +17,7 @@ namespace AfxDotNetCoreSample.Service
     /// </summary>
     public class ConfigService : BaseService, IConfigService
     {
-        private readonly Lazy<IConfigRepository> _repository = new Lazy<IConfigRepository>(() => IocUtils.Get<IConfigRepository>());
-        internal protected virtual IConfigRepository repository => this._repository.Value;
+        protected virtual IConfigRepository repository => this.GetRepository<IConfigRepository>();
         
         /// <summary>
         /// 根据配置类型获取

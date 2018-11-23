@@ -12,14 +12,11 @@ namespace AfxDotNetCoreSample.Service
 {
     public class RoleWebMenuService : BaseService, IRoleWebMenuService
     {
-        private readonly Lazy<IRoleWebMenuRepository> _repository = new Lazy<IRoleWebMenuRepository>(() => IocUtils.Get<IRoleWebMenuRepository>());
-        internal protected virtual IRoleWebMenuRepository repository => this._repository.Value;
+        protected virtual IRoleWebMenuRepository repository => this.GetRepository<IRoleWebMenuRepository>();
 
-        private Lazy<IRoleRepository> _roleRepository = new Lazy<IRoleRepository>(IocUtils.Get<IRoleRepository>);
-        private IRoleRepository roleRepository => this._roleRepository.Value;
+        protected virtual IRoleRepository roleRepository => this.GetRepository<IRoleRepository>();
 
-        private readonly Lazy<IWebMenuRepository> _webMenuRepository = new Lazy<IWebMenuRepository>(() => IocUtils.Get<IWebMenuRepository>());
-        internal protected virtual IWebMenuRepository webMenuRepository => this._webMenuRepository.Value;
+        protected virtual IWebMenuRepository webMenuRepository => this.GetRepository<IWebMenuRepository>();
 
         public virtual List<string> Get(string roleId)
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AfxDotNetCoreSample.IService
 {
-    public interface IBaseService
+    public interface IBaseService : IDisposable
     {
     }
 }

@@ -15,11 +15,8 @@ namespace AfxDotNetCoreSample.Web.Controllers
 {
     public class UserController : BaseController
     {
-        private readonly Lazy<IUserService> _userService = new Lazy<IUserService>(IocUtils.Get<IUserService>());
-        private IUserService userService => _userService.Value;
+        private IUserService userService => this.GetService<IUserService>();
         
-        private readonly Lazy<IRegionService> regionService = new Lazy<IRegionService>(IocUtils.Get<IRegionService>);
-
         [HttpGet]
         [Anonymous]
         public ActionResult Login()

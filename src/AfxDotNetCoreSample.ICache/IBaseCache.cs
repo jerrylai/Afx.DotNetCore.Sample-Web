@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AfxDotNetCoreSample.ICache
 {
-    public interface IBaseCache
+    public interface IBaseCache : IDisposable
     {
         TimeSpan? GetConfigExpire();
     }

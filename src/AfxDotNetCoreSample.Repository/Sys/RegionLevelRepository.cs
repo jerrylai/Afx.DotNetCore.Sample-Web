@@ -14,8 +14,7 @@ namespace AfxDotNetCoreSample.Repository
 {
     public class RegionLevelRepository : BaseRepository, IRegionLevelRepository
     {
-        private readonly Lazy<IRegionLevelCache> _regionLevelCache = new Lazy<IRegionLevelCache>(IocUtils.Get<IRegionLevelCache>);
-        internal protected virtual IRegionLevelCache regionLevelCache => this._regionLevelCache.Value;
+        protected virtual IRegionLevelCache regionLevelCache => this.GetCache<IRegionLevelCache>();
 
         public virtual List<RegionLevelDto> GetList(string regionId)
         {

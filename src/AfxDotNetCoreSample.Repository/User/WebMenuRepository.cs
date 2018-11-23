@@ -12,8 +12,7 @@ namespace AfxDotNetCoreSample.Repository
 {
     public class WebMenuRepository : BaseRepository, IWebMenuRepository
     {
-        private readonly Lazy<IWebMenuCache> _cache = new Lazy<IWebMenuCache>(IocUtils.Get<IWebMenuCache>);
-        internal protected virtual IWebMenuCache cache => _cache.Value;
+        protected virtual IWebMenuCache cache => this.GetCache<IWebMenuCache>();
 
 
         public virtual List<WebMenuDto> GetList()

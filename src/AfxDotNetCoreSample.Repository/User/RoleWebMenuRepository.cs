@@ -12,8 +12,7 @@ namespace AfxDotNetCoreSample.Repository
 {
     public class RoleWebMenuRepository : BaseRepository, IRoleWebMenuRepository
     {
-        private readonly Lazy<IRoleWebMenuCache> _cache = new Lazy<IRoleWebMenuCache>(() => IocUtils.Get<IRoleWebMenuCache>());
-        internal protected virtual IRoleWebMenuCache cache => this._cache.Value;
+        protected virtual IRoleWebMenuCache cache => this.GetCache<IRoleWebMenuCache>();
 
         public virtual List<string> Get(string roleId)
         {

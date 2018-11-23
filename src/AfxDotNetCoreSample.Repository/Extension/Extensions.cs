@@ -19,7 +19,7 @@ namespace AfxDotNetCoreSample.Repository
         All =  3
     }
 
-    public static class RepositotoryExtension
+    public static class Extensions
     {
         public static string DbLike(this string value, DbLikeType type = DbLikeType.All)
         {

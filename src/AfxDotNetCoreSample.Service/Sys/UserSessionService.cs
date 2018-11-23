@@ -11,8 +11,7 @@ namespace AfxDotNetCoreSample.Service
 {
     public class UserSessionService : BaseService, IUserSessionService
     {
-        private readonly Lazy<IUserSessionRepository> _repository = new Lazy<IUserSessionRepository>(() => IocUtils.Get<IUserSessionRepository>());
-        internal protected virtual IUserSessionRepository repository => this._repository.Value;
+        protected virtual IUserSessionRepository repository => this.GetRepository<IUserSessionRepository>();
 
 
         public virtual UserSessionDto Get(string sid)

@@ -16,7 +16,7 @@ namespace AfxDotNetCoreSample.Service
     public class SyncLock : ISyncLock
     {
         private Lazy<ITaskLockService> service = new Lazy<ITaskLockService>(() => IocUtils.Get<ITaskLockService>(), false);
-        internal protected virtual ITaskLockService taskLockService => service.Value;
+        protected virtual ITaskLockService taskLockService => service.Value;
 
         public LockType Type { get; private set; }
 
@@ -94,6 +94,8 @@ namespace AfxDotNetCoreSample.Service
             {
                 this.Release();
             }
+
+            if(this.service.IsValueCreated) this.service.Value.Dispose();
         }
     }
 }

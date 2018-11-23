@@ -14,11 +14,9 @@ namespace AfxDotNetCoreSample.Service
 {
     public class SystemService : BaseService, ISystemService
     {
-        private readonly Lazy<ISystemRepository> _systemRepository = new Lazy<ISystemRepository>(() => IocUtils.Get<ISystemRepository>());
-        internal protected virtual ISystemRepository systemRepository => this._systemRepository.Value;
+        protected virtual ISystemRepository systemRepository => this.GetRepository<ISystemRepository>();
 
-        private readonly Lazy<IConfigRepository> _configRepository = new Lazy<IConfigRepository>(() => IocUtils.Get<IConfigRepository>());
-        internal protected virtual IConfigRepository configRepository => this._configRepository.Value;
+        protected virtual IConfigRepository configRepository => this.GetRepository<IConfigRepository>();
 
         private Version version;
 

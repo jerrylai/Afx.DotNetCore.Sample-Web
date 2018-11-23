@@ -13,8 +13,7 @@ namespace AfxDotNetCoreSample.Service
 {
     public class TaskLockService : BaseService, ITaskLockService
     {
-        private readonly Lazy<ITaskLockRepository> _repository = new Lazy<ITaskLockRepository>(() => IocUtils.Get<ITaskLockRepository>());
-        internal protected virtual ITaskLockRepository repository => this._repository.Value;
+        protected virtual ITaskLockRepository repository => this.GetRepository<ITaskLockRepository>();
 
         private string FormatValue(string v, string name)
         {

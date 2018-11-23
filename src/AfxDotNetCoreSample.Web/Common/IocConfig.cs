@@ -35,10 +35,10 @@ namespace AfxDotNetCoreSample.Web
             container.Register(new CacheKey(PathUtils.GetFileFullPath(CACHE_KEY_FILE)));
             container.Register<AopLog>();
 
-            container.Register<StackExchange.Redis.IConnectionMultiplexer>(c => RedisUtils.Default);
+            container.Register(c => RedisUtils.Default);
 
-            container.Register<Afx.Cache.ICache>(c => Afx.Cache.EmptyCache.Default).Key(CacheType.None);
-            container.Register<Afx.Cache.ICache>(c => new ProcCache()).Key(CacheType.Proc);
+            container.Register<Afx.Cache.ICache>(EmptyCache.Default).Key(CacheType.None);
+            container.Register<Afx.Cache.ICache>(new ProcCache()).Key(CacheType.Proc);
             container.Register<Afx.Cache.ICache>(c => new RedisCache(RedisUtils.Default)).Key(CacheType.Redis);
 
             container.Register(new Afx.Map.MapFactory());

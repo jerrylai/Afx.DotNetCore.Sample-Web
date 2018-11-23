@@ -13,7 +13,7 @@ namespace AfxDotNetCoreSample.Web.Controllers
 {
     public class RoleController : BaseController
     {
-        private readonly Lazy<IRoleService> roleService = new Lazy<IRoleService>(IocUtils.Get<IRoleService>);
+        private IRoleService roleService => this.GetService<IRoleService>();
 
         [UserAuth("1001001000000")]
         public IActionResult Index()
@@ -27,7 +27,7 @@ namespace AfxDotNetCoreSample.Web.Controllers
         {
             if (vm != null && this.ModelState.IsValid)
             {
-                var data = this.roleService.Value.GetPage(vm);
+                var data = this.roleService.GetPage(vm);
 
                 return Success(data);
             }
@@ -44,16 +44,16 @@ namespace AfxDotNetCoreSample.Web.Controllers
                 var userinfo = this.UserSession;
                 if (!string.IsNullOrEmpty(vm.Id))
                 {
-                    var m = this.roleService.Value.Get(vm.Id);
+                    var m = this.roleService.Get(vm.Id);
                     if (m != null)
                     {
-                        this.roleService.Value.Update(vm);
+                        this.roleService.Update(vm);
                         LogUtils.Debug($"【修改角色】{userinfo.Name}({userinfo.Account})，修改：{m.Name} -> {vm.Name}！");
                     }
                 }
                 else
                 {
-                    this.roleService.Value.Add(vm);
+                    this.roleService.Add(vm);
                     LogUtils.Debug($"【添加角色】{userinfo.Name}({userinfo.Account})，添加 {vm.Name}！");
                 }
 
@@ -68,10 +68,10 @@ namespace AfxDotNetCoreSample.Web.Controllers
         {
             if (!string.IsNullOrEmpty(id))
             {
-                var m = this.roleService.Value.Get(id);
+                var m = this.roleService.Get(id);
                 if (m != null)
                 {
-                    var result = this.roleService.Value.Delete(id);
+                    var result = this.roleService.Delete(id);
                     var userinfo = this.UserSession;
                     LogUtils.Debug($"【删除角色】{userinfo.Name}({userinfo.Account})，删除 {m.Name}！");
 
@@ -86,7 +86,7 @@ namespace AfxDotNetCoreSample.Web.Controllers
         {
             if(!string.IsNullOrEmpty(id))
             {
-                var m = this.roleService.Value.Get(id);
+                var m = this.roleService.Get(id);
 
                 return Success(m);
             }

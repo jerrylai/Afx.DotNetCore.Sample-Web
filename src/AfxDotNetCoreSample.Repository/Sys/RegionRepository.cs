@@ -14,14 +14,11 @@ namespace AfxDotNetCoreSample.Repository
 {
     public class RegionRepository : BaseRepository, IRegionRepository
     {
-        private readonly Lazy<IRegionCache> _regionCache = new Lazy<IRegionCache>(IocUtils.Get<IRegionCache>);
-        internal protected virtual IRegionCache regionCache => this._regionCache.Value;
+        protected virtual IRegionCache regionCache => this.GetCache<IRegionCache>();
 
-        private readonly Lazy<IRegionChildCache> _regionChildCache = new Lazy<IRegionChildCache>(IocUtils.Get<IRegionChildCache>);
-        internal protected virtual IRegionChildCache regionChildCache => this._regionChildCache.Value;
+        protected virtual IRegionChildCache regionChildCache => this.GetCache<IRegionChildCache>();
 
-        private readonly Lazy<IRegionLevelRepository> _regionLevelRepository = new Lazy<IRegionLevelRepository>(IocUtils.Get<IRegionLevelRepository>);
-        internal protected virtual RegionLevelRepository regionLevelRepository => this._regionLevelRepository.Value as RegionLevelRepository;
+        protected virtual RegionLevelRepository regionLevelRepository => this.GetRepository<IRegionLevelRepository>() as RegionLevelRepository;
 
         public virtual int Add(RegionDto vm)
         {

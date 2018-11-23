@@ -11,8 +11,7 @@ namespace AfxDotNetCoreSample.Repository
 {
     public class UserSessionRepository : BaseRepository, IUserSessionRepository
     {
-        private readonly Lazy<IUserSessionCache> _cache = new Lazy<IUserSessionCache>(() => IocUtils.Get<IUserSessionCache>());
-        internal protected virtual IUserSessionCache cache => this._cache.Value;
+        protected virtual IUserSessionCache cache => this.GetCache<IUserSessionCache>();
 
         public virtual void Expire(string sid, TimeSpan? expireIn)
         {

@@ -34,7 +34,10 @@ namespace AfxDotNetCoreSample.Repository
                     }
                     db.AddCommitCallback((num) =>
                     {
-                        IocUtils.Get<IRoleWebMenuCache>().Remove(kv.Key);
+                        using (var cache = IocUtils.Get<IRoleWebMenuCache>())
+                        {
+                            cache.Remove(kv.Key);
+                        }
                     });
                 }
                 db.Commit();

@@ -86,9 +86,12 @@ namespace AfxDotNetCoreSample.Web
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-            
+
             //生成数据库
-            IocUtils.Get<IService.ISystemService>().Init();
+            using (var service = IocUtils.Get<IService.ISystemService>())
+            {
+                service.Init();
+            }
 
             LogDelete.Start();
         }

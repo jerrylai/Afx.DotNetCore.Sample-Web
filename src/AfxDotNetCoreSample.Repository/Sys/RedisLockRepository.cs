@@ -14,10 +14,8 @@ namespace AfxDotNetCoreSample.Repository
     /// </summary>
     public class RedisLockRepository : BaseRepository, ITaskLockRepository
     {
-        private readonly Lazy<IDistributedLockCache> _distributedLockCache = new Lazy<IDistributedLockCache>(() => IocUtils.Get<IDistributedLockCache>(), false);
-        private readonly Lazy<IDistributedLockOwnerCache> _distributedLockOwnerCache = new Lazy<IDistributedLockOwnerCache>(() => IocUtils.Get<IDistributedLockOwnerCache>(), false);
-        private IDistributedLockCache distributedLockCache => _distributedLockCache.Value;
-        private IDistributedLockOwnerCache distributedLockOwnerCache => _distributedLockOwnerCache.Value;
+        protected virtual IDistributedLockCache distributedLockCache => this.GetCache<IDistributedLockCache>();
+        protected virtual IDistributedLockOwnerCache distributedLockOwnerCache => this.GetCache<IDistributedLockOwnerCache>();
 
         /// <summary>
         /// 尝试获取锁

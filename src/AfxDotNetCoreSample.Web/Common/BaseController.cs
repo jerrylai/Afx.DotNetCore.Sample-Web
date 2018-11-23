@@ -12,6 +12,34 @@ namespace AfxDotNetCoreSample.Web
 {
     public abstract class BaseController : Controller
     {
+        private Dictionary<Type, IBaseService> serviceDic = new Dictionary<Type, IBaseService>(5);
+        protected virtual T GetService<T>(string name, object[] args) where T : IBaseService
+        {
+            var type = typeof(T);
+            IBaseService service = null;
+            if (!serviceDic.TryGetValue(type, out service))
+            {
+                serviceDic[type] = service = IocUtils.Get<T>(name, args);
+            }
+
+            return (T)service;
+        }
+
+        protected virtual T GetService<T>(string name) where T : IBaseService
+        {
+            return this.GetService<T>(name, null);
+        }
+
+        protected virtual T GetService<T>(object[] args) where T : IBaseService
+        {
+            return this.GetService<T>(null, args);
+        }
+
+        protected virtual T GetService<T>() where T : IBaseService
+        {
+            return this.GetService<T>(null, null);
+        }
+
         protected virtual ActionResult ApiResult<T>(ApiStatus status, T data, string msg)
         {
             var vm = new ApiResult<T>()
@@ -96,6 +124,21 @@ namespace AfxDotNetCoreSample.Web
         protected virtual void ClearUserSession()
         {
             this.HttpContext.ClearUserSession();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && this.serviceDic != null)
+            {
+                foreach (var kv in this.serviceDic)
+                {
+                    kv.Value.Dispose();
+                }
+                this.serviceDic.Clear();
+                this.serviceDic = null;
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

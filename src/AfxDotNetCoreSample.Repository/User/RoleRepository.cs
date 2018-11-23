@@ -15,8 +15,7 @@ namespace AfxDotNetCoreSample.Repository
 {
     public class RoleRepository : BaseRepository, IRoleRepository
     {
-        private readonly Lazy<IRoleCache> _roleCache = new Lazy<IRoleCache>(IocUtils.Get<IRoleCache>);
-        internal protected virtual IRoleCache roleCache => _roleCache.Value;
+        protected virtual IRoleCache roleCache => this.GetCache<IRoleCache>();
 
         public virtual RoleDto Get(string id)
         {

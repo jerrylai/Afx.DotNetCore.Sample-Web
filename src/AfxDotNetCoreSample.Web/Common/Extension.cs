@@ -69,11 +69,13 @@ namespace AfxDotNetCoreSample.Web
                     var userinfo = httpContext.GetUserSession();
                     if (userinfo != null)
                     {
-                        var sessionService = IocUtils.Get<IService.IUserSessionService>();
-                        sessionService.Expire(arr[0]);
-                        ticks = now.Add(sidExpire.Value).Ticks;
-                        LogUtils.Debug($"【刷新session】sid: {arr[0]}, Name: {userinfo.Name}, Account: {userinfo.Account}, LoginTime: {userinfo.LoginTime.ToString("yyyy-MM-dd HH:mm:ss")}");
-                        s = $"{arr[0]}-{ticks}";
+                        using (var sessionService = IocUtils.Get<IService.IUserSessionService>())
+                        {
+                            sessionService.Expire(arr[0]);
+                            ticks = now.Add(sidExpire.Value).Ticks;
+                            LogUtils.Debug($"【刷新session】sid: {arr[0]}, Name: {userinfo.Name}, Account: {userinfo.Account}, LoginTime: {userinfo.LoginTime.ToString("yyyy-MM-dd HH:mm:ss")}");
+                            s = $"{arr[0]}-{ticks}";
+                        }
                     }
                 }
             }
@@ -104,9 +106,11 @@ namespace AfxDotNetCoreSample.Web
                 var sid = GetSid(httpContext);
                 if (!string.IsNullOrEmpty(sid))
                 {
-                    var userSessionService = IocUtils.Get<IUserSessionService>();
-                    m = userSessionService.Get(sid);
-                    if (m != null) httpContext.Items[USER_SESSION_KEY] = m;
+                    using (var userSessionService = IocUtils.Get<IUserSessionService>())
+                    {
+                        m = userSessionService.Get(sid);
+                        if (m != null) httpContext.Items[USER_SESSION_KEY] = m;
+                    }
                 }
             }
 
@@ -119,11 +123,13 @@ namespace AfxDotNetCoreSample.Web
             var sid = GetSid(httpContext);
             if (!string.IsNullOrEmpty(sid))
             {
-                var userSessionService = IocUtils.Get<IUserSessionService>();
-                if (m != null) m.Sid = sid;
-                userSessionService.Set(sid, m);
-                httpContext.Items[USER_SESSION_KEY] = m;
-                httpContext.Items[SET_USER_SESSION_KEY] = m != null ? "1" : "0";
+                using (var userSessionService = IocUtils.Get<IUserSessionService>())
+                {
+                    if (m != null) m.Sid = sid;
+                    userSessionService.Set(sid, m);
+                    httpContext.Items[USER_SESSION_KEY] = m;
+                    httpContext.Items[SET_USER_SESSION_KEY] = m != null ? "1" : "0";
+                }
             }
         }
 
@@ -133,10 +139,12 @@ namespace AfxDotNetCoreSample.Web
             var sid = GetSid(httpContext);
             if (!string.IsNullOrEmpty(sid))
             {
-                var userSessionService = IocUtils.Get<IUserSessionService>();
-                userSessionService.Logout(sid);
-                httpContext.Items[USER_SESSION_KEY] = null;
-                httpContext.Items[SET_USER_SESSION_KEY] = "0";
+                using (var userSessionService = IocUtils.Get<IUserSessionService>())
+                {
+                    userSessionService.Logout(sid);
+                    httpContext.Items[USER_SESSION_KEY] = null;
+                    httpContext.Items[SET_USER_SESSION_KEY] = "0";
+                }
             }
         }
     }

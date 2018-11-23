@@ -98,10 +98,12 @@ namespace AfxDotNetCoreSample.Web
             }
             else if (!string.IsNullOrEmpty(this.ActionId))
             {
-                var servce = IocUtils.Get<IRoleWebMenuService>();
-                if (!servce.Exist(user.RoleId, this.ActionId))
+                using (var servce = IocUtils.Get<IRoleWebMenuService>())
                 {
-                    this.SetError(context, ApiStatus.NeedAuth, "无权限访问！");
+                    if (!servce.Exist(user.RoleId, this.ActionId))
+                    {
+                        this.SetError(context, ApiStatus.NeedAuth, "无权限访问！");
+                    }
                 }
             }
         }

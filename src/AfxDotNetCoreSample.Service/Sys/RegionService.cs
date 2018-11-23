@@ -14,11 +14,9 @@ namespace AfxDotNetCoreSample.Service
 {
     public class RegionService : BaseService, IRegionService
     {
-        private readonly Lazy<IRegionRepository> _regionRepository = new Lazy<IRegionRepository>(IocUtils.Get<IRegionRepository>);
-        internal protected virtual IRegionRepository regionRepository => this._regionRepository.Value;
+        protected virtual IRegionRepository regionRepository => this.GetRepository<IRegionRepository>();
 
-        private Lazy<IRegionLevelRepository> _regionLevelRepository = new Lazy<IRegionLevelRepository>(IocUtils.Get<IRegionLevelRepository>);
-        internal protected virtual IRegionLevelRepository regionLevelRepository => this._regionLevelRepository.Value;
+        protected virtual IRegionLevelRepository regionLevelRepository => this.GetRepository<IRegionLevelRepository>();
 
         public virtual bool Add(RegionDto vm)
         {

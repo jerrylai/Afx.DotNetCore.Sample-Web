@@ -14,7 +14,7 @@ namespace AfxDotNetCoreSample.Web.Controllers
 {
     public class RegionController : BaseController
     {
-        private readonly Lazy<IRegionService> regionService = new Lazy<IRegionService>(IocUtils.Get<IRegionService>);
+        private IRegionService regionService => this.GetService<IRegionService>();
 
         [UserAuth("1002001000000")]
         public IActionResult Index()
@@ -42,7 +42,7 @@ namespace AfxDotNetCoreSample.Web.Controllers
         private List<TreeNodeDto> GetTree(string id, bool isFullName)
         {
             id = !string.IsNullOrEmpty(id) ? id : null;
-            var list = this.regionService.Value.GetChildList(id);
+            var list = this.regionService.GetChildList(id);
             var treelist = list.Select(q => new TreeNodeDto
             {
                 id = q.Id,
@@ -51,9 +51,9 @@ namespace AfxDotNetCoreSample.Web.Controllers
 
             foreach (var tree in treelist)
             {
-                var childids = this.regionService.Value.GetChildId(tree.id);
+                var childids = this.regionService.GetChildId(tree.id);
                 if (childids.Count > 0) tree.state = "closed";
-                if(isFullName) tree.showText = this.regionService.Value.GetFullName(tree.id, "/");
+                if(isFullName) tree.showText = this.regionService.GetFullName(tree.id, "/");
             }
 
             return treelist;
@@ -64,11 +64,11 @@ namespace AfxDotNetCoreSample.Web.Controllers
         {
             if(!string.IsNullOrEmpty(id))
             {
-                var vm = this.regionService.Value.Get(id);
+                var vm = this.regionService.Get(id);
                 if (vm != null)
                 {
                     var userinfo = this.UserSession;
-                    bool result = this.regionService.Value.Delete(id);
+                    bool result = this.regionService.Delete(id);
                     LogUtils.Debug($"【删除地区】{userinfo.Name}({userinfo.Account}), 删除 {vm.Name} 成功！");
 
                     return Success(result);
@@ -85,7 +85,7 @@ namespace AfxDotNetCoreSample.Web.Controllers
             if (vm != null && this.ModelState.IsValid)
             {
                 var userinfo = this.UserSession;
-                bool result = this.regionService.Value.Add(vm);
+                bool result = this.regionService.Add(vm);
                 LogUtils.Debug($"【添加地区】{userinfo.Name}({userinfo.Account}), 添加 {vm.Name} 成功！");
 
                 return Success(result);
@@ -100,11 +100,11 @@ namespace AfxDotNetCoreSample.Web.Controllers
         {
             if (vm != null && this.ModelState.IsValid && !string.IsNullOrEmpty(vm.Id))
             {
-                var m = this.regionService.Value.Get(vm.Id);
+                var m = this.regionService.Get(vm.Id);
                 if (m != null)
                 {
                     var userinfo = this.UserSession;
-                    bool result = this.regionService.Value.Update(vm);
+                    bool result = this.regionService.Update(vm);
                     LogUtils.Debug($"【修改地区】{userinfo.Name}({userinfo.Account}), 修改 {m.Name} -> {vm.Name} 成功！");
 
                     return Success(vm.Name);
@@ -120,7 +120,7 @@ namespace AfxDotNetCoreSample.Web.Controllers
             string fullname = "";
             if(!string.IsNullOrEmpty(id))
             {
-                fullname = this.regionService.Value.GetFullName(id, "/");
+                fullname = this.regionService.GetFullName(id, "/");
             }
 
             return Success(fullname);

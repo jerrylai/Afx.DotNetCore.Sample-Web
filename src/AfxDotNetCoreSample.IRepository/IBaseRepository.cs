@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace AfxDotNetCoreSample.IRepository
 {
-    public interface IBaseRepository
+    public interface IBaseRepository : IDisposable
     {
+
     }
 }
