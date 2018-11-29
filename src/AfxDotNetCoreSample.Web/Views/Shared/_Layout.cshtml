@@ -31,6 +31,8 @@
             $(window).ajaxStop(function () {
                 $('#loadWin').window('close');
             });
+
+            @RenderSection("ready", required: false)
         });
     </script>
     <div id="loadWin" class="easyui-window" style="width:60px;height:60px;overflow:hidden;display:none" data-options="modal:true,border:false,resizable:false,closed:true,noheader:true">

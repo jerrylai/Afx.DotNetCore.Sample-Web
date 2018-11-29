@@ -59,7 +59,8 @@
             currentUrl = obj;
         }
     }
-    $(document).ready(function () {
+
+    @section ready{
 
         $('#lbUserPwd').click(function () {
             loadPage({ url: '/User/EditPwd', name: '修改密码' });
@@ -90,5 +91,5 @@
         }
 
         getMenu();
-    });
+    }
 </script>

@@ -55,7 +55,11 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function () {
+    @section ready{
+        window.onresize = function () {
+            window.setTimeout(function () { $('#dataGrid_log').datagrid('resize'); }, 100);
+        }
+
         var dataGrid_param = $.getFormData('form_log_search');
 
         $('#btn_dataGrid_log_Search').bind('click', function () {
@@ -69,6 +73,7 @@
             loadMsg: $.datagridConfig.loadMsg,
             onBeforeLoad: $.datagridConfig.onBeforeLoad,
             loadFilter: $.datagridConfig.loadFilter,
+            onLoadSuccess: $.datagridConfig.onLoadSuccess,
             singleSelect: false,
             checkOnSelect: true,
             selectOnCheck: true,
@@ -180,5 +185,5 @@
         window.onresize = function () {
             window.setTimeout(function () { $('#dataGrid_log').datagrid('resize'); }, 100);
         }
-    });
+    }
 </script>

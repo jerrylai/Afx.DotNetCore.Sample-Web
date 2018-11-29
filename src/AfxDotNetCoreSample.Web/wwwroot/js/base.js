@@ -408,7 +408,10 @@ $.extend({
                 pagedata.rows = data.Data.Data;
             }
             return pagedata;
-        }
+        },
+        onLoadSuccess: function (data) {
+            $(this).datagrid('resize');
+        },
     }
 });
 

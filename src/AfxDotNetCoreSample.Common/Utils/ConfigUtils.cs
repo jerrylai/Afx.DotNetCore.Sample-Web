@@ -121,7 +121,7 @@ namespace AfxDotNetCoreSample.Common
             get
             {
                 var s = GetValue("HostUrl");
-                if (string.IsNullOrEmpty(s)) s = "http://wx.huayacnc.com/";
+                if (string.IsNullOrEmpty(s)) s = "http://afx.com/";
                 return s;
             }
         }
@@ -143,28 +143,6 @@ namespace AfxDotNetCoreSample.Common
                 }
 
                 return _multipartBodyLengthLimit;
-            }
-        }
-
-        private static List<string> _mageFileExtension;
-        public static List<string> ImageFileExtension
-        {
-            get
-            {
-                if (_mageFileExtension == null)
-                {
-                    var s = GetValue("ImageFileExtension");
-                    if (string.IsNullOrEmpty(s)) s = ".png,.jpg,.jpeg,.bmp,.gif,.icon,.tiff,.exif,.emf,.wmf";
-                    var arr = s.Split(',');
-                    var list = new List<string>(arr.Length);
-                    foreach(var item in arr)
-                    {
-                        if (!string.IsNullOrEmpty(item.Trim())) list.Add(item.Trim());
-                    }
-                    _mageFileExtension = list;
-                }
-
-                return _mageFileExtension;
             }
         }
 

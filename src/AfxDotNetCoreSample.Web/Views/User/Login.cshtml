@@ -62,8 +62,7 @@
 
 <script src="~/js/md5.min.js"></script>
 <script type="text/javascript">
-    var mainPage = '/Home/Index';
-    $(document).ready(function () {
+    @section ready{
         
         $('#checkbox_Remember').checkbox({
             checked: false,
@@ -121,7 +120,7 @@
                         $.cookie('returnurl', null);
                         
                         if (returnurl) window.location.href = returnurl;
-                        else window.location.href = mainPage;
+                        else window.location.href = '/Home/Index';
                     }
                     else {
                         $.showDataMsg('账号或密码错误！', data);
@@ -137,5 +136,5 @@
         });
 
         setLogin();
-    });
+    }
 </script>
