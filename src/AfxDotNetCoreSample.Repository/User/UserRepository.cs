@@ -11,6 +11,7 @@ using AfxDotNetCoreSample.Common;
 using AfxDotNetCoreSample.Enums;
 
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -27,23 +28,27 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using (var db = this.GetContext())
                 {
-                    var query = from q in db.User
-                                where q.Id == id && q.IsDelete == false
-                                select new UserDto
-                                {
-                                    Id = q.Id,
-                                    Account = q.Account,
-                                    Name = q.Name,
-                                    Password = q.Password,
-                                    RoleId = q.RoleId,
-                                    Mail = q.Mail,
-                                    Mobile = q.Mobile,
-                                    Status = q.Status,
-                                    IsSystem = q.IsSystem,
-                                    UpdateTime = q.UpdateTime,
-                                    CreateTime = q.CreateTime
-                                };
-                    vm = query.FirstOrDefault();
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        var query = from q in db.User
+                                    where q.Id == id && q.IsDelete == false
+                                    select new UserDto
+                                    {
+                                        Id = q.Id,
+                                        Account = q.Account,
+                                        Name = q.Name,
+                                        Password = q.Password,
+                                        RoleId = q.RoleId,
+                                        Mail = q.Mail,
+                                        Mobile = q.Mobile,
+                                        Status = q.Status,
+                                        IsSystem = q.IsSystem,
+                                        UpdateTime = q.UpdateTime,
+                                        CreateTime = q.CreateTime
+                                    };
+                        vm = query.FirstOrDefault();
+                        db.Commit();
+                    }
                 }
 
                 if (vm != null) this.userCache.Set(id, vm);
@@ -61,10 +66,14 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using (var db = this.GetContext())
                 {
-                    var query = from q in db.User
-                                where q.Account == account && q.IsDelete == false
-                                select q.Id;
-                    id = query.FirstOrDefault();
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        var query = from q in db.User
+                                    where q.Account == account && q.IsDelete == false
+                                    select q.Id;
+                        id = query.FirstOrDefault();
+                        db.Commit();
+                    }
                     this.userIdCache.Set(UserIdCacheType.Account, account, id);
                 }
             }
@@ -80,10 +89,14 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using (var db = this.GetContext())
                 {
-                    var query = from q in db.User
-                                where q.Mobile == mobile && q.IsDelete == false
-                                select q.Id;
-                    id = query.FirstOrDefault();
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        var query = from q in db.User
+                                    where q.Mobile == mobile && q.IsDelete == false
+                                    select q.Id;
+                        id = query.FirstOrDefault();
+                        db.Commit();
+                    }
                     this.userIdCache.Set(UserIdCacheType.Mobile, mobile, id);
                 }
             }
@@ -100,10 +113,14 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using (var db = this.GetContext())
                 {
-                    var query = from q in db.User
-                                where q.Mail == mail && q.IsDelete == false
-                                select q.Id;
-                    id = query.FirstOrDefault();
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        var query = from q in db.User
+                                    where q.Mail == mail && q.IsDelete == false
+                                    select q.Id;
+                        id = query.FirstOrDefault();
+                        db.Commit();
+                    }
                     this.userIdCache.Set(UserIdCacheType.Mail, mail, id);
                 }
             }
@@ -115,7 +132,12 @@ namespace AfxDotNetCoreSample.Repository
         {
             using (var db = this.GetContext())
             {
-                return this.Update(vm, db);
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    var count = this.Update(vm, db);
+                    db.Commit();
+                    return count;
+                }
             }
         }
 
@@ -154,12 +176,16 @@ namespace AfxDotNetCoreSample.Repository
             int count = 0;
             using(var db = this.GetContext())
             {
-                var m = db.User.Where(q => q.Id == id && q.IsDelete == false).FirstOrDefault();
-                if(m != null)
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
-                    m.Password = pwd;
-                    db.AddCommitCallback((num) => this.userCache.Remove(m.Id));
-                    count = db.SaveChanges();
+                    var m = db.User.Where(q => q.Id == id && q.IsDelete == false).FirstOrDefault();
+                    if (m != null)
+                    {
+                        m.Password = pwd;
+                        db.AddCommitCallback((num) => this.userCache.Remove(m.Id));
+                        count = db.SaveChanges();
+                    }
+                    db.Commit();
                 }
             }
 
@@ -170,7 +196,7 @@ namespace AfxDotNetCoreSample.Repository
         {
             using (var db = this.GetContext())
             {
-                using (db.BeginTransaction())
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
                     int count = this.Add(vm, db);
                     db.Commit();
@@ -203,7 +229,7 @@ namespace AfxDotNetCoreSample.Repository
                 if (!string.IsNullOrEmpty(m.Mobile)) this.userIdCache.Remove(UserIdCacheType.Mobile, m.Mobile);
             });
             db.Add(m);
-            db.SaveChanges();
+            count = db.SaveChanges();
             vm.Id = m.Id;
             vm.UpdateTime = m.UpdateTime;
             vm.CreateTime = m.CreateTime;
@@ -216,7 +242,11 @@ namespace AfxDotNetCoreSample.Repository
             int count = 0;
             using (var db = this.GetContext())
             {
-                count = this.Delete(id, db);
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    count = this.Delete(id, db);
+                    db.Commit();
+                }
             }
             return count;
         }
@@ -247,41 +277,45 @@ namespace AfxDotNetCoreSample.Repository
             PageDataOutputDto<UserDto> pageData = null;
             using (var db = this.GetContext())
             {
-                var query = from q in db.User
-                            where q.IsDelete == false
-                            select new UserDto
-                            {
-                                Id = q.Id,
-                                Account = q.Account,
-                                Name = q.Name,
-                                //Password = q.Password,
-                                RoleId = q.RoleId,
-                                Mail = q.Mail,
-                                Mobile = q.Mobile,
-                                Status = q.Status,
-                                IsSystem = q.IsSystem,
-                                UpdateTime = q.UpdateTime,
-                                CreateTime = q.CreateTime
-                            };
-
-                if (!string.IsNullOrEmpty(vm.RoleId))
+                using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
                 {
-                    query = query.Where(q => q.RoleId == vm.RoleId);
-                }
+                    var query = from q in db.User
+                                where q.IsDelete == false
+                                select new UserDto
+                                {
+                                    Id = q.Id,
+                                    Account = q.Account,
+                                    Name = q.Name,
+                                    //Password = q.Password,
+                                    RoleId = q.RoleId,
+                                    Mail = q.Mail,
+                                    Mobile = q.Mobile,
+                                    Status = q.Status,
+                                    IsSystem = q.IsSystem,
+                                    UpdateTime = q.UpdateTime,
+                                    CreateTime = q.CreateTime
+                                };
 
-                if (vm.Status.HasValue)
-                {
-                    var status = vm.Status.Value;
-                    query = query.Where(q => q.Status == status);
-                }
+                    if (!string.IsNullOrEmpty(vm.RoleId))
+                    {
+                        query = query.Where(q => q.RoleId == vm.RoleId);
+                    }
 
-                if (!string.IsNullOrEmpty(vm.Keyword))
-                {
-                    var value = vm.Keyword.DbLike(DbLikeType.All);
-                    query = query.Where(q => EF.Functions.Like(q.Account, value) || EF.Functions.Like(q.Name, value) || EF.Functions.Like(q.Mobile, value) || EF.Functions.Like(q.Mail, value));
-                }
+                    if (vm.Status.HasValue)
+                    {
+                        var status = vm.Status.Value;
+                        query = query.Where(q => q.Status == status);
+                    }
 
-                pageData = query.ToPage(vm);
+                    if (!string.IsNullOrEmpty(vm.Keyword))
+                    {
+                        var value = vm.Keyword.DbLike(DbLikeType.All);
+                        query = query.Where(q => EF.Functions.Like(q.Account, value) || EF.Functions.Like(q.Name, value) || EF.Functions.Like(q.Mobile, value) || EF.Functions.Like(q.Mail, value));
+                    }
+
+                    pageData = query.ToPage(vm);
+                    db.Commit();
+                }
             }
 
             return pageData;
@@ -294,7 +328,11 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using(var db = this.GetContext())
                 {
-                    count = db.User.Where(q => q.RoleId == roleId && q.IsDelete == false).Count();
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        count = db.User.Where(q => q.RoleId == roleId && q.IsDelete == false).Count();
+                        db.Commit();
+                    }
                 }
             }
 

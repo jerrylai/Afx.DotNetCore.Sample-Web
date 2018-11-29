@@ -7,6 +7,7 @@ using AfxDotNetCoreSample.Dto;
 using AfxDotNetCoreSample.ICache;
 using AfxDotNetCoreSample.IRepository;
 using AfxDotNetCoreSample.Common;
+using System.Data;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -22,19 +23,23 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using(var db = this.GetContext())
                 {
-                    var query = from q in db.WebMenu
-                                select new WebMenuDto
-                                {
-                                    Id = q.Id,
-                                    ParentId = q.ParentId,
-                                    Name = q.Name,
-                                    Order = q.Order,
-                                    PageUrl = q.PageUrl,
-                                    ImageUrl = q.ImageUrl,
-                                    IsMenu = q.IsMenu,
-                                    Description = q.Description
-                                };
-                    list = query.ToList();
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        var query = from q in db.WebMenu
+                                    select new WebMenuDto
+                                    {
+                                        Id = q.Id,
+                                        ParentId = q.ParentId,
+                                        Name = q.Name,
+                                        Order = q.Order,
+                                        PageUrl = q.PageUrl,
+                                        ImageUrl = q.ImageUrl,
+                                        IsMenu = q.IsMenu,
+                                        Description = q.Description
+                                    };
+                        list = query.ToList();
+                        db.Commit();
+                    }
                     this.cache.Set(list);
                 }
             }

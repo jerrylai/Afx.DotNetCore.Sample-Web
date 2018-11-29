@@ -9,6 +9,7 @@ using AfxDotNetCoreSample.ICache;
 using AfxDotNetCoreSample.IRepository;
 using AfxDotNetCoreSample.Models;
 using AfxDotNetCoreSample.Common;
+using System.Data;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -32,19 +33,23 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using (var db = this.GetContext())
                 {
-                    #region
-                    var query = from q in db.SysConfig
-                                where q.Type == type
-                                select new ConfigDto
-                                {
-                                    Id = q.Id,
-                                    Type = q.Type,
-                                    Name = q.Name,
-                                    Value = q.Value
-                                };
-                    #endregion
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        #region
+                        var query = from q in db.SysConfig
+                                    where q.Type == type
+                                    select new ConfigDto
+                                    {
+                                        Id = q.Id,
+                                        Type = q.Type,
+                                        Name = q.Name,
+                                        Value = q.Value
+                                    };
+                        #endregion
 
-                    list = query.ToList();
+                        list = query.ToList();
+                        db.Commit();
+                    }
                     this.cache.Set(type, list);
                 }
             }
@@ -68,7 +73,7 @@ namespace AfxDotNetCoreSample.Repository
             int count = 0;
             using (var db = this.GetContext())
             {
-                using (db.BeginTransaction())
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
                     var list = db.SysConfig.Where(q => q.Type == type).ToList();
                     foreach (var kv in dic)

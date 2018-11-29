@@ -2,7 +2,6 @@
     Layout = null;
 }
 
-
 <div style="min-width:700px;margin-top:10px;margin-left:10px">
     <div>
         <form id="form_log_search" method="post" style="overflow:hidden">
@@ -55,7 +54,7 @@
 </div>
 
 <script type="text/javascript">
-    @section ready{
+    $(document).ready(function () {
         window.onresize = function () {
             window.setTimeout(function () { $('#dataGrid_log').datagrid('resize'); }, 100);
         }
@@ -85,7 +84,7 @@
             //idField: 'Id',
             pageNumber: 1,
             columns: [[
-                { field: 'Id',checkbox: true },
+                { field: 'Id', checkbox: true },
                 {
                     field: 'Name', width: '28%', resizable: true, title: '文件名',
                     formatter: function (value, row, index) {
@@ -120,9 +119,9 @@
                             $.each(rows, function (index, item) {
                                 s = s.concat(',', item.Name);
                             });
-                            
+
                             s = s.substring(1);
-                            
+
                             $.postPublic('/Log/Del', { Name: dataGrid_param.Name, Files: s }, function (data) {
                                 if (data.Status == 0 && data.Data == true) {
                                     $('#dataGrid_log').datagrid('reload');
@@ -174,7 +173,7 @@
                 $('#edit_Level').dialog('close');
                 if (data && typeof (data) == 'string') data = JSON.parse(data);
                 if (data && data.Status == 0 && data.Data == true) {
-                    
+
                 }
                 else {
                     $.showDataMsg('保存失败！', data);
@@ -185,5 +184,5 @@
         window.onresize = function () {
             window.setTimeout(function () { $('#dataGrid_log').datagrid('resize'); }, 100);
         }
-    }
+    });
 </script>

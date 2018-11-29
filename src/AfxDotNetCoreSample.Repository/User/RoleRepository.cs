@@ -10,6 +10,7 @@ using AfxDotNetCoreSample.Models;
 using AfxDotNetCoreSample.Common;
 using AfxDotNetCoreSample.Enums;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -24,17 +25,21 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using(var db = this.GetContext())
                 {
-                    var query = from q in db.Role
-                                where q.Id == id && q.IsDelete == false
-                                select new RoleDto
-                                {
-                                    Id = q.Id,
-                                    IsSystem = q.IsSystem,
-                                    Name = q.Name,
-                                    CreateTime = q.CreateTime,
-                                    UpdateTime = q.UpdateTime
-                                };
-                    vm = query.FirstOrDefault();
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        var query = from q in db.Role
+                                    where q.Id == id && q.IsDelete == false
+                                    select new RoleDto
+                                    {
+                                        Id = q.Id,
+                                        IsSystem = q.IsSystem,
+                                        Name = q.Name,
+                                        CreateTime = q.CreateTime,
+                                        UpdateTime = q.UpdateTime
+                                    };
+                        vm = query.FirstOrDefault();
+                        db.Commit();
+                    }
                 }
                 if (vm != null) this.roleCache.Set(id, vm);
             }
@@ -54,8 +59,12 @@ namespace AfxDotNetCoreSample.Repository
             };
             using (var db = this.GetContext())
             {
-                db.Role.Add(m);
-                count = db.SaveChanges();
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    db.Role.Add(m);
+                    count = db.SaveChanges();
+                    db.Commit();
+                }
                 vm.UpdateTime = m.UpdateTime;
                 vm.CreateTime = m.CreateTime;
             }
@@ -68,14 +77,18 @@ namespace AfxDotNetCoreSample.Repository
             int count = 0;
             using(var db = this.GetContext())
             {
-                var m = db.Role.Where(q => q.Id == vm.Id && q.IsDelete == false).FirstOrDefault();
-                if(m != null)
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
-                    m.Name = vm.Name;
-                    db.AddCommitCallback((num) => this.roleCache.Remove(m.Id));
-                    count = db.SaveChanges();
-                    vm.UpdateTime = m.UpdateTime;
-                    vm.CreateTime = m.CreateTime;
+                    var m = db.Role.Where(q => q.Id == vm.Id && q.IsDelete == false).FirstOrDefault();
+                    if (m != null)
+                    {
+                        m.Name = vm.Name;
+                        db.AddCommitCallback((num) => this.roleCache.Remove(m.Id));
+                        count = db.SaveChanges();
+                        vm.UpdateTime = m.UpdateTime;
+                        vm.CreateTime = m.CreateTime;
+                    }
+                    db.Commit();
                 }
             }
 
@@ -87,12 +100,16 @@ namespace AfxDotNetCoreSample.Repository
             int count = 0;
             using (var db = this.GetContext())
             {
-                var m = db.Role.Where(q => q.Id == id && q.IsSystem == false && q.IsDelete == false).FirstOrDefault();
-                if (m != null)
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
-                    db.Role.Remove(m);
-                    db.AddCommitCallback((num) => this.roleCache.Remove(m.Id));
-                    count = db.SaveChanges();
+                    var m = db.Role.Where(q => q.Id == id && q.IsSystem == false && q.IsDelete == false).FirstOrDefault();
+                    if (m != null)
+                    {
+                        db.Role.Remove(m);
+                        db.AddCommitCallback((num) => this.roleCache.Remove(m.Id));
+                        count = db.SaveChanges();
+                    }
+                    db.Commit();
                 }
             }
 
@@ -104,29 +121,33 @@ namespace AfxDotNetCoreSample.Repository
             PageDataOutputDto<RoleDto> pageData = null;
             using(var db = this.GetContext())
             {
-                var query = from q in db.Role
-                            where q.IsDelete == false
-                            select new RoleDto
-                            {
-                                Id = q.Id,
-                                IsSystem = q.IsSystem,
-                                Name = q.Name,
-                                CreateTime = q.CreateTime,
-                                UpdateTime = q.UpdateTime
-                            };
-
-                if (!string.IsNullOrEmpty(vm.Id))
+                using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
                 {
-                    query = query.Where(q => q.Id == vm.Id);
-                }
+                    var query = from q in db.Role
+                                where q.IsDelete == false
+                                select new RoleDto
+                                {
+                                    Id = q.Id,
+                                    IsSystem = q.IsSystem,
+                                    Name = q.Name,
+                                    CreateTime = q.CreateTime,
+                                    UpdateTime = q.UpdateTime
+                                };
 
-                if (!string.IsNullOrEmpty(vm.Keyword))
-                {
-                    var value = vm.Keyword.DbLike(DbLikeType.All);
-                    query = query.Where(q => EF.Functions.Like(q.Name, value));
-                }
+                    if (!string.IsNullOrEmpty(vm.Id))
+                    {
+                        query = query.Where(q => q.Id == vm.Id);
+                    }
 
-                pageData = query.ToPage(vm);
+                    if (!string.IsNullOrEmpty(vm.Keyword))
+                    {
+                        var value = vm.Keyword.DbLike(DbLikeType.All);
+                        query = query.Where(q => EF.Functions.Like(q.Name, value));
+                    }
+
+                    pageData = query.ToPage(vm);
+                    db.Commit();
+                }
             }
 
             return pageData;

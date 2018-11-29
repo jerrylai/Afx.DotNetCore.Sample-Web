@@ -9,6 +9,7 @@ using AfxDotNetCoreSample.ICache;
 using AfxDotNetCoreSample.IRepository;
 using AfxDotNetCoreSample.Models;
 using AfxDotNetCoreSample.Common;
+using System.Data;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -24,17 +25,21 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using (var db = this.GetContext())
                 {
-                    var query = from q in db.RegionLevel
-                                where q.RegionId == regionId 
-                                orderby q.ParentLevel
-                                select new RegionLevelDto
-                                {
-                                    Id = q.Id,
-                                    RegionId = q.RegionId,
-                                    ParentId = q.ParentId,
-                                    ParentLevel = q.ParentLevel
-                                };
-                    list = query.ToList();
+                    using (db.BeginTransaction(IsolationLevel.ReadCommitted))
+                    {
+                        var query = from q in db.RegionLevel
+                                    where q.RegionId == regionId
+                                    orderby q.ParentLevel
+                                    select new RegionLevelDto
+                                    {
+                                        Id = q.Id,
+                                        RegionId = q.RegionId,
+                                        ParentId = q.ParentId,
+                                        ParentLevel = q.ParentLevel
+                                    };
+                        list = query.ToList();
+                        db.Commit();
+                    }
                 }
                 this.regionLevelCache.Set(regionId, list);
             }

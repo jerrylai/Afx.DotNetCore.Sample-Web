@@ -6,6 +6,7 @@ using AfxDotNetCoreSample.Enums;
 using AfxDotNetCoreSample.Models;
 using AfxDotNetCoreSample.Common;
 using AfxDotNetCoreSample.ICache;
+using System.Data;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -15,7 +16,7 @@ namespace AfxDotNetCoreSample.Repository
         {
             using (var cache = IocUtils.Get<IWebMenuCache>())
             {
-                using (db.BeginTransaction())
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
                     db.AddCommitCallback((num) => cache.Remove());
                     foreach (var m in WebMenuList)

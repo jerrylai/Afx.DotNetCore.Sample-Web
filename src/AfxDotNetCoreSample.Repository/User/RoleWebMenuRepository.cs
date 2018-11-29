@@ -7,6 +7,7 @@ using AfxDotNetCoreSample.ICache;
 using AfxDotNetCoreSample.IRepository;
 using AfxDotNetCoreSample.Models;
 using AfxDotNetCoreSample.Common;
+using System.Data;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -22,7 +23,11 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using(var db = this.GetContext())
                 {
-                    list = db.RoleWebMenu.Where(q => q.RoleId == roleId).Select(q => q.WebMenuId).ToList();
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        list = db.RoleWebMenu.Where(q => q.RoleId == roleId).Select(q => q.WebMenuId).ToList();
+                        db.Commit();
+                    }
                     this.cache.Set(roleId, list);
                 }
             }
@@ -35,7 +40,7 @@ namespace AfxDotNetCoreSample.Repository
             int count = 0;
             using(var db = this.GetContext())
             {
-                using (db.BeginTransaction())
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
                     if (addWebMenuIdList != null && addWebMenuIdList.Count > 0)
                     {

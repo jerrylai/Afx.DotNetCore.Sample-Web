@@ -6,6 +6,7 @@ using AfxDotNetCoreSample.Enums;
 using AfxDotNetCoreSample.Models;
 using AfxDotNetCoreSample.ICache;
 using AfxDotNetCoreSample.Common;
+using System.Data;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -13,7 +14,7 @@ namespace AfxDotNetCoreSample.Repository
     {
         private void InitRoleWebMenu(AfxContext db)
         {
-            using (db.BeginTransaction())
+            using (db.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 foreach (var kv in RoleWebMenuList)
                 {

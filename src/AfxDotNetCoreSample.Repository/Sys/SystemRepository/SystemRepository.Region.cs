@@ -6,6 +6,7 @@ using AfxDotNetCoreSample.Enums;
 using AfxDotNetCoreSample.Models;
 using Afx.Utils;
 using AfxDotNetCoreSample.Common;
+using System.Data;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -22,7 +23,7 @@ namespace AfxDotNetCoreSample.Repository
                     var m = db.Region.Where(q => q.Id == region.Id).FirstOrDefault();
                     if (m == null)
                     {
-                        using (db.BeginTransaction())
+                        using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                         {
                             db.Add(region);
                             var levels = regionLevels.FindAll(q => q.RegionId == region.Id);

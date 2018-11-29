@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using AfxDotNetCoreSample.Enums;
@@ -11,7 +12,7 @@ namespace AfxDotNetCoreSample.Repository
     {
         private void InitRole(AfxContext db)
         {
-            using (db.BeginTransaction())
+            using (db.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 foreach (var m in roles)
                 {

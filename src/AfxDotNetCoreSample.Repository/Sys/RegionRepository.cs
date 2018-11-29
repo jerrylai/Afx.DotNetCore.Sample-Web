@@ -9,6 +9,7 @@ using AfxDotNetCoreSample.ICache;
 using AfxDotNetCoreSample.IRepository;
 using AfxDotNetCoreSample.Models;
 using AfxDotNetCoreSample.Common;
+using System.Data;
 
 namespace AfxDotNetCoreSample.Repository
 {
@@ -33,7 +34,7 @@ namespace AfxDotNetCoreSample.Repository
             };
             using(var db = this.GetContext())
             {
-                using (db.BeginTransaction())
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
                     db.AddCommitCallback((num) =>
                     {
@@ -54,15 +55,20 @@ namespace AfxDotNetCoreSample.Repository
             var count = 0;
             using (var db = this.GetContext())
             {
-                var m = db.Region.Where(q => q.Id == id && q.IsDelete == false).FirstOrDefault();
-                if (m != null)
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
-                    db.AddCommitCallback((num) => {
-                        this.regionCache.Remove(m.Id);
-                        this.regionChildCache.Remove(m.ParentId);
-                    });
-                    db.Region.Remove(m);
-                    count = db.SaveChanges();
+                    var m = db.Region.Where(q => q.Id == id && q.IsDelete == false).FirstOrDefault();
+                    if (m != null)
+                    {
+                        db.AddCommitCallback((num) =>
+                        {
+                            this.regionCache.Remove(m.Id);
+                            this.regionChildCache.Remove(m.ParentId);
+                        });
+                        db.Region.Remove(m);
+                        count = db.SaveChanges();
+                    }
+                    db.Commit();
                 }
             }
 
@@ -76,16 +82,20 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using(var db = this.GetContext())
                 {
-                    var query = from q in db.Region
-                                where q.Id == id && q.IsDelete == false
-                                select new RegionDto
-                                {
-                                    Id = q.Id,
-                                    Name = q.Name,
-                                    Level = q.Level,
-                                    ParentId = q.ParentId
-                                };
-                    vm = query.FirstOrDefault();
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        var query = from q in db.Region
+                                    where q.Id == id && q.IsDelete == false
+                                    select new RegionDto
+                                    {
+                                        Id = q.Id,
+                                        Name = q.Name,
+                                        Level = q.Level,
+                                        ParentId = q.ParentId
+                                    };
+                        vm = query.FirstOrDefault();
+                        db.Commit();
+                    }
                 }
 
                 if (vm != null) this.regionCache.Set(id, vm);
@@ -101,10 +111,14 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using (var db = this.GetContext())
                 {
-                    var query = from q in db.Region
-                                where q.ParentId == parentId && q.IsDelete == false
-                                select q.Id;
-                    list = query.ToList();
+                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        var query = from q in db.Region
+                                    where q.ParentId == parentId && q.IsDelete == false
+                                    select q.Id;
+                        list = query.ToList();
+                        db.Commit();
+                    }
                 }
 
                 this.regionChildCache.Set(parentId, list);
@@ -118,14 +132,19 @@ namespace AfxDotNetCoreSample.Repository
             var count = 0;
             using (var db = this.GetContext())
             {
-                var m = db.Region.Where(q => q.Id == vm.Id && q.IsDelete == false).FirstOrDefault();
-                if (m != null)
+                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
-                    db.AddCommitCallback((num) => {
-                        this.regionCache.Remove(m.Id);
-                    });
-                    m.Name = vm.Name;
-                    count = db.SaveChanges();
+                    var m = db.Region.Where(q => q.Id == vm.Id && q.IsDelete == false).FirstOrDefault();
+                    if (m != null)
+                    {
+                        db.AddCommitCallback((num) =>
+                        {
+                            this.regionCache.Remove(m.Id);
+                        });
+                        m.Name = vm.Name;
+                        count = db.SaveChanges();
+                    }
+                    db.Commit();
                 }
             }
 
