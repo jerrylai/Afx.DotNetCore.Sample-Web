@@ -63,6 +63,82 @@ namespace AfxDotNetCoreSample.Models
             return db;
         }
 
+        private static string _updateSql;
+        private static string GetUpdateSql(IDatabase db)
+        {
+            if (string.IsNullOrEmpty(_updateSql))
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("update ");
+                sql.Append(db.EncodeColumn("SysSequence"));
+                sql.Append(" set ");
+                sql.Append(db.EncodeColumn("Value"));
+                sql.Append(" = ");
+                sql.Append(db.EncodeColumn("Value"));
+                sql.Append(" + @Value, ");
+                sql.Append(db.EncodeColumn("UpdateTime"));
+                sql.Append(" = @UpdateTime  where ");
+                sql.Append(db.EncodeColumn("Name"));
+                sql.Append(" = @Name and ");
+                sql.Append(db.EncodeColumn("Key"));
+                sql.Append(" = @Key");
+
+                _updateSql = sql.ToString();
+            }
+
+            return _updateSql;
+        }
+
+        private static string _insertSql;
+        private static string GetInsertSql(IDatabase db)
+        {
+            if (string.IsNullOrEmpty(_insertSql))
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("insert into ");
+                sql.Append(db.EncodeColumn("SysSequence"));
+                sql.Append("(");
+                sql.Append(db.EncodeColumn("Id"));
+                sql.Append(", ");
+                sql.Append(db.EncodeColumn("Name"));
+                sql.Append(", ");
+                sql.Append(db.EncodeColumn("Key"));
+                sql.Append(", ");
+                sql.Append(db.EncodeColumn("Value"));
+                sql.Append(", ");
+                sql.Append(db.EncodeColumn("UpdateTime"));
+                sql.Append(", ");
+                sql.Append(db.EncodeColumn("CreateTime"));
+                sql.Append(") values(@Id, @Name, @Key, @Value, @UpdateTime, @CreateTime)");
+
+                _insertSql = sql.ToString();
+            }
+
+            return _insertSql;
+        }
+
+        private static string _selectSql;
+        private static string GetSelectSql(IDatabase db)
+        {
+            if (string.IsNullOrEmpty(_selectSql))
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select ");
+                sql.Append(db.EncodeColumn("Value"));
+                sql.Append(" from ");
+                sql.Append(db.EncodeColumn("SysSequence"));
+                sql.Append(" where ");
+                sql.Append(db.EncodeColumn("Name"));
+                sql.Append(" = @Name and ");
+                sql.Append(db.EncodeColumn("Key"));
+                sql.Append(" = @Key");
+
+                _selectSql = sql.ToString();
+            }
+
+            return _selectSql;
+        }
+
         private static int GetDbValue(string name, string key, int count)
         {
             int value = 0;
@@ -71,65 +147,28 @@ namespace AfxDotNetCoreSample.Models
             {
                 using (db.BeginTransaction())
                 {
-                    StringBuilder updateSql = new StringBuilder();
-                    updateSql.Append("update ");
-                    updateSql.Append(db.EncodeColumn("SysSequence"));
-                    updateSql.Append(" set ");
-                    updateSql.Append(db.EncodeColumn("Value"));
-                    updateSql.Append(" = ");
-                    updateSql.Append(db.EncodeColumn("Value"));
-                    updateSql.Append(" + @Value, ");
-                    updateSql.Append(db.EncodeColumn("UpdateTime"));
-                    updateSql.Append(" = @UpdateTime  where ");
-                    updateSql.Append(db.EncodeColumn("Name"));
-                    updateSql.Append(" = @Name and ");
-                    updateSql.Append(db.EncodeColumn("Key"));
-                    updateSql.Append(" = @Key");
+                    var sql = GetUpdateSql(db);
                     var now = DateTime.Now;
                     var m = new SysSequence { Value = count, UpdateTime = now, Name = name, Key = key };
-                    int c = db.ExecuteNonQuery(updateSql.ToString(), m);
+                    int c = db.ExecuteNonQuery(sql, m);
                     if (c == 0)
                     {
-                        StringBuilder insertSql = new StringBuilder();
-                        insertSql.Append("insert into ");
-                        insertSql.Append(db.EncodeColumn("SysSequence"));
-                        insertSql.Append("(");
-                        insertSql.Append(db.EncodeColumn("Id"));
-                        insertSql.Append(", ");
-                        insertSql.Append(db.EncodeColumn("Name"));
-                        insertSql.Append(", ");
-                        insertSql.Append(db.EncodeColumn("Key"));
-                        insertSql.Append(", ");
-                        insertSql.Append(db.EncodeColumn("Value"));
-                        insertSql.Append(", ");
-                        insertSql.Append(db.EncodeColumn("UpdateTime"));
-                        insertSql.Append(", ");
-                        insertSql.Append(db.EncodeColumn("CreateTime"));
-                        insertSql.Append(") values(@Id, @Name, @Key, @Value, @UpdateTime, @CreateTime)");
-
-                        m.Id = Guid.NewGuid().ToString("n");
-                        m.CreateTime = now;
                         try
                         {
-                            c = db.ExecuteNonQuery(insertSql.ToString(), m);
+                            m.Id = Guid.NewGuid().ToString("n");
+                            m.CreateTime = now;
+                            sql = GetInsertSql(db);
+                            c = db.ExecuteNonQuery(sql.ToString(), m);
                         }
                         catch
                         {
-                            c = db.ExecuteNonQuery(updateSql.ToString(), m);
+                            sql = GetUpdateSql(db);
+                            c = db.ExecuteNonQuery(sql.ToString(), m);
                         }
                     }
 
-                    StringBuilder selectSql = new StringBuilder();
-                    selectSql.Append("select ");
-                    selectSql.Append(db.EncodeColumn("Value"));
-                    selectSql.Append(" from ");
-                    selectSql.Append(db.EncodeColumn("SysSequence"));
-                    selectSql.Append(" where ");
-                    selectSql.Append(db.EncodeColumn("Name"));
-                    selectSql.Append(" = @Name and ");
-                    selectSql.Append(db.EncodeColumn("Key"));
-                    selectSql.Append(" = @Key");
-                    value = db.ExecuteScalar<int>(selectSql.ToString(), m);
+                    sql = GetSelectSql(db);
+                    value = db.ExecuteScalar<int>(sql, m);
 
                     db.Commit();
                 }

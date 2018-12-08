@@ -33,23 +33,19 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using (var db = this.GetContext())
                 {
-                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
-                    {
-                        #region
-                        var query = from q in db.SysConfig
-                                    where q.Type == type
-                                    select new ConfigDto
-                                    {
-                                        Id = q.Id,
-                                        Type = q.Type,
-                                        Name = q.Name,
-                                        Value = q.Value
-                                    };
-                        #endregion
+                    #region
+                    var query = from q in db.SysConfig
+                                where q.Type == type
+                                select new ConfigDto
+                                {
+                                    Id = q.Id,
+                                    Type = q.Type,
+                                    Name = q.Name,
+                                    Value = q.Value
+                                };
+                    #endregion
 
-                        list = query.ToList();
-                        db.Commit();
-                    }
+                    list = query.ToList();
                     this.cache.Set(type, list);
                 }
             }

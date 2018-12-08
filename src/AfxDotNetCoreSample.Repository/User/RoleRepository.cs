@@ -23,23 +23,19 @@ namespace AfxDotNetCoreSample.Repository
             var vm = this.roleCache.Get(id);
             if(vm == null)
             {
-                using(var db = this.GetContext())
+                using (var db = this.GetContext())
                 {
-                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
-                    {
-                        var query = from q in db.Role
-                                    where q.Id == id && q.IsDelete == false
-                                    select new RoleDto
-                                    {
-                                        Id = q.Id,
-                                        IsSystem = q.IsSystem,
-                                        Name = q.Name,
-                                        CreateTime = q.CreateTime,
-                                        UpdateTime = q.UpdateTime
-                                    };
-                        vm = query.FirstOrDefault();
-                        db.Commit();
-                    }
+                    var query = from q in db.Role
+                                where q.Id == id && q.IsDelete == false
+                                select new RoleDto
+                                {
+                                    Id = q.Id,
+                                    IsSystem = q.IsSystem,
+                                    Name = q.Name,
+                                    CreateTime = q.CreateTime,
+                                    UpdateTime = q.UpdateTime
+                                };
+                    vm = query.FirstOrDefault();
                 }
                 if (vm != null) this.roleCache.Set(id, vm);
             }
@@ -119,35 +115,31 @@ namespace AfxDotNetCoreSample.Repository
         public virtual PageDataOutputDto<RoleDto> GetPage(RolePageInputDto vm)
         {
             PageDataOutputDto<RoleDto> pageData = null;
-            using(var db = this.GetContext())
+            using (var db = this.GetContext())
             {
-                using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                var query = from q in db.Role
+                            where q.IsDelete == false
+                            select new RoleDto
+                            {
+                                Id = q.Id,
+                                IsSystem = q.IsSystem,
+                                Name = q.Name,
+                                CreateTime = q.CreateTime,
+                                UpdateTime = q.UpdateTime
+                            };
+
+                if (!string.IsNullOrEmpty(vm.Id))
                 {
-                    var query = from q in db.Role
-                                where q.IsDelete == false
-                                select new RoleDto
-                                {
-                                    Id = q.Id,
-                                    IsSystem = q.IsSystem,
-                                    Name = q.Name,
-                                    CreateTime = q.CreateTime,
-                                    UpdateTime = q.UpdateTime
-                                };
-
-                    if (!string.IsNullOrEmpty(vm.Id))
-                    {
-                        query = query.Where(q => q.Id == vm.Id);
-                    }
-
-                    if (!string.IsNullOrEmpty(vm.Keyword))
-                    {
-                        var value = vm.Keyword.DbLike(DbLikeType.All);
-                        query = query.Where(q => EF.Functions.Like(q.Name, value));
-                    }
-
-                    pageData = query.ToPage(vm);
-                    db.Commit();
+                    query = query.Where(q => q.Id == vm.Id);
                 }
+
+                if (!string.IsNullOrEmpty(vm.Keyword))
+                {
+                    var value = vm.Keyword.DbLike(DbLikeType.All);
+                    query = query.Where(q => EF.Functions.Like(q.Name, value));
+                }
+
+                pageData = query.ToPage(vm);
             }
 
             return pageData;

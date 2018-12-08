@@ -21,13 +21,10 @@ namespace AfxDotNetCoreSample.Repository
             list = this.cache.Get(roleId);
             if(list == null)
             {
-                using(var db = this.GetContext())
+                using (var db = this.GetContext())
                 {
-                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
-                    {
-                        list = db.RoleWebMenu.Where(q => q.RoleId == roleId).Select(q => q.WebMenuId).ToList();
-                        db.Commit();
-                    }
+                    list = db.RoleWebMenu.Where(q => q.RoleId == roleId).Select(q => q.WebMenuId).ToList();
+
                     this.cache.Set(roleId, list);
                 }
             }

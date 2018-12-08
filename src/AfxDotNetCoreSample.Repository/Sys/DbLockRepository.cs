@@ -100,21 +100,17 @@ namespace AfxDotNetCoreSample.Repository
             bool result = false;
             using (var db = this.GetContext())
             {
-                using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                var now = DateTime.Now;
+                var m = db.SysDistributedLock.Where(q => q.Type == type && q.Key == key).FirstOrDefault();
+                if (m == null || m.Status != LockStatus.Lock
+                    || m.ExpireTime.HasValue && m.ExpireTime < now
+                    || m.Owner == owner)
                 {
-                    var now = DateTime.Now;
-                    var m = db.SysDistributedLock.Where(q => q.Type == type && q.Key == key).FirstOrDefault();
-                    if (m == null || m.Status != LockStatus.Lock
-                        || m.ExpireTime.HasValue && m.ExpireTime < now
-                        || m.Owner == owner)
-                    {
-                        result = false;
-                    }
-                    else
-                    {
-                        result = true;
-                    }
-                    db.Commit();
+                    result = false;
+                }
+                else
+                {
+                    result = true;
                 }
             }
 

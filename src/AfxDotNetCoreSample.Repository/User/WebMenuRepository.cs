@@ -21,25 +21,21 @@ namespace AfxDotNetCoreSample.Repository
             var list = this.cache.Get();
             if (list == null)
             {
-                using(var db = this.GetContext())
+                using (var db = this.GetContext())
                 {
-                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
-                    {
-                        var query = from q in db.WebMenu
-                                    select new WebMenuDto
-                                    {
-                                        Id = q.Id,
-                                        ParentId = q.ParentId,
-                                        Name = q.Name,
-                                        Order = q.Order,
-                                        PageUrl = q.PageUrl,
-                                        ImageUrl = q.ImageUrl,
-                                        IsMenu = q.IsMenu,
-                                        Description = q.Description
-                                    };
-                        list = query.ToList();
-                        db.Commit();
-                    }
+                    var query = from q in db.WebMenu
+                                select new WebMenuDto
+                                {
+                                    Id = q.Id,
+                                    ParentId = q.ParentId,
+                                    Name = q.Name,
+                                    Order = q.Order,
+                                    PageUrl = q.PageUrl,
+                                    ImageUrl = q.ImageUrl,
+                                    IsMenu = q.IsMenu,
+                                    Description = q.Description
+                                };
+                    list = query.ToList();
                     this.cache.Set(list);
                 }
             }

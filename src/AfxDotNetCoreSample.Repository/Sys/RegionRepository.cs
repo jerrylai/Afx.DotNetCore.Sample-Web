@@ -80,22 +80,18 @@ namespace AfxDotNetCoreSample.Repository
             RegionDto vm = this.regionCache.Get(id);
             if(vm == null)
             {
-                using(var db = this.GetContext())
+                using (var db = this.GetContext())
                 {
-                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
-                    {
-                        var query = from q in db.Region
-                                    where q.Id == id && q.IsDelete == false
-                                    select new RegionDto
-                                    {
-                                        Id = q.Id,
-                                        Name = q.Name,
-                                        Level = q.Level,
-                                        ParentId = q.ParentId
-                                    };
-                        vm = query.FirstOrDefault();
-                        db.Commit();
-                    }
+                    var query = from q in db.Region
+                                where q.Id == id && q.IsDelete == false
+                                select new RegionDto
+                                {
+                                    Id = q.Id,
+                                    Name = q.Name,
+                                    Level = q.Level,
+                                    ParentId = q.ParentId
+                                };
+                    vm = query.FirstOrDefault();
                 }
 
                 if (vm != null) this.regionCache.Set(id, vm);
@@ -111,14 +107,10 @@ namespace AfxDotNetCoreSample.Repository
             {
                 using (var db = this.GetContext())
                 {
-                    using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
-                    {
-                        var query = from q in db.Region
-                                    where q.ParentId == parentId && q.IsDelete == false
-                                    select q.Id;
-                        list = query.ToList();
-                        db.Commit();
-                    }
+                    var query = from q in db.Region
+                                where q.ParentId == parentId && q.IsDelete == false
+                                select q.Id;
+                    list = query.ToList();
                 }
 
                 this.regionChildCache.Set(parentId, list);
