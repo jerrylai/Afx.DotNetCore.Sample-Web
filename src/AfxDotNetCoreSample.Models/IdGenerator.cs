@@ -108,7 +108,7 @@ namespace AfxDotNetCoreSample.Models
             }
         }
 
-        public IdGenerator(DatabaseType type, string connectionString, string serverId = "1001", int cacheCount = 1000, int formatNum = 8)
+        public IdGenerator(DatabaseType type, string connectionString, string serverId = "1001", int cacheCount = 100, int formatNum = 8)
         {
             this.IsDisposed = true;
             if (type == DatabaseType.None) throw new ArgumentException($"{nameof(type)} is error!", nameof(type));
