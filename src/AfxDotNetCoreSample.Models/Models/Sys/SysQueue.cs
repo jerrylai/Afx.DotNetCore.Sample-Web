@@ -9,7 +9,7 @@ namespace AfxDotNetCoreSample.Models
     /// <summary>
     /// 系统队列表
     /// </summary>
-    public class SysQueue : IModel, IUpdateTime, ICreateTime
+    public class SysQueue : IModel, IUpdateTime, ICreateTime, IRowVersion
     {
         /// <summary>
         /// 主键
@@ -40,6 +40,10 @@ namespace AfxDotNetCoreSample.Models
         /// 过期时间
         /// </summary>
         public DateTime ExpireTime { set; get; }
+
+        [ConcurrencyCheck]
+        public int RowVersion { get; set; }
+
         /// <summary>
         /// 创建时间
         /// </summary>
@@ -48,6 +52,5 @@ namespace AfxDotNetCoreSample.Models
         /// 更新时间
         /// </summary>
         public DateTime UpdateTime { set; get; }
-        
     }
 }

@@ -13,6 +13,9 @@ using AfxDotNetCoreSample.Enums;
 
 namespace AfxDotNetCoreSample.Web
 {
+    /// <summary>
+    /// ioc加载， add by jerrylai@aliyun.com
+    /// </summary>
     public static class IocConfig
     {
         const string IOC_CONFIG_FILE = "Config/IocConfig.xml";
@@ -36,14 +39,22 @@ namespace AfxDotNetCoreSample.Web
             container.Register<AopLog>();
 
             container.Register(c => RedisUtils.Default);
-
+            //注册无缓存 单列模式
             container.Register<Afx.Cache.ICache>(EmptyCache.Default).Key(CacheType.None);
+            //注册进程缓存 单列模式
             container.Register<Afx.Cache.ICache>(new ProcCache()).Key(CacheType.Proc);
+            //注册redis缓存
             container.Register<Afx.Cache.ICache>(c => new RedisCache(RedisUtils.Default)).Key(CacheType.Redis);
-
+            //注册map 单列模式
             container.Register(new Afx.Map.MapFactory());
 
+            //注册id生成器 单列模式
+            container.Register<AfxDotNetCoreSample.Models.IIdGenerator>(new AfxDotNetCoreSample.Models.IdGenerator(ConfigUtils.DatabaseType,
+                ConfigUtils.ConnectionString, ConfigUtils.IdGeneratorServerId, ConfigUtils.IdGeneratorCount, ConfigUtils.IdGeneratorFormatNum));
+
+            //加载业务实现接口
             LoadAssembly(container);
+
             //注册同步锁
             container.Register<Dto.ISyncLock, Service.SyncLock>();
         }

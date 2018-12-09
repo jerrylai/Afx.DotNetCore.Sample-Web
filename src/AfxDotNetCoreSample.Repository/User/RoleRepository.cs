@@ -48,7 +48,7 @@ namespace AfxDotNetCoreSample.Repository
             int count = 0;
             var m = new Role
             {
-                Id = IdGenerator.Get<Role>(),
+                Id = this.GetIdentity<Role>(),
                 IsSystem = false,
                 IsDelete = false,
                 Name = vm.Name

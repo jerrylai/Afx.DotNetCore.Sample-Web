@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AfxDotNetCoreSample.Models
 {
-    public interface IIsDelete
+    public interface IIsDelete : IModel
     {
         bool IsDelete { get; set; }
     }

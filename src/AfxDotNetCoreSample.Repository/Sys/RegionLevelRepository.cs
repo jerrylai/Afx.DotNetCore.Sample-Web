@@ -54,7 +54,7 @@ namespace AfxDotNetCoreSample.Repository
             if (!string.IsNullOrEmpty(parentId))
             {
                 var list = this.GetList(parentId);
-                var idqueue = new Queue<string>(IdGenerator.GetList<RegionLevel>(list.Count));
+                var idqueue = new Queue<string>(this.GetIdentityList<RegionLevel>(list.Count));
                 foreach (var vm in list)
                 {
                     var pm = new RegionLevel
@@ -69,7 +69,7 @@ namespace AfxDotNetCoreSample.Repository
             }
             var m = new RegionLevel
             {
-                Id = IdGenerator.Get<RegionLevel>(),
+                Id = this.GetIdentity<RegionLevel>(),
                 RegionId = regionId,
                 ParentId = regionId,
                 ParentLevel = level

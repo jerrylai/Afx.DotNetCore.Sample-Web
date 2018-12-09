@@ -41,7 +41,7 @@ namespace AfxDotNetCoreSample.Repository
                 {
                     if (addWebMenuIdList != null && addWebMenuIdList.Count > 0)
                     {
-                        var idqueue = new Queue<string>(IdGenerator.GetList<RoleWebMenu>(addWebMenuIdList.Count));
+                        var idqueue = new Queue<string>(this.GetIdentityList<RoleWebMenu>(addWebMenuIdList.Count));
                         foreach (var webMenuId in addWebMenuIdList)
                         {
                             var m = new RoleWebMenu()

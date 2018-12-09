@@ -32,56 +32,54 @@ namespace AfxDotNetCoreSample.Repository
             bool result = false;
             using (var db = this.GetContext())
             {
-                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
+                string id = null;
+                using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
                 {
-                    var now = DateTime.Now;
-                    var m = db.SysDistributedLock.Where(q => q.Type == type && q.Key == key).FirstOrDefault();
-                    if (m != null && (m.Status != LockStatus.Lock
-                        || m.Owner == owner || m.ExpireTime < now))
-                    {
-                        string updateSql = $"update SysDistributedLock set {db.GetColumn("Status")} = {{0}},"
-                            + $" {db.GetColumn("Owner")} = {{1}}, {db.GetColumn("ExpireTime")} = {{2}}, UpdateTime = {{3}}"
-                            + " where Id = {4} and ("
-                            + $"{db.GetColumn("Status")} <> {{5}} or {db.GetColumn("Owner")} = {{6}}"
-                            + $" or {db.GetColumn("ExpireTime")} is not null and {db.GetColumn("ExpireTime")} < {{7}})";
-                        object[] param = new object[8];
-                        param[0] = LockStatus.Lock.GetValue();
-                        param[1] = owner;
-                        param[2] = null;
-                        if (timeout.HasValue) param[2] = now.Add(timeout.Value);
-                        param[3] = now;
-                        param[4] = m.Id;
-                        param[5] = LockStatus.Lock.GetValue();
-                        param[6] = owner;
-                        param[7] = now;
-
-                        int count = db.ExecuteSqlCommand(updateSql, param);
-                        result = count > 0;
-                    }
-                    else if (m == null)
-                    {
-                        m = new SysDistributedLock()
-                        {
-                            Id = IdGenerator.Get<SysDistributedLock>(),
-                            Type = type,
-                            Key = key,
-                            Status = LockStatus.Lock,
-                            Owner = owner,
-                            ExpireTime = null
-                        };
-                        if (timeout.HasValue) m.ExpireTime = now.Add(timeout.Value);
-                        db.SysDistributedLock.Add(m);
-                        try
-                        {
-                            db.SaveChanges();
-                            result = true;
-                        }
-                        catch (Exception ex)
-                        {
-                            Common.LogUtils.Warn("【DbLock】", ex);
-                        }
-                    }
+                    id = db.SysDistributedLock.Where(q => q.Type == type && q.Key == key).Select(q => q.Id).FirstOrDefault();
                     db.Commit();
+                }
+
+                var now = DateTime.Now;
+                SysDistributedLock m = null;
+                if (!string.IsNullOrEmpty(id)) m = db.SysDistributedLock.Where(q => q.Id == id).FirstOrDefault();
+                if (m != null && (m.Status != LockStatus.Lock
+                    || m.Owner == owner || m.ExpireTime < now))
+                {
+                    var state = db.Entry(m);
+                    m.Status = LockStatus.Lock;
+                    state.Property<LockStatus>(nameof(m.Status)).IsModified = true;
+                    m.Owner = owner;
+                    state.Property<string>(nameof(m.Owner)).IsModified = true;
+                    if (timeout.HasValue) m.ExpireTime = now.Add(timeout.Value);
+                    else m.ExpireTime = null;
+                    state.Property<DateTime?>(nameof(m.ExpireTime)).IsModified = true;
+
+                    int count = db.SaveChanges();
+
+                    result = count > 0;
+                }
+                else if (m == null)
+                {
+                    m = new SysDistributedLock()
+                    {
+                        Id = this.GetIdentity<SysDistributedLock>(),
+                        Type = type,
+                        Key = key,
+                        Status = LockStatus.Lock,
+                        Owner = owner,
+                        ExpireTime = null
+                    };
+                    if (timeout.HasValue) m.ExpireTime = now.Add(timeout.Value);
+                    db.SysDistributedLock.Add(m);
+                    try
+                    {
+                        int count = db.SaveChanges();
+                        result = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Common.LogUtils.Warn("【DbLock】", ex);
+                    }
                 }
             }
 
@@ -100,17 +98,20 @@ namespace AfxDotNetCoreSample.Repository
             bool result = false;
             using (var db = this.GetContext())
             {
-                var now = DateTime.Now;
-                var m = db.SysDistributedLock.Where(q => q.Type == type && q.Key == key).FirstOrDefault();
-                if (m == null || m.Status != LockStatus.Lock
-                    || m.ExpireTime.HasValue && m.ExpireTime < now
-                    || m.Owner == owner)
+                string id = null;
+                using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
                 {
-                    result = false;
+                    id = db.SysDistributedLock.Where(q => q.Type == type && q.Key == key).Select(q=>q.Id).FirstOrDefault();
+                    db.Commit();
                 }
-                else
+                if (!string.IsNullOrEmpty(id))
                 {
-                    result = true;
+                    var m = db.SysDistributedLock.Where(q => q.Id == id).FirstOrDefault();
+                    if(m != null && m.Status == LockStatus.Lock && m.Owner != owner
+                        && (!m.ExpireTime.HasValue || m.ExpireTime > DateTime.Now))
+                    {
+                        result = true;
+                    }
                 }
             }
 
@@ -127,10 +128,16 @@ namespace AfxDotNetCoreSample.Repository
         {
             using (var db = this.GetContext())
             {
-                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
+                string id = null;
+                using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                {
+                    id = db.SysDistributedLock.Where(q => q.Type == type && q.Key == key).Select(q => q.Id).FirstOrDefault();
+                    db.Commit();
+                }
+                if(!string.IsNullOrEmpty(id))
                 {
                     var now = DateTime.Now;
-                    var m = db.SysDistributedLock.Where(q => q.Type == type && q.Key == key).FirstOrDefault();
+                    var m = db.SysDistributedLock.Where(q => q.Id == id).FirstOrDefault();
                     if (m != null)
                     {
                         m.Status = LockStatus.UnLock;
@@ -138,7 +145,6 @@ namespace AfxDotNetCoreSample.Repository
                         m.ExpireTime = now;
                         db.SaveChanges();
                     }
-                    db.Commit();
                 }
             }
         }
@@ -156,17 +162,22 @@ namespace AfxDotNetCoreSample.Repository
         {
             using (var db = this.GetContext())
             {
-                using (db.BeginTransaction(IsolationLevel.ReadCommitted))
+                string id = null;
+                using (db.BeginTransaction(IsolationLevel.ReadUncommitted))
+                {
+                    id = db.SysDistributedLock.Where(q => q.Type == type && q.Key == key).Select(q => q.Id).FirstOrDefault();
+                    db.Commit();
+                }
+                if (!string.IsNullOrEmpty(id))
                 {
                     var now = DateTime.Now;
-                    var m = db.SysDistributedLock.Where(q => q.Type == type && q.Key == key).FirstOrDefault();
+                    var m = db.SysDistributedLock.Where(q => q.Id == id).FirstOrDefault();
                     if (m != null && m.Owner == owner && m.Status == LockStatus.Lock)
                     {
                         if (timeout.HasValue) m.ExpireTime = now.Add(timeout.Value);
                         else m.ExpireTime = null;
                         db.SaveChanges();
                     }
-                    db.Commit();
                 }
             }
         }

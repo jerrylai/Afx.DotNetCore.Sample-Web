@@ -80,7 +80,7 @@ namespace AfxDotNetCoreSample.Repository
                         {
                             m = new SysConfig()
                             {
-                                Id = IdGenerator.Get<SysConfig>(),
+                                Id = this.GetIdentity<SysConfig>(),
                                 Type = type,
                                 Name = key
                             };

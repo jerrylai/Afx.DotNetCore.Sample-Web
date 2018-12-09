@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AfxDotNetCoreSample.Models
 {
-    public interface IUpdateTime
+    public interface IUpdateTime : IModel
     {
         DateTime UpdateTime { get; set; }
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AfxDotNetCoreSample.Models
 {
-    public interface ICreateTime
+    public interface ICreateTime : IModel
     {
         DateTime CreateTime { get; set; }
     }

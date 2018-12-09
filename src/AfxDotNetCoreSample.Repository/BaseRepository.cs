@@ -14,7 +14,41 @@ namespace AfxDotNetCoreSample.Repository
 {
     public abstract class BaseRepository: IBaseRepository
     {
+        private IIdGenerator m_idGenerator;
+        protected virtual IIdGenerator idGenerator
+        {
+            get
+            {
+                if(this.m_idGenerator == null)
+                {
+                    this.m_idGenerator = IocUtils.Get<IIdGenerator>();
+                }
+
+                return this.m_idGenerator;
+            }
+        }
+
         protected virtual AfxContext GetContext() => new AfxContext();
+
+        protected virtual string GetIdentity<T>() where T : class, IModel
+        {
+            return this.idGenerator.Get<T>();
+        }
+
+        protected virtual string GetIdentity(Type type)
+        {
+            return this.idGenerator.Get(type);
+        }
+
+        protected virtual List<string> GetIdentityList<T>(int count) where T : class, IModel
+        {
+            return this.idGenerator.GetList<T>(count);
+        }
+
+        protected virtual List<string> GetIdentityList(Type type, int count)
+        {
+            return this.idGenerator.GetList(type, count);
+        }
 
         private Dictionary<Type, IBaseCache> cacheDic = new Dictionary<Type, IBaseCache>(5);
         protected virtual T GetCache<T>(string name, object[] args) where T : IBaseCache
@@ -74,6 +108,7 @@ namespace AfxDotNetCoreSample.Repository
 
         public virtual void Dispose()
         {
+            this.m_idGenerator = null;
             if (this.cacheDic != null)
             {
                 foreach (var kv in this.cacheDic)

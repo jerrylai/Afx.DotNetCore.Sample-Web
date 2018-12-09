@@ -25,7 +25,7 @@ namespace AfxDotNetCoreSample.Repository
                         {
                             m = new RoleWebMenu()
                             {
-                                Id = IdGenerator.Get<RoleWebMenu>(),
+                                Id = this.GetIdentity<RoleWebMenu>(),
                                 RoleId = kv.Key,
                                 WebMenuId = webmenuId
                             };

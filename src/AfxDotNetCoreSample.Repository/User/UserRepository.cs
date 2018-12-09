@@ -194,7 +194,7 @@ namespace AfxDotNetCoreSample.Repository
             int count = 0;
             var m = new User()
             {
-                Id = IdGenerator.Get<User>(),
+                Id = this.GetIdentity<User>(),
                 Account = vm.Account.ToLower(),
                 Name = vm.Name,
                 RoleId = vm.RoleId,

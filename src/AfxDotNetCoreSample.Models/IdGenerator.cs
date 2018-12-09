@@ -7,17 +7,63 @@ using Afx.Data;
 using Afx.Threading;
 using System.Linq;
 using AfxDotNetCoreSample.Enums;
-using AfxDotNetCoreSample.Common;
 
 namespace AfxDotNetCoreSample.Models
 {
     /// <summary>
-    /// id 生成器
+    /// 分布式id生成器接口 add by jerrylai@liyun.com
     /// </summary>
-    public static class IdGenerator
+    public interface IIdGenerator : IDisposable
+    {
+        DatabaseType DatabaseType { get; }
+        string ConnectionString { get; }
+        int CacheCount { get; }
+        string ServerId { get; }
+        int FormatNum { get; }
+        bool IsDisposed { get; }
+
+        /// <summary>
+        /// 获取id
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        string Get<T>() where T : class, IModel;
+
+        /// <summary>
+        /// 获取id
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        string Get(Type type);
+
+        /// <summary>
+        /// 获取id
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        List<string> GetList<T>(int count) where T : class, IModel;
+
+        /// <summary>
+        /// 批量获取id
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="count">获取个数</param>
+        /// <returns></returns>
+        List<string> GetList(Type type, int count);
+    }
+
+    /// <summary>
+    /// 分布式id生成器 add by jerrylai@liyun.com
+    /// </summary>
+    /// <summary>
+    /// 分布式id生成器 add by jerrylai@liyun.com
+    /// </summary>
+    public sealed class IdGenerator : IIdGenerator, IDisposable
     {
         class IdInfoModel
         {
+            public string Id { get; set; }
+
             public string Key { get; set; }
 
             public object LockObj { get; private set; }
@@ -32,152 +78,196 @@ namespace AfxDotNetCoreSample.Models
             }
         }
 
-        public static int CacheCount => ConfigUtils.IdGeneratorCount;
-        public static string ServerId => ConfigUtils.IdGeneratorServerId;
+        public DatabaseType DatabaseType { get; private set; }
+        public string ConnectionString { get; private set; }
+        public int CacheCount { get; private set; }
+        public string ServerId { get; private set; }
+        public int FormatNum { get; private set; }
+        public bool IsDisposed { get; private set; }
 
-        public static int FormatNum => ConfigUtils.IdGeneratorFormatNum;
+        private ReadWriteLock rwLock;
+        private Dictionary<string, IdInfoModel> dic;
+        private IdInfoModel sequenceModel;
+        private readonly string selectIdSQL;
+        private readonly string updateSQL;
+        private readonly string upSelectSQL;
+        private readonly string insertSQL;
 
-        private static ReadWriteLock rwLock = new ReadWriteLock();
-        private static Dictionary<string, IdInfoModel> dic = new Dictionary<string, IdInfoModel>(StringComparer.OrdinalIgnoreCase);
-
-
-        private static IDatabase GetDb()
+        public void Dispose()
         {
-            if(string.IsNullOrEmpty(ConfigUtils.ConnectionString))
+            if (!this.IsDisposed)
             {
-                throw new Exception("【IdGenerator】ConnectionString 不能为空！");
+                this.IsDisposed = true;
+                this.ConnectionString = null;
+                this.ServerId = null;
+                if (this.dic != null) this.dic.Clear();
+                this.dic = null;
+                if (this.rwLock != null) this.rwLock.Dispose();
+                this.rwLock = null;
+                this.sequenceModel = null;
             }
-            IDatabase db = null;
-            switch (ConfigUtils.DatabaseType)
+        }
+
+        public IdGenerator(DatabaseType type, string connectionString, string serverId = "1001", int cacheCount = 1000, int formatNum = 8)
+        {
+            this.IsDisposed = true;
+            if (type == DatabaseType.None) throw new ArgumentException($"{nameof(type)} is error!", nameof(type));
+            if (string.IsNullOrEmpty(connectionString)) throw new ArgumentNullException(nameof(connectionString));
+            if (string.IsNullOrEmpty(serverId)) throw new ArgumentNullException(nameof(connectionString));
+            if (0 >= cacheCount) throw new ArgumentException($"{nameof(cacheCount)} is error!", nameof(cacheCount));
+            if (0 > formatNum) throw new ArgumentException($"{nameof(formatNum)} is error!", nameof(formatNum));
+            this.IsDisposed = false;
+            this.rwLock = new ReadWriteLock();
+            this.dic = new Dictionary<string, IdInfoModel>();
+            this.DatabaseType = type;
+            this.ConnectionString = connectionString;
+            this.ServerId = serverId;
+            this.CacheCount = cacheCount;
+            this.FormatNum = formatNum;
+            this.sequenceModel = new IdInfoModel() { Id = serverId, Key = serverId, StratValue = 0, EndValue = 0 };
+
+            switch (type)
             {
                 case DatabaseType.MSSQLServer:
-                    db = new Afx.Data.MSSQLServer.MsSqlDatabase(ConfigUtils.ConnectionString);
+                    selectIdSQL = "SELECT [Id] FROM [SysSequence] WHERE [Name] = @Name AND [Key] = @Key;";
+
+                    updateSQL = "UPDATE [SysSequence] SET [Value] = [Value] + @Count, [UpdateTime] = @Now WHERE [Id] = @Id;";
+                    upSelectSQL = "SELECT [Value] FROM [SysSequence] WHERE [Id] = @Id;";
+
+                    insertSQL = "INSERT INTO [SysSequence]([Id], [Name], [Key], [Value], [UpdateTime], [CreateTime]) VALUES(@Id, @Name, @Key, @Value, @UpdateTime, @CreateTime);";
                     break;
                 case DatabaseType.MySQL:
-                    db = new Afx.Data.MySql.MySqlDatabase(ConfigUtils.ConnectionString);
+                    selectIdSQL = "SELECT `Id` FROM `SysSequence` WHERE `Name` = @Name AND `Key` = @Key;";
+
+                    updateSQL = "UPDATE `SysSequence` SET `Value` = `Value` + @Count, `UpdateTime` = @Now WHERE `Id` = @Id;";
+                    upSelectSQL = "SELECT `Value` FROM `SysSequence` WHERE `Id` = @Id;";
+
+                    insertSQL = "INSERT INTO `SysSequence`(`Id`, `Name`, `Key`, `Value`, `UpdateTime`, `CreateTime`) VALUES(@Id, @Name, @Key, @Value, @UpdateTime, @CreateTime);";
                     break;
                 default:
-                    throw new Exception($"【IdGenerator】不支持 {ConfigUtils.DatabaseType} 数据库！");
+                    throw new Exception($"不支持 {this.DatabaseType} 数据库！");
             }
-
-            return db;
         }
 
-        private static string _updateSql;
-        private static string GetUpdateSql(IDatabase db)
+        private IDatabase GetDb()
         {
-            if (string.IsNullOrEmpty(_updateSql))
+            switch (this.DatabaseType)
             {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("update ");
-                sql.Append(db.EncodeColumn("SysSequence"));
-                sql.Append(" set ");
-                sql.Append(db.EncodeColumn("Value"));
-                sql.Append(" = ");
-                sql.Append(db.EncodeColumn("Value"));
-                sql.Append(" + @Value, ");
-                sql.Append(db.EncodeColumn("UpdateTime"));
-                sql.Append(" = @UpdateTime  where ");
-                sql.Append(db.EncodeColumn("Name"));
-                sql.Append(" = @Name and ");
-                sql.Append(db.EncodeColumn("Key"));
-                sql.Append(" = @Key");
-
-                _updateSql = sql.ToString();
+                case DatabaseType.MSSQLServer:
+                    return new Afx.Data.MSSQLServer.MsSqlDatabase(this.ConnectionString);
+                case DatabaseType.MySQL:
+                    return new MySQLDatabase(this.ConnectionString);
+                default:
+                    throw new Exception($"不支持 {this.DatabaseType} 数据库！");
             }
-
-            return _updateSql;
         }
 
-        private static string _insertSql;
-        private static string GetInsertSql(IDatabase db)
-        {
-            if (string.IsNullOrEmpty(_insertSql))
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("insert into ");
-                sql.Append(db.EncodeColumn("SysSequence"));
-                sql.Append("(");
-                sql.Append(db.EncodeColumn("Id"));
-                sql.Append(", ");
-                sql.Append(db.EncodeColumn("Name"));
-                sql.Append(", ");
-                sql.Append(db.EncodeColumn("Key"));
-                sql.Append(", ");
-                sql.Append(db.EncodeColumn("Value"));
-                sql.Append(", ");
-                sql.Append(db.EncodeColumn("UpdateTime"));
-                sql.Append(", ");
-                sql.Append(db.EncodeColumn("CreateTime"));
-                sql.Append(") values(@Id, @Name, @Key, @Value, @UpdateTime, @CreateTime)");
-
-                _insertSql = sql.ToString();
-            }
-
-            return _insertSql;
-        }
-
-        private static string _selectSql;
-        private static string GetSelectSql(IDatabase db)
-        {
-            if (string.IsNullOrEmpty(_selectSql))
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("select ");
-                sql.Append(db.EncodeColumn("Value"));
-                sql.Append(" from ");
-                sql.Append(db.EncodeColumn("SysSequence"));
-                sql.Append(" where ");
-                sql.Append(db.EncodeColumn("Name"));
-                sql.Append(" = @Name and ");
-                sql.Append(db.EncodeColumn("Key"));
-                sql.Append(" = @Key");
-
-                _selectSql = sql.ToString();
-            }
-
-            return _selectSql;
-        }
-
-        private static int GetDbValue(string name, string key, int count)
+        private string GetIdentity(IDatabase db)
         {
             int value = 0;
+            lock (this.sequenceModel.LockObj)
+            {
+                if (this.sequenceModel.StratValue >= this.sequenceModel.EndValue)
+                {
+                    int count = 10;
+                    this.sequenceModel.EndValue = this.UpdateValue(db, this.ServerId, count);
+                    if (this.sequenceModel.EndValue <= 0)
+                    {
+                        var now = DateTime.Now;
+                        var m = new SysSequence { Id = this.ServerId, Name = "0", Key = "0", Value = count, UpdateTime = now, CreateTime = now };
+                        try
+                        {
+                            var c = db.ExecuteNonQuery(this.insertSQL, m);
+                            this.sequenceModel.EndValue = count;
+                        }
+                        catch (Exception ex)
+                        {
+                            this.sequenceModel.EndValue = this.UpdateValue(db, this.ServerId, count);
+                        }
+                    }
+                    this.sequenceModel.StratValue = this.sequenceModel.EndValue - count;
+                }
+                this.sequenceModel.StratValue = this.sequenceModel.StratValue + 1;
+                value = this.sequenceModel.StratValue;
+            }
+
+            return string.Format("{0}{1:D8}", this.ServerId, value);
+        }
+
+        private string GetId(IDatabase db, string name, string key)
+        {
+            string id = null;
+            using (db.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))
+            {
+                id = db.ExecuteScalar<string>(this.selectIdSQL, new { Name = name, Key = key });
+                db.Commit();
+            }
+
+            return id;
+        }
+
+        private int UpdateValue(IDatabase db, string id, int count)
+        {
+            int value = -1;
+            using (db.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
+            {
+                int c = db.ExecuteNonQuery(this.updateSQL, new { Count = count, Now = DateTime.Now, Id = id });
+                if (c > 0)
+                {
+                    value = db.ExecuteScalar<int>(upSelectSQL, new { Id = id });
+                }
+                db.Commit();
+            }
+
+            return value;
+        }
+
+        private string InsertVaule(IDatabase db, string name, string key, int count)
+        {
+            string id = null;
+            var now = DateTime.Now;
+            var m = new SysSequence { Name = name, Key = key, Value = count, UpdateTime = now, CreateTime = now };
+            m.Id = this.GetIdentity(db);
+            try
+            {
+                var c = db.ExecuteNonQuery(this.insertSQL, m);
+                id = m.Id;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return id;
+        }
+
+        private int GetDbValue(string name, string key, int count, ref string id)
+        {
+            int value = -1;
 
             using (var db = GetDb())
             {
-                using (db.BeginTransaction())
+                if (string.IsNullOrEmpty(id)) id = GetId(db, name, key);
+                if (string.IsNullOrEmpty(id))
                 {
-                    var sql = GetUpdateSql(db);
-                    var now = DateTime.Now;
-                    var m = new SysSequence { Value = count, UpdateTime = now, Name = name, Key = key };
-                    int c = db.ExecuteNonQuery(sql, m);
-                    if (c == 0)
+                    id = InsertVaule(db, name, key, count);
+                    if (!string.IsNullOrEmpty(id))
                     {
-                        try
-                        {
-                            m.Id = Guid.NewGuid().ToString("n");
-                            m.CreateTime = now;
-                            sql = GetInsertSql(db);
-                            c = db.ExecuteNonQuery(sql.ToString(), m);
-                        }
-                        catch
-                        {
-                            sql = GetUpdateSql(db);
-                            c = db.ExecuteNonQuery(sql.ToString(), m);
-                        }
+                        value = count;
                     }
+                }
 
-                    sql = GetSelectSql(db);
-                    value = db.ExecuteScalar<int>(sql, m);
-
-                    db.Commit();
+                if (value <= 0)
+                {
+                    if (string.IsNullOrEmpty(id)) id = GetId(db, name, key);
+                    value = UpdateValue(db, id, count);
                 }
             }
 
             return value;
         }
 
-        private static int GetValue(string name, string key, int count)
+        private int GetValue(string name, string key, int count)
         {
             int value = 0;
             IdInfoModel vm = null;
@@ -203,23 +293,26 @@ namespace AfxDotNetCoreSample.Models
                     }
                 }
             }
-            
+
             lock (vm.LockObj)
             {
+                string id = vm.Id;
                 if (string.Equals(vm.Key, key, StringComparison.OrdinalIgnoreCase))
                 {
                     int c = vm.EndValue - vm.StratValue;
                     if (c < count)
                     {
-                        vm.EndValue = GetDbValue(name, key, CacheCount + count - c);
+                        vm.EndValue = GetDbValue(name, key, CacheCount + count - c, ref id);
                     }
                 }
                 else
                 {
-                    vm.EndValue = GetDbValue(name, key, CacheCount + count);
+                    id = null;
+                    vm.EndValue = GetDbValue(name, key, CacheCount + count, ref id);
                     vm.StratValue = vm.EndValue - CacheCount - count;
                     vm.Key = key;
                 }
+                vm.Id = id;
                 vm.StratValue = vm.StratValue + count;
                 value = vm.StratValue;
             }
@@ -227,21 +320,21 @@ namespace AfxDotNetCoreSample.Models
             return value;
         }
 
-        private static string GetName(Type type)
+        private string GetName(Type type)
         {
             return type.Name;
         }
 
-        private static string GetKey(string name)
+        private string GetKey(string name)
         {
             string key = $"{DateTime.Now.ToString("yyyyMMdd")}{ServerId}";
 
             return key;
         }
 
-        private static string FormatId(string key, int value)
+        private string FormatId(string key, int value)
         {
-            string format = "{0}{1:D" + FormatNum + "}";
+            string format = "{0}{1:D" + (this.FormatNum > 1 ? this.FormatNum.ToString() : "") + "}";
             string id = string.Format(format, key, value);
 
             return id;
@@ -252,7 +345,7 @@ namespace AfxDotNetCoreSample.Models
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string Get<T>() where T : class, IModel
+        public string Get<T>() where T : class, IModel
         {
             return Get(typeof(T));
         }
@@ -262,12 +355,14 @@ namespace AfxDotNetCoreSample.Models
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string Get(Type type)
+        public string Get(Type type)
         {
-            string id = null;
+            if (this.IsDisposed) throw new ObjectDisposedException(nameof(IdGenerator));
             if (type == null) throw new ArgumentNullException(nameof(type));
-            if (!typeof(IModel).IsAssignableFrom(type)) throw new ArgumentException($"{type.FullName} is not IModel!");
+            if (!type.IsClass) throw new ArgumentException($"{type.FullName} is not class!", nameof(type));
+            if (!typeof(IModel).IsAssignableFrom(type)) throw new ArgumentException($"{type.FullName} is not IModel!", nameof(type));
 
+            string id = null;
             string name = GetName(type);
             string key = GetKey(name);
             int value = GetValue(name, key, 1);
@@ -282,26 +377,34 @@ namespace AfxDotNetCoreSample.Models
         /// <typeparam name="T"></typeparam>
         /// <param name="count">获取个数</param>
         /// <returns></returns>
-        public static List<string> GetList<T>(int count) where T : class, IModel
+        public List<string> GetList<T>(int count) where T : class, IModel
         {
-            if (count <= 0) count = 0;
-            List<string> list = null;
-            if (count > 0)
+            return this.GetList(typeof(T), count);
+        }
+
+        /// <summary>
+        /// 批量获取id
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="count">获取个数</param>
+        /// <returns></returns>
+        public List<string> GetList(Type type, int count)
+        {
+            if (this.IsDisposed) throw new ObjectDisposedException(nameof(IdGenerator));
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (count <= 0) throw new ArgumentException($"{nameof(count)}({count}) is error!", nameof(count));
+            if (!type.IsClass) throw new ArgumentException($"{type.FullName} is not class!", nameof(type));
+            if (!typeof(IModel).IsAssignableFrom(type)) throw new ArgumentException($"{type.FullName} is not IModel!", nameof(type));
+
+            List<string> list = new List<string>(count);
+            string name = GetName(type);
+            string key = GetKey(name);
+            int value = GetValue(name, key, count);
+            list = new List<string>(count);
+            for (int i = value - count + 1; i <= value; i++)
             {
-                var t = typeof(T);
-                string name = GetName(t);
-                string key = GetKey(name);
-                int value = GetValue(name, key, count);
-                list = new List<string>(count);
-                for (int i = value - count + 1; i <= value; i++)
-                {
-                    string id = FormatId(key, i);
-                    list.Add(id);
-                }
-            }
-            else
-            {
-                list = new List<string>(0);
+                string id = FormatId(key, i);
+                list.Add(id);
             }
 
             return list;

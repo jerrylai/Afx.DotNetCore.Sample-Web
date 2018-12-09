@@ -134,11 +134,22 @@ namespace AfxDotNetCoreSample.Models
                             {
                                 (m.Entity as IUpdateTime).UpdateTime = now;
                             }
+
+                            if (m.Entity is IRowVersion)
+                            {
+                                (m.Entity as IRowVersion).RowVersion = 1;
+                            }
                             break;
                         case EntityState.Modified:
                             if (m.Entity is IUpdateTime)
                             {
                                 (m.Entity as IUpdateTime).UpdateTime = now;
+                            }
+
+                            if(m.Entity is IRowVersion)
+                            {
+                                var row = (m.Entity as IRowVersion);
+                                row.RowVersion = row.RowVersion + 1;
                             }
                             break;
                         case EntityState.Deleted:

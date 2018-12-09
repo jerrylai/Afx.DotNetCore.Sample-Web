@@ -26,7 +26,7 @@ namespace AfxDotNetCoreSample.Repository
             int count = 0;
             Region m = new Region()
             {
-                Id = IdGenerator.Get<Region>(),
+                Id = this.GetIdentity<Region>(),
                 Name = vm.Name,
                 Level = vm.Level,
                 ParentId = vm.ParentId,

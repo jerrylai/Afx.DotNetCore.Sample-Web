@@ -9,7 +9,7 @@ namespace AfxDotNetCoreSample.Models
     /// <summary>
     /// 分布式锁
     /// </summary>
-    public class SysDistributedLock : IModel, IUpdateTime, ICreateTime
+    public class SysDistributedLock : IModel, IUpdateTime, ICreateTime, IRowVersion
     {
         /// <summary>
         /// 主键
@@ -43,6 +43,10 @@ namespace AfxDotNetCoreSample.Models
         /// 
         /// </summary>
         public DateTime? ExpireTime { get; set; }
+
+        [ConcurrencyCheck]
+        public int RowVersion { get; set; }
+
         /// <summary>
         /// 创建时间
         /// </summary>
