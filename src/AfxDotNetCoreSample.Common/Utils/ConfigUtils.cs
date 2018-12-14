@@ -163,6 +163,17 @@ namespace AfxDotNetCoreSample.Common
             }
         }
 
+        public static string DesIV
+        {
+            get
+            {
+                var s = GetValue("Encrypt:DesKey");
+                if (string.IsNullOrEmpty(s)) throw new ArgumentNullException("DesKey");
+                if (s.Length != 32) throw new ArgumentException("DesKey.Length is error!", "DesKey");
+                return s.Substring(24);
+            }
+        }
+
         #region Database
         public static bool InitDatabase
         {
