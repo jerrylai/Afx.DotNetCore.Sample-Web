@@ -17,7 +17,7 @@ namespace AfxDotNetCoreSample.Repository
     /// <summary>
     /// 分布式任务锁实现
     /// </summary>
-    public class DbLockRepository : BaseRepository, ITaskLockRepository
+    public class DbLockRepository : BaseRepository, IDistributedLockRepository
     {
         /// <summary>
         /// 尝试获取锁

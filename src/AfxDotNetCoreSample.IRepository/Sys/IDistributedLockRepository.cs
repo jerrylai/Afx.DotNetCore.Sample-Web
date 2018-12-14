@@ -9,7 +9,7 @@ namespace AfxDotNetCoreSample.IRepository
     /// <summary>
     /// 分布式任务锁接口
     /// </summary>
-    public interface ITaskLockRepository : IBaseRepository
+    public interface IDistributedLockRepository : IBaseRepository
     {
         /// <summary>
         /// 尝试获取锁

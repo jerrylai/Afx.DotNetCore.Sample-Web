@@ -121,230 +121,174 @@ namespace AfxDotNetCoreSample.Common
             get
             {
                 var s = GetValue("HostUrl");
-                if (string.IsNullOrEmpty(s)) s = "http://afx.com/";
+                if (string.IsNullOrEmpty(s)) throw new ArgumentNullException("HostUrl");
                 return s;
             }
         }
 
-        private static long _multipartBodyLengthLimit = 0;
         public static long MultipartBodyLengthLimit
         {
             get
             {
-                if (_multipartBodyLengthLimit == 0)
+                long length = 0;
+                var s = GetValue("MultipartBodyLengthLimit");
+                if (!long.TryParse(s, out length) || length < 1 * 1024 * 1024)
                 {
-                    long length = 0;
-                    var s = GetValue("MultipartBodyLengthLimit");
-                    if (!long.TryParse(s, out length) || length < 1 * 1024 * 1024)
-                    {
-                        length = 1 * 1024 * 1024;
-                    }
-                    _multipartBodyLengthLimit = length;
+                    length = 1 * 1024 * 1024;
                 }
 
-                return _multipartBodyLengthLimit;
+                return length;
             }
         }
 
-        private static string _redisConfig;
         public static string RedisConfig
         {
             get
             {
-                if (string.IsNullOrEmpty(_redisConfig))
-                {
-                    _redisConfig = GetValue("RedisConfig");
-                    if (string.IsNullOrEmpty(_redisConfig)) throw new ArgumentNullException("RedisConfig");
-                }
+                var s = GetValue("RedisConfig");
+                if (string.IsNullOrEmpty(s)) throw new ArgumentNullException("RedisConfig");
 
-                return _redisConfig;
+                return s;
             }
         }
 
-        private static string _desKey;
         public static string DesKey
         {
             get
             {
-                if (string.IsNullOrEmpty(_desKey))
-                {
-                    _desKey = GetValue("Encrypt:DesKey");
-                    if (string.IsNullOrEmpty(_desKey)) throw new ArgumentNullException("DesKey");
-                }
-
-                return _desKey;
+                var s = GetValue("Encrypt:DesKey");
+                if (string.IsNullOrEmpty(s)) throw new ArgumentNullException("DesKey");
+                if (s.Length != 32) throw new ArgumentException("DesKey.Length is error!", "DesKey");
+                return s.Substring(0, 24);
             }
         }
 
         #region Database
-        private static Nullable<bool> _initDatabase = null;
         public static bool InitDatabase
         {
             get
             {
-                if (!_initDatabase.HasValue)
+                bool temp = false;
+                string s = GetValue("Database:Init");
+                if (string.IsNullOrEmpty(s) || !bool.TryParse(s, out temp))
                 {
-                    bool temp = true;
-                    string s = GetValue("Database:Init");
-                    if (!string.IsNullOrEmpty(s) && bool.TryParse(s, out temp))
-                    {
-                        _initDatabase = temp;
-                    }
-                    else
-                    {
-                        _initDatabase = false;
-                    }
+                    temp = false;
                 }
 
-                return _initDatabase.Value;
+                return temp;
             }
         }
 
-        private static Nullable<bool> _isWriteSqlLog = null;
         public static bool IsWriteSqlLog
         {
             get
             {
-                if (!_isWriteSqlLog.HasValue)
+                bool temp = false;
+                string s = GetValue("Database:IsLog");
+                if (string.IsNullOrEmpty(s) || !bool.TryParse(s, out temp))
                 {
-                    bool temp = false;
-                    string s = GetValue("Database:IsLog");
-                    if (!string.IsNullOrEmpty(s) && bool.TryParse(s, out temp))
-                    {
-                        _isWriteSqlLog = temp;
-                    }
-                    else
-                    {
-                        _isWriteSqlLog = false;
-                    }
+                    temp = false;
                 }
 
-                return _isWriteSqlLog.Value;
+                return temp;
             }
         }
 
-        private static DatabaseType _databaseType = DatabaseType.None;
         public static DatabaseType DatabaseType
         {
             get
             {
-                if (_databaseType == DatabaseType.None)
+                DatabaseType databaseType = DatabaseType.None;
+                string s = GetValue("Database:Type");
+                if (string.IsNullOrEmpty(s) || !Enum.TryParse(s, true, out databaseType) || databaseType == DatabaseType.None)
                 {
-                    string s = GetValue("Database:Type");
-                    if (string.IsNullOrEmpty(s) || !Enum.TryParse(s, true, out _databaseType) || _databaseType == DatabaseType.None)
-                    {
-                        throw new ArgumentNullException("DatabaseType");
-                    }
+                    throw new ArgumentNullException("DatabaseType");
                 }
 
-                return _databaseType;
+                return databaseType;
             }
         }
 
-        private static string _connectionString = null;
         public static string ConnectionString
         {
             get
             {
-                if (string.IsNullOrEmpty(_connectionString))
+                string key = $"Database:{DatabaseType}";
+                var s = GetValue(key);
+                if (string.IsNullOrEmpty(s))
                 {
-                    string key = $"Database:{DatabaseType}";
-                    _connectionString = GetValue(key);
-                    if (string.IsNullOrEmpty(_connectionString))
-                    {
-                        throw new ArgumentNullException(key);
-                    }
+                    throw new ArgumentNullException(key);
                 }
 
-                return _connectionString;
+                return s;
             }
         }
         #endregion
 
         #region Cache
 
-        private static Nullable<CacheType> _cacheType = null;
         public static CacheType CacheType
         {
             get
             {
-                if (!_cacheType.HasValue)
+                var val = CacheType.None;
+                string s = GetValue("Cache:Type");
+                if (string.IsNullOrEmpty(s) || !Enum.TryParse(s, true, out val))
                 {
-                    var val = CacheType.None;
-                    string s = GetValue("Cache:Type");
-                    if (string.IsNullOrEmpty(s) ||  !Enum.TryParse(s, true, out val))
-                    {
-                        throw new ArgumentNullException("CacheType");
-                    }
-                    else
-                    {
-                        _cacheType = val;
-                    }
+                    throw new ArgumentNullException("CacheType");
                 }
 
-                return _cacheType.Value;
+                return val;
             }
         }
 
-        private static string _cachePrefix;
         public static string CachePrefix
         {
             get
             {
-                if (_cachePrefix == null)
-                {
-                    _cachePrefix = GetValue("Cache:Prefix") ?? "";
-                }
+                    var s = GetValue("Cache:Prefix") ?? "";
 
-                return _cachePrefix;
+                return s;
             }
         }
         #endregion
 
-        private static int _idGeneratorCount = 0;
         public static int IdGeneratorCount
         {
             get
             {
-                if(_idGeneratorCount == 0)
+                int val = 0;
+                var s = GetValue("IdGenerator:CacheCount");
+                if (int.TryParse(s, out val) || val <= 0)
                 {
-                    var s = GetValue("IdGenerator:CacheCount");
-                    if(int.TryParse(s, out _idGeneratorCount) || _idGeneratorCount <= 0)
-                    {
-                        _idGeneratorCount = 10;
-                    }
+                    val = 20;
                 }
-                return _idGeneratorCount;
+                return val;
             }
         }
 
-        private static string _idGeneratorServerId;
         public static string IdGeneratorServerId
         {
             get
             {
-                if (_idGeneratorServerId == null)
-                {
-                    _idGeneratorServerId = GetValue("IdGenerator:ServerId") ?? "";
-                }
-                return _idGeneratorServerId;
+                var s = GetValue("IdGenerator:ServerId");
+                if (string.IsNullOrEmpty(s)) s = "1001";
+
+                return s;
             }
         }
 
-        private static int _idGeneratorFormatNum = 0;
         public static int IdGeneratorFormatNum
         {
             get
             {
-                if (_idGeneratorFormatNum == 0)
+                int val = 0;
+                var s = GetValue("IdGenerator:FormatNum");
+                if (int.TryParse(s, out val) || val <= 0)
                 {
-                    var s = GetValue("IdGenerator:FormatNum");
-                    if (int.TryParse(s, out _idGeneratorFormatNum) || _idGeneratorFormatNum <= 0)
-                    {
-                        _idGeneratorFormatNum = 8;
-                    }
+                    val = 8;
                 }
-                return _idGeneratorFormatNum;
+                return val;
             }
         }
 

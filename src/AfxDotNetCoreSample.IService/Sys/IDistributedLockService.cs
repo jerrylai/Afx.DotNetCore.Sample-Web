@@ -11,7 +11,7 @@ namespace AfxDotNetCoreSample.IService
     /// <summary>
     /// 分布式任务锁业务接口
     /// </summary>
-    public interface ITaskLockService : IBaseService
+    public interface IDistributedLockService : IBaseService
     {
         /// <summary>
         /// 尝试获取锁

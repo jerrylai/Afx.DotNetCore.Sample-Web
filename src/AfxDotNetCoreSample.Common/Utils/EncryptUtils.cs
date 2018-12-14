@@ -9,25 +9,25 @@ namespace AfxDotNetCoreSample.Common
     {
         public static string Encrypt(string input)
         {
-            return Afx.Utils.DesUtils.Encrypt(input, ConfigUtils.DesKey,
+            return Afx.Utils.TripleDesUtils.Encrypt(input, ConfigUtils.DesKey, ConfigUtils.DesIV,
                 System.Security.Cryptography.CipherMode.CBC, System.Security.Cryptography.PaddingMode.PKCS7);
         }
 
         public static string Decrypt(string input)
         {
-            return Afx.Utils.DesUtils.Decrypt(input, ConfigUtils.DesKey,
+            return Afx.Utils.TripleDesUtils.Decrypt(input, ConfigUtils.DesKey, ConfigUtils.DesIV,
                 System.Security.Cryptography.CipherMode.CBC, System.Security.Cryptography.PaddingMode.PKCS7);
         }
 
         public static byte[] Encrypt(byte[] buffer)
         {
-            return Afx.Utils.DesUtils.Encrypt(buffer, ConfigUtils.DesKey,
+            return Afx.Utils.TripleDesUtils.Encrypt(buffer, ConfigUtils.DesKey, ConfigUtils.DesIV,
                 System.Security.Cryptography.CipherMode.CBC, System.Security.Cryptography.PaddingMode.PKCS7);
         }
 
         public static byte[] Decrypt(byte[] buffer)
         {
-            return Afx.Utils.DesUtils.Decrypt(buffer, ConfigUtils.DesKey,
+            return Afx.Utils.TripleDesUtils.Decrypt(buffer, ConfigUtils.DesKey, ConfigUtils.DesIV,
                 System.Security.Cryptography.CipherMode.CBC, System.Security.Cryptography.PaddingMode.PKCS7);
         }
 

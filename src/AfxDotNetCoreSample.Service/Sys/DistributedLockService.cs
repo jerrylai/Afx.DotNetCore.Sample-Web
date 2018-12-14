@@ -11,9 +11,9 @@ using AfxDotNetCoreSample.Common;
 
 namespace AfxDotNetCoreSample.Service
 {
-    public class TaskLockService : BaseService, ITaskLockService
+    public class DistributedLockService : BaseService, IDistributedLockService
     {
-        protected virtual ITaskLockRepository repository => this.GetRepository<ITaskLockRepository>();
+        protected virtual IDistributedLockRepository repository => this.GetRepository<IDistributedLockRepository>();
 
         private string FormatValue(string v, string name)
         {

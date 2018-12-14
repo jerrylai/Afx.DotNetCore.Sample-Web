@@ -12,7 +12,7 @@ namespace AfxDotNetCoreSample.Repository
     /// <summary>
     /// redis 分布式任务锁实现
     /// </summary>
-    public class RedisLockRepository : BaseRepository, ITaskLockRepository
+    public class RedisLockRepository : BaseRepository, IDistributedLockRepository
     {
         protected virtual IDistributedLockCache distributedLockCache => this.GetCache<IDistributedLockCache>();
         protected virtual IDistributedLockOwnerCache distributedLockOwnerCache => this.GetCache<IDistributedLockOwnerCache>();

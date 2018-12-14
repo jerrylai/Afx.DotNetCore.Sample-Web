@@ -156,10 +156,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Afx.AspNetCore.Mvc" Version="6.5.9" />
+    <PackageReference Include="Afx.AspNetCore.Mvc" Version="6.5.10" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" />
-    <!--<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" />-->
   </ItemGroup>
 
   <ItemGroup>

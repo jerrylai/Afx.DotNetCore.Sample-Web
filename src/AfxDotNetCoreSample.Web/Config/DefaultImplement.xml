@@ -2,5 +2,5 @@
 <DefaultImplement>
   <!-- 指定接口默认实现类 -->
   <!--默认使用redis分布式锁-->
-  <Interface name="AfxDotNetCoreSample.IRepository.ITaskLockRepository" value="AfxDotNetCoreSample.Repository.RedisLockRepository" />
+  <Interface name="AfxDotNetCoreSample.IRepository.IDistributedLockRepository" value="AfxDotNetCoreSample.Repository.RedisLockRepository" />
 </DefaultImplement>
