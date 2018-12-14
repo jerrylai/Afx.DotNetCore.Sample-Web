@@ -55,9 +55,6 @@ namespace AfxDotNetCoreSample.Models
     /// <summary>
     /// 分布式id生成器 add by jerrylai@liyun.com
     /// </summary>
-    /// <summary>
-    /// 分布式id生成器 add by jerrylai@liyun.com
-    /// </summary>
     public sealed class IdGenerator : IIdGenerator, IDisposable
     {
         class IdInfoModel
