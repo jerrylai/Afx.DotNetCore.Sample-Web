@@ -8,7 +8,7 @@ namespace AfxDotNetCoreSample.Common
 {
     public static class MapUtils
     {
-        private static Lazy<MapFactory> _mapFactory = new Lazy<MapFactory>(() => IocUtils.Get<MapFactory>(), false);
+        private static Lazy<MapFactory> _mapFactory = new Lazy<MapFactory>(() => IocUtils.Get<MapFactory>());
 
         public static MapFactory Default => _mapFactory.Value;
 

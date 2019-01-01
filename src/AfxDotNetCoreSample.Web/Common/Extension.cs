@@ -20,12 +20,31 @@ namespace AfxDotNetCoreSample.Web
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
             bool result = false;
-            Microsoft.Extensions.Primitives.StringValues v;
-            if (request.Headers.TryGetValue("x-requested-with", out v) && v.FirstOrDefault() == "XMLHttpRequest"
-                || string.Equals(request.Method, "post", StringComparison.OrdinalIgnoreCase)
-                && request.Form.TryGetValue(IFRAME_AJAX, out v) && v.FirstOrDefault() == "true")
+            if (string.Equals(request.Headers["x-requested-with"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase))
             {
                 result = true;
+            }
+            else
+            {
+                result = IsIFrameAjax(request);
+            }
+
+            return result;
+        }
+
+        public static bool IsIFrameAjax(this HttpRequest request)
+        {
+            if (request == null) throw new ArgumentNullException(nameof(request));
+            bool result = false;
+            if(string.Equals(request.Method, "get", StringComparison.OrdinalIgnoreCase))
+            {
+                result = string.Equals(request.Query[IFRAME_AJAX], "true");
+            }
+            else if (string.Equals(request.Method, "post", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrEmpty(request.ContentType))
+            {
+                try { result = string.Equals(request.Form[IFRAME_AJAX], "true"); }
+                catch { }
             }
 
             return result;

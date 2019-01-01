@@ -35,7 +35,7 @@ namespace AfxDotNetCoreSample.Repository
             else
             {
                 var v = this.distributedLockOwnerCache.Get(type, key);
-                if (!string.IsNullOrEmpty(owner) && v == owner)//自己锁定
+                if (v == owner)//自己锁定
                 {
                     islock = true;
                     this.distributedLockCache.SetExpire(type, key, timeout);

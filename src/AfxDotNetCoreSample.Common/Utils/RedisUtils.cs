@@ -8,9 +8,7 @@ namespace AfxDotNetCoreSample.Common
 {
     public static class RedisUtils
     {
-        private static Lazy<IConnectionMultiplexer> _default = new Lazy<IConnectionMultiplexer>(LoadRedis, false);
-
-        public static IConnectionMultiplexer Default => _default.Value;
+        public static IConnectionMultiplexer Default => LoadRedis();
 
          private static byte[] ToBytes<T>(T value)
         {
@@ -118,15 +116,26 @@ namespace AfxDotNetCoreSample.Common
             return list;
         }
 
+        private static IConnectionMultiplexer connectionMultiplexer;
+        private static object lockObj = new object();
         private static IConnectionMultiplexer LoadRedis()
         {
-            var con = ConnectionMultiplexer.Connect(ConfigUtils.RedisConfig);
-            con.ConnectionFailed += OnConnectionFailed;
-            con.ErrorMessage += OnErrorMessage;
-            con.InternalError += OnInternalError;
-            //con.PreserveAsyncOrder = false;
+            if (connectionMultiplexer == null)
+            {
+                lock (lockObj)
+                {
+                    if (connectionMultiplexer == null)
+                    {
+                        connectionMultiplexer = ConnectionMultiplexer.Connect(ConfigUtils.RedisConfig);
+                        connectionMultiplexer.ConnectionFailed += OnConnectionFailed;
+                        connectionMultiplexer.ErrorMessage += OnErrorMessage;
+                        connectionMultiplexer.InternalError += OnInternalError;
+                        //connectionMultiplexer.PreserveAsyncOrder = false;
+                    }
+                }
+            }
 
-            return con;
+            return connectionMultiplexer;
         }
 
         private static void OnInternalError(object sender, InternalErrorEventArgs e)

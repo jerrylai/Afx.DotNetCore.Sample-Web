@@ -49,7 +49,13 @@ namespace AfxDotNetCoreSample.Web
                 Msg = msg
             };
 
-            return base.Json(vm);
+            ActionResult result = null;
+            if (this.Request.IsIFrameAjax())
+                result = this.Content(Common.JsonUtils.Serialize(vm));
+            else
+                result = this.Json(vm);
+
+            return result;
         }
 
         protected virtual ActionResult Success<T>(T data, string msg)

@@ -153,7 +153,7 @@ namespace AfxDotNetCoreSample.Models
                 case DatabaseType.MSSQLServer:
                     return new Afx.Data.MSSQLServer.MsSqlDatabase(this.ConnectionString);
                 case DatabaseType.MySQL:
-                    return new MySQLDatabase(this.ConnectionString);
+                    return new Afx.Data.MySql.MySqlDatabase(this.ConnectionString);
                 default:
                     throw new Exception($"不支持 {this.DatabaseType} 数据库！");
             }

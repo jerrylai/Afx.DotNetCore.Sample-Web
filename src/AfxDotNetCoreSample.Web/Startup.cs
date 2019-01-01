@@ -47,7 +47,7 @@ namespace AfxDotNetCoreSample.Web
             services.AddMvc(option =>
             {
                 option.Filters.Add<ApiExceptionFilter>();
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));
         }
