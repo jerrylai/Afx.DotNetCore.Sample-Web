@@ -14,6 +14,13 @@ namespace AfxDotNetCoreSample.Service
 {
     public abstract class BaseService : IBaseService
     {
+        public virtual UserSessionDto CurrentUser { get; private set; }
+
+        public virtual void SetCurrentUser(UserSessionDto user)
+        {
+            this.CurrentUser = user;
+        }
+
         private Dictionary<Type, IBaseRepository> repositoryDic = new Dictionary<Type, IBaseRepository>(5);
         protected virtual T GetRepository<T>(string name, object[] args) where T : IBaseRepository
         {
@@ -50,6 +57,7 @@ namespace AfxDotNetCoreSample.Service
             if (!serviceDic.TryGetValue(type, out service))
             {
                 serviceDic[type] = service = IocUtils.Get<T>(name, args);
+                service.SetCurrentUser(this.CurrentUser);
             }
 
             return (T)service;

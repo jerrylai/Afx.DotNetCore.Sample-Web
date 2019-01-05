@@ -156,7 +156,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Afx.AspNetCore.Mvc" Version="8.0.0" />
+    <PackageReference Include="Afx.AspNetCore.Mvc" Version="8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.0" />
   </ItemGroup>
 

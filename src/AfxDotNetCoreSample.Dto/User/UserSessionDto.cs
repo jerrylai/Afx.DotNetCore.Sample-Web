@@ -20,5 +20,6 @@ namespace AfxDotNetCoreSample.Dto
         public string Name { get; set; }
 
         public DateTime LoginTime { get; set; }
+
     }
 }

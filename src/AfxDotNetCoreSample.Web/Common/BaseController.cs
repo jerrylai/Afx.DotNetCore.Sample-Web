@@ -20,6 +20,7 @@ namespace AfxDotNetCoreSample.Web
             if (!serviceDic.TryGetValue(type, out service))
             {
                 serviceDic[type] = service = IocUtils.Get<T>(name, args);
+                service.SetCurrentUser(this.UserSession);
             }
 
             return (T)service;
@@ -49,13 +50,9 @@ namespace AfxDotNetCoreSample.Web
                 Msg = msg
             };
 
-            ActionResult result = null;
-            if (this.Request.IsIFrameAjax())
-                result = this.Content(Common.JsonUtils.Serialize(vm));
-            else
-                result = this.Json(vm);
+            if (this.Request.IsIFrameAjax()) return this.Content(JsonUtils.Serialize(vm));
 
-            return result;
+            return this.Json(vm);
         }
 
         protected virtual ActionResult Success<T>(T data, string msg)
