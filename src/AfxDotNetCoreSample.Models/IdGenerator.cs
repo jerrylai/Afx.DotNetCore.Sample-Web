@@ -26,30 +26,34 @@ namespace AfxDotNetCoreSample.Models
         /// 获取id
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="isDayStart">是否每天从1开始</param>
         /// <returns></returns>
-        string Get<T>() where T : class, IModel;
+        string Get<T>(bool isDayStart = false) where T : class, IModel;
 
         /// <summary>
         /// 获取id
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="isDayStart">是否每天从1开始</param>
         /// <returns></returns>
-        string Get(Type type);
+        string Get(Type type, bool isDayStart = false);
 
         /// <summary>
         /// 获取id
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="isDayStart">是否每天从1开始</param>
         /// <returns></returns>
-        List<string> GetList<T>(int count) where T : class, IModel;
+        List<string> GetList<T>(int count, bool isDayStart = false) where T : class, IModel;
 
         /// <summary>
         /// 批量获取id
         /// </summary>
         /// <param name="type"></param>
         /// <param name="count">获取个数</param>
+        /// <param name="isDayStart">是否每天从1开始</param>
         /// <returns></returns>
-        List<string> GetList(Type type, int count);
+        List<string> GetList(Type type, int count, bool isDayStart = false);
     }
 
     /// <summary>
@@ -322,9 +326,9 @@ namespace AfxDotNetCoreSample.Models
             return type.Name;
         }
 
-        private string GetKey(string name)
+        private string GetKey(string name, bool isDayStart)
         {
-            string key = $"{DateTime.Now.ToString("yyyyMMdd")}{ServerId}";
+            string key = isDayStart ? $"{DateTime.Now.ToString("yyyyMMdd")}{ServerId}" : ServerId;
 
             return key;
         }
@@ -341,18 +345,20 @@ namespace AfxDotNetCoreSample.Models
         /// 获取id
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="isDayStart">是否每天从1开始</param>
         /// <returns></returns>
-        public string Get<T>() where T : class, IModel
+        public string Get<T>(bool isDayStart = false) where T : class, IModel
         {
-            return Get(typeof(T));
+            return Get(typeof(T), isDayStart);
         }
 
         /// <summary>
         /// 获取id
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="isDayStart">是否每天从1开始</param>
         /// <returns></returns>
-        public string Get(Type type)
+        public string Get(Type type, bool isDayStart = false)
         {
             if (this.IsDisposed) throw new ObjectDisposedException(nameof(IdGenerator));
             if (type == null) throw new ArgumentNullException(nameof(type));
@@ -361,7 +367,7 @@ namespace AfxDotNetCoreSample.Models
 
             string id = null;
             string name = GetName(type);
-            string key = GetKey(name);
+            string key = GetKey(name, isDayStart);
             int value = GetValue(name, key, 1);
             id = FormatId(key, value);
 
@@ -373,10 +379,11 @@ namespace AfxDotNetCoreSample.Models
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="count">获取个数</param>
+        /// <param name="isDayStart">是否每天从1开始</param>
         /// <returns></returns>
-        public List<string> GetList<T>(int count) where T : class, IModel
+        public List<string> GetList<T>(int count, bool isDayStart = false) where T : class, IModel
         {
-            return this.GetList(typeof(T), count);
+            return this.GetList(typeof(T), count, isDayStart);
         }
 
         /// <summary>
@@ -384,8 +391,9 @@ namespace AfxDotNetCoreSample.Models
         /// </summary>
         /// <param name="type"></param>
         /// <param name="count">获取个数</param>
+        /// <param name="isDayStart">是否每天从1开始</param>
         /// <returns></returns>
-        public List<string> GetList(Type type, int count)
+        public List<string> GetList(Type type, int count, bool isDayStart = false)
         {
             if (this.IsDisposed) throw new ObjectDisposedException(nameof(IdGenerator));
             if (type == null) throw new ArgumentNullException(nameof(type));
@@ -395,7 +403,7 @@ namespace AfxDotNetCoreSample.Models
 
             List<string> list = new List<string>(count);
             string name = GetName(type);
-            string key = GetKey(name);
+            string key = GetKey(name, isDayStart);
             int value = GetValue(name, key, count);
             list = new List<string>(count);
             for (int i = value - count + 1; i <= value; i++)

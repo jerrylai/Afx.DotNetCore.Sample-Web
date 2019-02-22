@@ -1,5 +1,5 @@
-FROM microsoft/dotnet:2.1-aspnetcore-runtime
-#FROM microsoft/dotnet:2.1-aspnetcore-runtime-gdi
+FROM microsoft/dotnet:2.2-aspnetcore-runtime
+#FROM microsoft/dotnet:2.2-aspnetcore-runtime-gdi
 MAINTAINER jerry.lai<jerrylai@aliyun.com>
 #RUN apt-get update -y && apt-get install -y libgdiplus && apt-get install -y libc6-dev
 WORKDIR /app

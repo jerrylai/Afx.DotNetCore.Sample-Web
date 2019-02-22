@@ -1,55 +1,117 @@
-﻿$.extend({
-    /**  
-     1. 设置cookie的值，把name变量的值设为value    
-    example $.cookie(’name’, ‘value’); 
-     2.新建一个cookie 包括有效期 路径 域名等 
-    example $.cookie(’name’, ‘value’, {expires: 7, path: ‘/’, domain: ‘jquery.com’, secure: true}); 
-    3.新建cookie 
-    example $.cookie(’name’, ‘value’); 
-    4.删除一个cookie 
-    example $.cookie(’name’, null); 
-    5.取一个cookie(name)值给myvar 
-    var account= $.cookie('name'); 
-    **/
-    cookie: function (name, value, options) {
-        if (typeof value != 'undefined') { // name and value given, set cookie 
-            options = options || {};
-            if (value === null) {
-                value = '';
-                options.expires = -1;
-            }
-            var expires = '';
-            if (options.expires && (typeof options.expires == 'number' || options.expires.toUTCString)) {
-                var date;
-                if (typeof options.expires == 'number') {
-                    date = new Date();
-                    date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
-                } else {
-                    date = options.expires;
-                }
-                expires = '; expires=' + date.toUTCString(); // use expires attribute, max-age is not supported by IE 
-            }
-            var path = options.path ? '; path=' + options.path : '';
-            var domain = options.domain ? '; domain=' + options.domain : '';
-            var secure = options.secure ? '; secure' : '';
-            document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
-        } else { // only name given, get cookie 
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = $.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want? 
-                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
+﻿
+(function (factory) {
+ /*!
+ * jQuery Cookie Plugin v1.4.1
+ * https://github.com/carhartl/jquery-cookie
+ *
+ * Copyright 2006, 2014 Klaus Hartl
+ * Released under the MIT license
+ */
+    if (typeof define === 'function' && define.amd) {
+        // AMD (Register as an anonymous module)
+        define(['jquery'], factory);
+    } else if (typeof exports === 'object') {
+        // Node/CommonJS
+        module.exports = factory(require('jquery'));
+    } else {
+        // Browser globals
+        factory(jQuery);
     }
-});
+}(function ($) {
+
+    var pluses = /\+/g;
+
+    function encode(s) {
+        return config.raw ? s : encodeURIComponent(s);
+    }
+
+    function decode(s) {
+        return config.raw ? s : decodeURIComponent(s);
+    }
+
+    function stringifyCookieValue(value) {
+        return encode(config.json ? JSON.stringify(value) : String(value));
+    }
+
+    function parseCookieValue(s) {
+        if (s.indexOf('"') === 0) {
+            // This is a quoted cookie as according to RFC2068, unescape...
+            s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+        }
+
+        try {
+            // Replace server-side written pluses with spaces.
+            // If we can't decode the cookie, ignore it, it's unusable.
+            // If we can't parse the cookie, ignore it, it's unusable.
+            s = decodeURIComponent(s.replace(pluses, ' '));
+            return config.json ? JSON.parse(s) : s;
+        } catch (e) { }
+    }
+
+    function read(s, converter) {
+        var value = config.raw ? s : parseCookieValue(s);
+        return $.isFunction(converter) ? converter(value) : value;
+    }
+
+    var config = $.cookie = function (key, value, options) {
+
+        // Write
+
+        if (arguments.length > 1 && !$.isFunction(value)) {
+            options = $.extend({}, config.defaults, options);
+
+            if (typeof options.expires === 'number') {
+                var days = options.expires, t = options.expires = new Date();
+                t.setMilliseconds(t.getMilliseconds() + days * 864e+5);
+            }
+
+            return (document.cookie = [
+                encode(key), '=', stringifyCookieValue(value),
+                options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+                options.path ? '; path=' + options.path : '',
+                options.domain ? '; domain=' + options.domain : '',
+                options.secure ? '; secure' : ''
+            ].join(''));
+        }
+
+        // Read
+
+        var result = key ? undefined : {},
+            // To prevent the for loop in the first place assign an empty array
+            // in case there are no cookies at all. Also prevents odd result when
+            // calling $.cookie().
+            cookies = document.cookie ? document.cookie.split('; ') : [],
+            i = 0,
+            l = cookies.length;
+
+        for (; i < l; i++) {
+            var parts = cookies[i].split('='),
+                name = decode(parts.shift()),
+                cookie = parts.join('=');
+
+            if (key === name) {
+                // If second argument (value) is a function it's a converter...
+                result = read(cookie, value);
+                break;
+            }
+
+            // Prevent storing a cookie that we couldn't decode.
+            if (!key && (cookie = read(cookie)) !== undefined) {
+                result[name] = cookie;
+            }
+        }
+
+        return result;
+    };
+
+    config.defaults = {};
+
+    $.removeCookie = function (key, options) {
+        // Must not alter options, thus extending a fresh object...
+        $.cookie(key, '', $.extend({}, options, { expires: -1 }));
+        return !$.cookie(key);
+    };
+}));
 
 Date.prototype.Format = function (fmt) { //author: meizz   
     var d = new Date();
@@ -168,23 +230,45 @@ $.extend({
 
         return data;
     },
-    findArrayObject: function (arr, name, value) {
+    findArray: function (arr, name, value) {
         if ($.isArray(arr) && name) {
             for (var i = 0; i < arr.length; i++) {
                 var m = arr[i];
                 if (m[name] == value) {
-                    return m;
+                    return { index: i, data: m };
                 }
             }
         }
         return null;
     },
-    existArrayObject: function (arr, value) {
-        if ($.isArray(arr)) {
+    queryArray: function (arr, name, value) {
+        var list = [];
+        if ($.isArray(arr) && name) {
             for (var i = 0; i < arr.length; i++) {
                 var m = arr[i];
-                if (m == value) {
-                    return true;
+                if (m[name] == value) {
+                    list.push({ index: i, data: m });
+                }
+            }
+        }
+        return list;
+    },
+    existArray: function (arr, name, value) {
+        if ($.isArray(arr)) {
+            if (typeof (value) == 'undefined') {
+                for (var i = 0; i < arr.length; i++) {
+                    var m = arr[i];
+                    if (m == value) {
+                        return true;
+                    }
+                }
+            }
+            else {
+                for (var i = 0; i < arr.length; i++) {
+                    var m = arr[i];
+                    if (m[name] == value) {
+                        return true;
+                    }
                 }
             }
         }
@@ -209,6 +293,34 @@ $.extend({
         }
 
         return result;
+    },
+    numFormat: function (value, n, m) {
+        if (typeof (value) != 'number') value = parseFloat(value);
+        if (typeof (n) != 'number') n = parseInt(n);
+        var s = value.toFixed(n).toString();
+        var arr = s.split('.');
+        if (arr.length == 2) {
+            var ps = arr[1];
+            while (ps.length > 0 && ps.endsWith('0')) {
+                ps = ps.substring(0, ps.length - 1);
+            }
+            if (ps.length == 0) arr.splice(1, 1);
+            else arr[1] = ps;
+        }
+
+        if (typeof (m) == "number" && m > 0 && arr.length == 2) {
+            var i = m - arr[0].length;
+            if (i == 0) {
+                arr.splice(1, 1);
+            }
+            else if (i > 0 && arr[1].length > i) {
+                arr[1] = arr[1].substring(0, i);
+            }
+        }
+
+        arr[0] = arr[0].replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+        s = arr.join('.');
+        return s;
     }
 });
 
@@ -283,7 +395,7 @@ $.extend({
         }
         $.messager.alert('提示', showmsg, 'error');
     },
-    getPrivate: function (url, data, callback, async) {
+    getPrivate: function (url, data, callback, async, state) {
         var d = data, call = callback;
         if (typeof (d) == 'function') {
             d = {};
@@ -298,15 +410,15 @@ $.extend({
             async: isasync,
             cache: false,
             data: d,
-            success: function (data) {
+            success: function (dd) {
                 if (typeof (call) == 'function') {
-                    try { call(data); }
+                    try { if (state) call(dd, state); else call(dd); }
                     catch (e) { console.error(e.message); }
                 }
             }
         });
     },
-    getPublic: function (url, data, callback, async) {
+    getPublic: function (url, data, callback, async, state) {
         var d = data, call = callback;
         if (typeof (d) == 'function') {
             d = {};
@@ -321,15 +433,15 @@ $.extend({
             async: isasync,
             cache: false,
             data: d,
-            success: function (data) {
+            success: function (dd) {
                 if (typeof (call) == 'function') {
-                    try { call(data); }
+                    try { if (state) call(dd, state); else call(dd); }
                     catch (e) { console.error(e.message); }
                 }
             }
         });
     },
-    postPrivate: function (url, data, callback, async) {
+    postPrivate: function (url, data, callback, async, state) {
         var d = data, call = callback;
         if (typeof (d) == 'function') {
             d = {};
@@ -344,15 +456,15 @@ $.extend({
             async: isasync,
             cache: false,
             data: d,
-            success: function (data) {
+            success: function (dd) {
                 if (typeof (call) == 'function') {
-                    try { call(data); }
+                    try { if (state) call(dd, state); else call(dd); }
                     catch (e) { console.error(e.message); }
                 }
             }
         });
     },
-    postPublic: function (url, data, callback, async) {
+    postPublic: function (url, data, callback, async, state) {
         var d = data, call = callback;
         if (typeof (d) == 'function') {
             d = {};
@@ -367,9 +479,9 @@ $.extend({
             async: isasync,
             cache: false,
             data: d,
-            success: function (data) {
+            success: function (dd) {
                 if (typeof (call) == 'function') {
-                    try { call(data); }
+                    try { if (state) call(dd, state); else call(dd); }
                     catch (e) { console.error(e.message); }
                 }
             }
@@ -377,8 +489,8 @@ $.extend({
     },
     datagridConfig: {
         loadMsg: '',
-        pageSize: 20,
-        pageList: [15, 20, 30, 50, 100],
+        pageSize: 25,
+        pageList: [10, 15, 20, 25, 30, 35, 40, 50, 100],
         onBeforeLoad: function (param) {
             param.PageSize = param.rows;
             param.PageIndex = param.page;
@@ -402,11 +514,17 @@ $.extend({
             }
         },
         loadFilter: function (data) {
+            if ($.isArray(data) || $.isArray(data.rows)) return data;
+
             var pagedata = { total: 0, rows: [] };
             if (data.Data) {
                 pagedata.total = data.Data.TotalCount;
-                pagedata.rows = data.Data.Data;
+                if (data.Data.Data) pagedata.rows = data.Data.Data;
+                if (data.Data.TotalData) {
+                    pagedata.footer = data.Data.TotalData;
+                }
             }
+            
             return pagedata;
         },
         onLoadSuccess: function (data) {
