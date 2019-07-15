@@ -11,24 +11,16 @@ namespace AfxDotNetCoreSample.Models
     public class SysSequence : IModel, ICreateTime, IUpdateTime
     {
         /// <summary>
-        /// 主键
-        /// </summary>
-        [Key]
-        [MaxLength(50)]
-        public string Id { get; set; }
-        /// <summary>
         /// 序列名称
         /// </summary>
-        [Required]
+        [Key]
         [MaxLength(100)]
-        [Index("IX_SysSequence", true)]
         public string Name { get; set; }
         /// <summary>
         /// 序列key
         /// </summary>
-        [Required]
+        [Key]
         [MaxLength(100)]
-        [Index("IX_SysSequence", true)]
         public string Key { get; set; }
         /// <summary>
         /// 当前值

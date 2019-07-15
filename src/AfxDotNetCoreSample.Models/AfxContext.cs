@@ -187,6 +187,7 @@ namespace AfxDotNetCoreSample.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<SysSequence>().HasKey(q => new { q.Name, q.Key });
             base.OnModelCreating(modelBuilder);
         }
 

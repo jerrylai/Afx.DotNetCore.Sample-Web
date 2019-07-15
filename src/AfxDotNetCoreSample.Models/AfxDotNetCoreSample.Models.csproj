@@ -5,18 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Afx.Data" Version="8.0.1" />
-    <PackageReference Include="Afx.Data.Entity" Version="8.0.1" />
-    <PackageReference Include="Afx.Data.Extensions" Version="8.0.1" />
-    <PackageReference Include="Afx.Data.MSSQLServer.Entity" Version="8.0.1" />
-    <PackageReference Include="Afx.Data.MySql.Entity" Version="8.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.DynamicLinq" Version="1.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0" />
-    <PackageReference Include="MySqlConnector" Version="0.48.2" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.4" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
+    <PackageReference Include="Afx.Data" Version="8.2.11" />
+    <PackageReference Include="Afx.Data.Entity" Version="8.2.11" />
+    <PackageReference Include="Afx.Data.Extensions" Version="8.2.11" />
+    <PackageReference Include="Afx.Data.MSSQLServer.Entity" Version="8.2.11" />
+    <PackageReference Include="Afx.Data.MySql.Entity" Version="8.2.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.DynamicLinq" Version="1.0.18" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
+    <PackageReference Include="MySqlConnector" Version="0.56.0" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
   </ItemGroup>
   
   <ItemGroup>

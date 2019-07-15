@@ -66,15 +66,15 @@ namespace AfxDotNetCoreSample.Web
 
             app.UseStaticFiles();
 
-            app.UseSid(option =>
-            {
-                option.IsCookie = true;
-                option.Name = SessionUtils.SidName;
-                option.EncryptCallback = (val) => EncryptUtils.Encrypt(val);
-                option.DecryptCallback = (val) => EncryptUtils.Decrypt(val);
-                option.BeginRequestCallback = this.OnRequest;
-                option.EndRequestCallback = this.OnResponse;
-            });
+            //app.UseSid(option =>
+            //{
+            //    option.IsCookie = true;
+            //    option.Name = SessionUtils.SidName;
+            //    option.EncryptCallback = (val) => EncryptUtils.Encrypt(val);
+            //    option.DecryptCallback = (val) => EncryptUtils.Decrypt(val);
+            //    option.BeginRequestCallback = this.OnRequest;
+            //    option.EndRequestCallback = this.OnResponse;
+            //});
 
             app.UseMvc(routes =>
             {
