@@ -185,7 +185,7 @@ namespace AfxDotNetCoreSample.Models
         private List<string> GetValue(string name, string key, int count, int? cacheCount, int? formatNum)
         {
             if (!cacheCount.HasValue || cacheCount <= 0) cacheCount = this.CacheCount;
-            List<string> vlist = new List<string>(cacheCount.Value);
+            List<string> vlist = new List<string>(count);
             IdInfoModel vm = null;
             lock (this.dicLock)
             {
