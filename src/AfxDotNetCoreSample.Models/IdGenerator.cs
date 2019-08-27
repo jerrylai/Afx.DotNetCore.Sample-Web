@@ -182,10 +182,10 @@ namespace AfxDotNetCoreSample.Models
             return value;
         }
 
-        private List<int> GetValue(string name, string key, int count, int? cacheCount)
+        private List<string> GetValue(string name, string key, int count, int? cacheCount, int? formatNum)
         {
             if (!cacheCount.HasValue || cacheCount <= 0) cacheCount = this.CacheCount;
-            List<int> vlist = new List<int>(cacheCount.Value);
+            List<string> vlist = new List<string>(cacheCount.Value);
             IdInfoModel vm = null;
             lock (this.dicLock)
             {
@@ -220,7 +220,8 @@ namespace AfxDotNetCoreSample.Models
                         while (vm.StratValue < vm.EndValue)
                         {
                             vm.StratValue = vm.StratValue + 1;
-                            vlist.Add(vm.StratValue);
+                            string v = FormatId(key, vm.StratValue, formatNum);
+                            vlist.Add(v);
                         }
                         count = count - c;
                         vm.EndValue = GetDbValue(name, key, cacheCount.Value + count);
@@ -237,7 +238,8 @@ namespace AfxDotNetCoreSample.Models
                 while (count > 0)
                 {
                     vm.StratValue = vm.StratValue + 1;
-                    vlist.Add(vm.StratValue);
+                    string v = FormatId(key, vm.StratValue, formatNum);
+                    vlist.Add(v);
                     count--;
                 }
             }
@@ -280,11 +282,10 @@ namespace AfxDotNetCoreSample.Models
             if (formatNum.HasValue && formatNum.Value < 0) throw new ArgumentNullException(nameof(formatNum));
             if (!typeof(IModel).IsAssignableFrom(type)) throw new ArgumentException($"{type.FullName} is not IModel!", nameof(type));
 
-            string id = null;
             string name = GetName(type);
             string key = GetKey(withDate, withServerId);
-            var value = GetValue(name, key, 1, cacheCount);
-            id = FormatId(key, value[0], formatNum);
+            var list = GetValue(name, key, 1, cacheCount, formatNum);
+            var id = list.FirstOrDefault();
 
             return id;
         }
@@ -303,16 +304,9 @@ namespace AfxDotNetCoreSample.Models
             if (!type.IsClass) throw new ArgumentException($"{type.FullName} is not class!", nameof(type));
             if (!typeof(IModel).IsAssignableFrom(type)) throw new ArgumentException($"{type.FullName} is not IModel!", nameof(type));
 
-            List<string> list = new List<string>(count);
             string name = GetName(type);
             string key = GetKey(withDate, withServerId);
-            var value = GetValue(name, key, count, cacheCount);
-            list = new List<string>(value.Count);
-            foreach (var v in value)
-            {
-                string id = FormatId(key, v, formatNum);
-                list.Add(id);
-            }
+            var list = GetValue(name, key, count, cacheCount, formatNum);
 
             return list;
         }
